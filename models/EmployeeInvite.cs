@@ -1,14 +1,28 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class EmployeeInvite
+namespace AutoInsightAPI.Models
 {
-  [Key]
-  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-  public required string Id { get; set; }
+  public class EmployeeInvite
+  {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public string Id { get; private set; }
 
-  public required string YardEmployeeId { get; set; }
-  public required YardEmployee YardEmployee { get; set; }
-  public required string YardId { get; set; }
-  public required Yard Yard { get; set; }
+    public string YardEmployeeId { get; private set; }
+    public YardEmployee YardEmployee { get; private set; }
+    public string YardId { get; private set; }
+    public Yard Yard { get; private set; }
+
+    public EmployeeInvite() { }
+
+    public EmployeeInvite(string id, YardEmployee yardEmployee, Yard yard)
+    {
+      this.Id = id;
+      this.YardEmployeeId = yardEmployee.Id;
+      this.YardEmployee = yardEmployee;
+      this.YardId = yard.Id;
+      this.Yard = yard;
+    }
+  }
 }

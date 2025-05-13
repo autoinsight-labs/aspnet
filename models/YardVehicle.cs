@@ -1,25 +1,42 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public enum Status {
-  SCHEDULED,
-  WAITING,
-  ON_SERVICE,
-  FINISHED,
-  CANCELLED
-}
-
-public class YardVehicle
+namespace AutoInsightAPI.Models
 {
-  [Key]
-  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-  public required string Id {get; set;}
+  public enum Status {
+    SCHEDULED,
+    WAITING,
+    ON_SERVICE,
+    FINISHED,
+    CANCELLED
+  }
 
-  public required Status Status {get; set;}
-  public required DateTime EnteredAt {get; set;}
-  public DateTime? LeftAt {get; set;}
-  public required string VehicleId {get; set;}
-  public required Vehicle Vehicle {get; set;}
-  public required string YardId {get; set;}
-  public required Yard Yard {get; set;}
+  public class YardVehicle
+  {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public string Id {get; private set;}
+
+    public Status Status {get; private set;}
+    public DateTime EnteredAt {get; private set;}
+    public DateTime? LeftAt {get; private set;}
+    public string VehicleId {get; private set;}
+    public Vehicle Vehicle {get; private set;}
+    public string YardId {get; private set;}
+    public Yard Yard {get; private set;}
+
+    public YardVehicle() { }
+
+    public YardVehicle(string id, Status status, DateTime enteredAt, DateTime? leftAt, Vehicle vehicle, Yard yard)
+    {
+      this.Id = id;
+      this.Status = status;
+      this.EnteredAt = enteredAt;
+      this.LeftAt = leftAt;
+      this.VehicleId = vehicle.Id;
+      this.Vehicle = vehicle;
+      this.YardId = yard.Id;
+      this.Yard = yard;
+    }
+  }
 }

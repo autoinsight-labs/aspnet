@@ -1,3 +1,11 @@
+/home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/AutoInsightAPI.csproj.AssemblyReference.cache
+/home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/AutoInsightAPI.GeneratedMSBuildEditorConfig.editorconfig
+/home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/AutoInsightAPI.AssemblyInfoInputs.cache
+/home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/AutoInsightAPI.AssemblyInfo.cs
+/home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/AutoInsightAPI.csproj.CoreCompileInputs.cache
+/home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/AutoInsightAPI.MvcApplicationPartsAssemblyInfo.cs
+/home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/AutoInsightAPI.MvcApplicationPartsAssemblyInfo.cache
+/home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/AutoInsightAPI.sourcelink.json
 /home/arthvm/www/fiap/challenge/AutoInsightAPI/bin/Debug/net9.0/appsettings.Development.json
 /home/arthvm/www/fiap/challenge/AutoInsightAPI/bin/Debug/net9.0/appsettings.json
 /home/arthvm/www/fiap/challenge/AutoInsightAPI/bin/Debug/net9.0/AutoInsightAPI.staticwebassets.endpoints.json
@@ -118,14 +126,6 @@
 /home/arthvm/www/fiap/challenge/AutoInsightAPI/bin/Debug/net9.0/runtimes/linux/lib/net8.0/System.DirectoryServices.Protocols.dll
 /home/arthvm/www/fiap/challenge/AutoInsightAPI/bin/Debug/net9.0/runtimes/osx/lib/net8.0/System.DirectoryServices.Protocols.dll
 /home/arthvm/www/fiap/challenge/AutoInsightAPI/bin/Debug/net9.0/runtimes/win/lib/net8.0/System.DirectoryServices.Protocols.dll
-/home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/AutoInsightAPI.csproj.AssemblyReference.cache
-/home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/AutoInsightAPI.GeneratedMSBuildEditorConfig.editorconfig
-/home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/AutoInsightAPI.AssemblyInfoInputs.cache
-/home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/AutoInsightAPI.AssemblyInfo.cs
-/home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/AutoInsightAPI.csproj.CoreCompileInputs.cache
-/home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/AutoInsightAPI.MvcApplicationPartsAssemblyInfo.cs
-/home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/AutoInsightAPI.MvcApplicationPartsAssemblyInfo.cache
-/home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/AutoInsightAPI.sourcelink.json
 /home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/scopedcss/bundle/AutoInsightAPI.styles.css
 /home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/staticwebassets.build.json
 /home/arthvm/www/fiap/challenge/AutoInsightAPI/obj/Debug/net9.0/staticwebassets.development.json

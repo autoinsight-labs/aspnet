@@ -2,12 +2,21 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using AutoMapper;
+using AutoInsightAPI.Repositories;
+using AutoInsightAPI.Dtos;
+using AutoInsightAPI.Profiles;
+using AutoInsightAPI.Models;
 
 DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+builder.Services.AddAutoMapper(typeof(YardProfile));
+builder.Services.AddAutoMapper(typeof(YardEmployeeProfile));
+builder.Services.AddAutoMapper(typeof(YardVehicleProfile));
+builder.Services.AddAutoMapper(typeof(AddressProfile));
+
+builder.Services.AddScoped<IYardRepository, YardRepository>();
 
 var oracleConnectionString = Environment.GetEnvironmentVariable("ORACLE_CONNECTION_STRING");
 builder.Services.AddDbContext<AutoInsightDB>(opt
@@ -30,46 +39,27 @@ app.MapGet("/health", () => Results.Ok())
 // Yard Routes
 var yardGroup = app.MapGroup("/yard").WithTags("yard");
 
-yardGroup.MapGet("/{id}", async Task<Results<Ok<GetYardDTO>, NotFound>> (string id, AutoInsightDB db, IMapper mapper) => {
-    var yard = await db.Yards.Include(y => y.Address).FirstOrDefaultAsync(y => y.Id == id);
+yardGroup.MapGet("/{id}", async Task<Results<Ok<YardDTO>, NotFound>> (string id, IYardRepository yardRepository, IMapper mapper) => {
+    var yard = await yardRepository.FindAsync(id);
 
     if (yard is null) {
         return TypedResults.NotFound();
     }
 
-    var yardResponse = mapper.Map<GetYardDTO>(yard);
+    var yardResponse = mapper.Map<YardDTO>(yard);
     return TypedResults.Ok(yardResponse);
 });
 
-yardGroup.MapPost("/", async Task<Results<Created<GetYardDTO>, ProblemHttpResult>> (CreateYardDTO newYard, AutoInsightDB db, IMapper mapper) => {
-    using var transaction = await db.Database.BeginTransactionAsync();
-
+yardGroup.MapPost("/", async Task<Results<Created<YardDTO>, ProblemHttpResult>> (YardDTO yardDTO, IYardRepository yardRepository, IMapper mapper) => {
     try
     {
-        Address address = newYard.Address;
-        db.Addresses.Add(address);
+        var createdYard = await yardRepository.CreateAsync(mapper.Map<Yard>(yardDTO));
 
-        await db.SaveChangesAsync();
-
-        Yard yard = new Yard
-        {
-            OwnerId = newYard.OwnerId,
-            AddressId = address.Id,
-            Address = address
-        };
-
-        db.Yards.Add(yard);
-        await db.SaveChangesAsync();
-
-        await transaction.CommitAsync();
-
-        var yardResponse = mapper.Map<GetYardDTO>(yard);
-        return TypedResults.Created($"/yard/{yard.Id}", yardResponse);
+        var yardDTOResult = mapper.Map<YardDTO>(createdYard);
+        return TypedResults.Created($"/yard/{createdYard.Id}", yardDTOResult);
     }
     catch (Exception)
     {
-        await transaction.RollbackAsync();
-
         return TypedResults.Problem(
             title: "Internal Server Error",
             detail: "Something went wrong, please try again.",

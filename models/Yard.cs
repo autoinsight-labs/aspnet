@@ -1,16 +1,28 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class Yard
+namespace AutoInsightAPI.Models
 {
-  [Key]
-  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-  public string Id {get; set;}
+  public class Yard
+  {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public string Id {get; private set;}
 
-  public required string AddressId {get; set;}
-  public required Address Address {get; set;}
-  public required string OwnerId {get; set;}
+    public string AddressId {get; private set;}
+    public Address Address {get; private set;}
+    public string OwnerId {get; private set;}
 
-  public List<YardEmployee> YardEmployees => new List<YardEmployee>();
-  public List<YardVehicle> YardVehicles => new List<YardVehicle>();
+    public List<YardEmployee> YardEmployees => new List<YardEmployee>();
+    public List<YardVehicle> YardVehicles => new List<YardVehicle>();
+
+    public Yard() { }
+
+    public Yard(Address address, string ownerId)
+    {
+      this.AddressId = address.Id;
+      this.Address = address;
+      this.OwnerId = ownerId;
+    }
+  }
 }

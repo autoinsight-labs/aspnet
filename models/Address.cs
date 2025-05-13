@@ -1,16 +1,32 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class Address
+namespace AutoInsightAPI.Models
 {
-  [Key]
-  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-  public string Id { get; set; }
+  public class Address
+  {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public string Id { get; private set; }
 
-  public required string Country { get; set; }
-  public required string State { get; set; }
-  public required string City { get; set; }
-  public required string ZipCode { get; set; }
-  public required string Neighborhood { get; set; }
-  public string? Complement { get; set; }
+    public string Country { get; private set; }
+    public string State { get; private set; }
+    public string City { get; private set; }
+    public string ZipCode { get; private set; }
+    public string Neighborhood { get; private set; }
+    public string? Complement { get; private set; }
+
+    public Address() { }
+
+    public Address(string id, string country, string state, string city, string zipCode, string neighborhood, string? complement)
+    {
+      this.Id = id;
+      this.Country = country;
+      this.State = state;
+      this.City = city;
+      this.ZipCode = zipCode;
+      this.Neighborhood = neighborhood;
+      this.Complement = complement;
+    }
+  }
 }

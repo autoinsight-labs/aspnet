@@ -1,3 +1,4 @@
+using AutoInsightAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
 public class AutoInsightDB: DbContext

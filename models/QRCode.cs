@@ -1,14 +1,28 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class QRCode
+namespace AutoInsightAPI.Models
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public required string Id { get; set; }
+    public class QRCode
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public string Id { get; set; }
 
-    public string? VehicleId { get; set; }
-    public Vehicle? Vehicle { get; set; }
-    public required string YardId { get; set; }
-    public required Yard Yard { get; set; }
+        public string? VehicleId { get; set; }
+        public Vehicle? Vehicle { get; set; }
+        public string YardId { get; set; }
+        public Yard Yard { get; set; }
+
+        public QRCode() { }
+
+        public QRCode(string id, Vehicle? vehicle, Yard yard )
+        {
+            this.Id = id;
+            this.VehicleId = vehicle?.Id;
+            this.Vehicle = vehicle;
+            this.YardId = yard.Id;
+            this.Yard = yard;
+        }
+    }
 }
