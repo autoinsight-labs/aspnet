@@ -1,3 +1,6 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 public enum Status {
   SCHEDULED,
   WAITING,
@@ -8,7 +11,10 @@ public enum Status {
 
 public class YardVehicle
 {
+  [Key]
+  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
   public required string Id {get; set;}
+
   public required Status Status {get; set;}
   public required DateTime EnteredAt {get; set;}
   public DateTime? LeftAt {get; set;}

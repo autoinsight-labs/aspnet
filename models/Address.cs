@@ -1,6 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 public class Address
 {
-  public required string Id { get; set; }
+  [Key]
+  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+  public string Id { get; set; }
+
   public required string Country { get; set; }
   public required string State { get; set; }
   public required string City { get; set; }
