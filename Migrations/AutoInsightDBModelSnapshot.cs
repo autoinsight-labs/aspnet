@@ -51,7 +51,7 @@ namespace AutoInsightAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Addresses", (string)null);
                 });
 
             modelBuilder.Entity("Booking", b =>
@@ -79,7 +79,7 @@ namespace AutoInsightAPI.Migrations
 
                     b.HasIndex("YardId");
 
-                    b.ToTable("Bookings");
+                    b.ToTable("Bookings", (string)null);
                 });
 
             modelBuilder.Entity("EmployeeInvite", b =>
@@ -101,7 +101,7 @@ namespace AutoInsightAPI.Migrations
 
                     b.HasIndex("YardId");
 
-                    b.ToTable("EmployeeInvites");
+                    b.ToTable("EmployeeInvites", (string)null);
                 });
 
             modelBuilder.Entity("Model", b =>
@@ -118,7 +118,7 @@ namespace AutoInsightAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Models");
+                    b.ToTable("Models", (string)null);
                 });
 
             modelBuilder.Entity("QRCode", b =>
@@ -139,7 +139,7 @@ namespace AutoInsightAPI.Migrations
 
                     b.HasIndex("YardId");
 
-                    b.ToTable("QRCodes");
+                    b.ToTable("QRCodes", (string)null);
                 });
 
             modelBuilder.Entity("Vehicle", b =>
@@ -163,7 +163,7 @@ namespace AutoInsightAPI.Migrations
 
                     b.HasIndex("ModelId");
 
-                    b.ToTable("Vehicles");
+                    b.ToTable("Vehicles", (string)null);
                 });
 
             modelBuilder.Entity("Yard", b =>
@@ -183,7 +183,7 @@ namespace AutoInsightAPI.Migrations
 
                     b.HasIndex("AddressId");
 
-                    b.ToTable("Yards");
+                    b.ToTable("Yards", (string)null);
                 });
 
             modelBuilder.Entity("YardEmployee", b =>
@@ -206,7 +206,7 @@ namespace AutoInsightAPI.Migrations
 
                     b.HasIndex("YardId");
 
-                    b.ToTable("YardEmployees");
+                    b.ToTable("YardEmployees", (string)null);
                 });
 
             modelBuilder.Entity("YardVehicle", b =>
@@ -237,7 +237,7 @@ namespace AutoInsightAPI.Migrations
 
                     b.HasIndex("YardId");
 
-                    b.ToTable("YardVehicles");
+                    b.ToTable("YardVehicles", (string)null);
                 });
 
             modelBuilder.Entity("Booking", b =>
