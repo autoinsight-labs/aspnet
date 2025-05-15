@@ -18,6 +18,7 @@ builder.Services.AddAutoMapper(typeof(AddressProfile));
 builder.Services.AddAutoMapper(typeof(PagedResponseProfile));
 
 builder.Services.AddScoped<IYardRepository, YardRepository>();
+builder.Services.AddScoped<IYardEmployeeRepository, YardEmployeeRepository>();
 
 var oracleConnectionString = Environment.GetEnvironmentVariable("ORACLE_CONNECTION_STRING");
 builder.Services.AddDbContext<AutoInsightDB>(opt
@@ -125,6 +126,51 @@ yardGroup.MapPatch("/{id}", async Task<Results<Ok<YardDTO>, NotFound>> (string i
 
     var newYard = mapper.Map<YardDTO>(existingYard);
     return TypedResults.Ok(newYard);
+});
+
+yardGroup.MapGet("/{id}/employees", async Task<Results<Ok<PagedResponseDTO<YardEmployeeDTO>>, BadRequest<ProblemHttpResult>, NotFound<ProblemHttpResult>>> (
+    IYardRepository yardRepository,
+    IYardEmployeeRepository yardEmployeeRepository,
+    IMapper mapper,
+    string id,
+    int pageNumber = 1,
+    int pageSize = 10
+) => {
+    if (pageNumber <= 0) {
+        return TypedResults.BadRequest(
+            TypedResults.Problem(
+                title: "Bad Request",
+                detail: $"{nameof(pageNumber)} must be greater than 0",
+                statusCode: StatusCodes.Status400BadRequest
+            )
+        );
+    }
+
+    if (pageSize <= 0) {
+        return TypedResults.BadRequest(
+            TypedResults.Problem(
+                title: "Bad Request",
+                detail: $"{nameof(pageSize)} must be greater than 0",
+                statusCode: StatusCodes.Status400BadRequest
+            )
+        );
+    }
+
+    var yard = await yardRepository.FindAsync(id);
+
+    if (yard is null) {
+        return TypedResults.NotFound(
+            TypedResults.Problem(
+                title: "Not Found",
+                detail: $"Yard with id '{id}' not found.",
+                statusCode: StatusCodes.Status404NotFound
+            )
+        );
+    }
+
+    var employees = await yardEmployeeRepository.ListPagedAsync(pageNumber, pageSize, yard);
+
+    return TypedResults.Ok(mapper.Map<PagedResponseDTO<YardEmployeeDTO>>(employees));
 });
 
 app.Run();

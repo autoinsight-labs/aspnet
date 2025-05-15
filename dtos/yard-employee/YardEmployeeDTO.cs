@@ -8,6 +8,5 @@ namespace AutoInsightAPI.Dtos
 
     public EmployeeRole Role {get; set;}
     public string UserId {get; set;}
-    public string YardId {get; set;}
   }
 }

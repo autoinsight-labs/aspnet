@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AutoInsightAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f770d3cd8d7bf611ace116c1672d9604fc43ecb9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f4475154f00f37c1a9cae01aa9c32c8dc1b66444")]
 [assembly: System.Reflection.AssemblyProductAttribute("AutoInsightAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AutoInsightAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
