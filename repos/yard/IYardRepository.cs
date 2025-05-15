@@ -6,5 +6,7 @@ namespace AutoInsightAPI.Repositories
   {
     Task<Yard?> FindAsync(string id);
     Task<Yard> CreateAsync(Yard yard);
+    Task UpdateAsync();
+    Task DeleteAsync(Yard yard);
   }
 }

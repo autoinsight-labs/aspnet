@@ -68,4 +68,31 @@ yardGroup.MapPost("/", async Task<Results<Created<YardDTO>, ProblemHttpResult>> 
     }
 });
 
+yardGroup.MapDelete("/{id}", async Task<Results<NoContent, NotFound>> (string id, IYardRepository yardRepository) => {
+    var existingYard = await yardRepository.FindAsync(id);
+
+    if (existingYard is null) {
+        return TypedResults.NotFound();
+    }
+
+   await yardRepository.DeleteAsync(existingYard);
+
+   return TypedResults.NoContent();
+});
+
+yardGroup.MapPatch("/{id}", async Task<Results<Ok<YardDTO>, NotFound>> (string id, YardDTO yardDTO, IYardRepository yardRepository, IMapper mapper) => {
+    var existingYard = await yardRepository.FindAsync(id);
+
+    if (existingYard is null) {
+        return TypedResults.NotFound();
+    }
+
+    mapper.Map(yardDTO, existingYard);
+
+    await yardRepository.UpdateAsync();
+
+    var newYard = mapper.Map<YardDTO>(existingYard);
+    return TypedResults.Ok(newYard);
+});
+
 app.Run();

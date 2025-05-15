@@ -1,4 +1,3 @@
-using AutoInsightAPI.Dtos;
 using AutoInsightAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,10 +40,21 @@ namespace AutoInsightAPI.Repositories
         }
       }
 
+      public async Task DeleteAsync(Yard yard)
+      {
+        _db.Yards.Remove(yard);
+        await _db.SaveChangesAsync();
+      }
+
       public async Task<Yard?> FindAsync(string id)
       {
         return await _db.Yards.Include(y => y.Address)
                               .FirstOrDefaultAsync(y => y.Id == id);
+      }
+
+      public async Task UpdateAsync()
+      {
+        await _db.SaveChangesAsync();
       }
     }
 }
