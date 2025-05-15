@@ -13,8 +13,8 @@ namespace AutoInsightAPI.Models
     public Address Address {get; private set;}
     public string OwnerId {get; private set;}
 
-    public List<YardEmployee> YardEmployees => new List<YardEmployee>();
-    public List<YardVehicle> YardVehicles => new List<YardVehicle>();
+    public List<YardEmployee> YardEmployees {get; private set; } = new List<YardEmployee>();
+    public List<YardVehicle> YardVehicles {get; private set; } = new List<YardVehicle>();
 
     public Yard() { }
 

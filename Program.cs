@@ -173,4 +173,35 @@ yardGroup.MapGet("/{id}/employees", async Task<Results<Ok<PagedResponseDTO<YardE
     return TypedResults.Ok(mapper.Map<PagedResponseDTO<YardEmployeeDTO>>(employees));
 });
 
+yardGroup.MapPost("/{id}/employees", async Task<Results<Created<YardEmployeeDTO>, NotFound<ProblemHttpResult>>> (
+    IYardRepository yardRepository,
+    IYardEmployeeRepository yardEmployeeRepository,
+    IMapper mapper,
+    string id,
+    YardEmployeeDTO yardEmployeeDTO
+) => {
+    var yard = await yardRepository.FindAsync(id);
+
+    if (yard is null) {
+        return TypedResults.NotFound(
+            TypedResults.Problem(
+                title: "Not Found",
+                detail: $"Yard with id '{id}' not found.",
+                statusCode: StatusCodes.Status404NotFound
+            )
+        );
+    }
+
+    var newEmployee = new YardEmployee(
+        role: yardEmployeeDTO.Role,
+        userId: yardEmployeeDTO.UserId,
+        yard: yard
+    );
+
+    var createdYardEmployee = await yardEmployeeRepository.CreateAsync(newEmployee);
+    var yardEmployeeDTOResult = mapper.Map<YardEmployeeDTO>(createdYardEmployee);
+
+    return TypedResults.Created($"/yard/{createdYardEmployee.YardId}/employees/{createdYardEmployee.Id}", yardEmployeeDTOResult);
+});
+
 app.Run();

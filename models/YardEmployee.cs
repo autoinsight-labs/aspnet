@@ -21,6 +21,14 @@ namespace AutoInsightAPI.Models
 
     public YardEmployee() { }
 
+    public YardEmployee(EmployeeRole role, string userId, Yard yard)
+    {
+      this.Role = role;
+      this.UserId = userId;
+      this.YardId = yard.Id;
+      this.Yard = yard;
+    }
+
     public YardEmployee(string id, EmployeeRole role, string userId, Yard yard)
     {
       this.Id = id;

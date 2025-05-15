@@ -12,6 +12,16 @@ namespace AutoInsightAPI.Repositories
         this._db = db;
       }
 
+      public async Task<YardEmployee> CreateAsync(YardEmployee employee)
+      {
+          Console.Write(employee.YardId);
+
+          _db.YardEmployees.Add(employee);
+          await _db.SaveChangesAsync();
+
+          return employee;
+      }
+
       public async Task<PagedResponse<YardEmployee>> ListPagedAsync(int page, int pageSize, Yard yard)
       {
         var totalRecords = _db.YardEmployees.Where(ye => ye.YardId == yard.Id).Count();
