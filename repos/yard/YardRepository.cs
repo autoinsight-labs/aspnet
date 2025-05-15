@@ -52,6 +52,22 @@ namespace AutoInsightAPI.Repositories
                               .FirstOrDefaultAsync(y => y.Id == id);
       }
 
+      public async Task<PagedResponse<Yard>> ListPagedAsync(int pageNumber, int pageSize)
+      {
+        var totalRecords = await _db.Yards.AsNoTracking().CountAsync();
+
+        var yards = await _db.Yards.AsNoTracking()
+            .OrderBy(x => x.Id)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Include(y => y.Address)
+            .ToListAsync();
+
+        var pagedResponse = new PagedResponse<Yard>(yards, pageNumber, pageSize, totalRecords);
+
+        return pagedResponse;
+      }
+
       public async Task UpdateAsync()
       {
         await _db.SaveChangesAsync();

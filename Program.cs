@@ -15,6 +15,7 @@ builder.Services.AddAutoMapper(typeof(YardProfile));
 builder.Services.AddAutoMapper(typeof(YardEmployeeProfile));
 builder.Services.AddAutoMapper(typeof(YardVehicleProfile));
 builder.Services.AddAutoMapper(typeof(AddressProfile));
+builder.Services.AddAutoMapper(typeof(PagedResponseProfile));
 
 builder.Services.AddScoped<IYardRepository, YardRepository>();
 
@@ -38,6 +39,37 @@ app.MapGet("/health", () => Results.Ok())
 
 // Yard Routes
 var yardGroup = app.MapGroup("/yard").WithTags("yard");
+
+yardGroup.MapGet("/", async Task<Results<Ok<PagedResponseDTO<YardDTO>>, BadRequest<ProblemHttpResult>>> (
+    IYardRepository yardRepository,
+    IMapper mapper,
+    int pageNumber = 1,
+    int pageSize = 10
+) => {
+    if (pageNumber <= 0) {
+        return TypedResults.BadRequest(
+            TypedResults.Problem(
+                title: "Bad Request",
+                detail: $"{nameof(pageNumber)} must be greater than 0",
+                statusCode: StatusCodes.Status400BadRequest
+            )
+        );
+    }
+
+    if (pageSize <= 0) {
+        return TypedResults.BadRequest(
+            TypedResults.Problem(
+                title: "Bad Request",
+                detail: $"{nameof(pageSize)} must be greater than 0",
+                statusCode: StatusCodes.Status400BadRequest
+            )
+        );
+    }
+
+    var yards = await yardRepository.ListPagedAsync(pageNumber, pageSize);
+
+    return TypedResults.Ok(mapper.Map<PagedResponseDTO<YardDTO>>(yards));
+});
 
 yardGroup.MapGet("/{id}", async Task<Results<Ok<YardDTO>, NotFound>> (string id, IYardRepository yardRepository, IMapper mapper) => {
     var yard = await yardRepository.FindAsync(id);

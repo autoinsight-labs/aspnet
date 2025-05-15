@@ -6,8 +6,5 @@ namespace AutoInsightAPI.Dtos
 
     public AddressDTO Address {get; set;}
     public string OwnerId {get; set;}
-
-    public List<YardEmployeeDTO>? YardEmployees {get; set;}
-    public List<YardVehicleDTO>? YardVehicles {get; set;}
   }
 }
