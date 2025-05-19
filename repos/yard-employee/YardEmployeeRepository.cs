@@ -14,13 +14,17 @@ namespace AutoInsightAPI.Repositories
 
       public async Task<YardEmployee> CreateAsync(YardEmployee employee)
       {
-
           _db.YardEmployees.Add(employee);
           await _db.SaveChangesAsync();
 
           return employee;
       }
 
+      public async Task DeleteAsync(YardEmployee yardEmployee)
+      {
+        _db.YardEmployees.Remove(yardEmployee);
+        await _db.SaveChangesAsync();
+      }
 
       public async Task<YardEmployee?> FindAsync(string id)
       {

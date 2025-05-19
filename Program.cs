@@ -171,7 +171,7 @@ yardGroup.MapGet("/{id}/employees", async Task<Results<Ok<PagedResponseDTO<YardE
     var employees = await yardEmployeeRepository.ListPagedAsync(pageNumber, pageSize, yard);
 
     return TypedResults.Ok(mapper.Map<PagedResponseDTO<YardEmployeeDTO>>(employees));
-});
+}).WithTags("employee");
 
 yardGroup.MapPost("/{id}/employees", async Task<Results<Created<YardEmployeeDTO>, NotFound<ProblemHttpResult>>> (
     IYardRepository yardRepository,
@@ -204,7 +204,7 @@ yardGroup.MapPost("/{id}/employees", async Task<Results<Created<YardEmployeeDTO>
     var yardEmployeeDTOResult = mapper.Map<YardEmployeeDTO>(createdYardEmployee);
 
     return TypedResults.Created($"/yard/{createdYardEmployee.YardId}/employees/{createdYardEmployee.Id}", yardEmployeeDTOResult);
-});
+}).WithTags("employee");
 
 yardGroup.MapGet("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmployeeDTO>, NotFound<ProblemHttpResult>>> (
     IYardRepository yardRepository,
@@ -239,5 +239,42 @@ yardGroup.MapGet("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmplo
     var yardEmployeeResult = mapper.Map<YardEmployeeDTO>(yardEmployee);
 
     return TypedResults.Ok(yardEmployeeResult);
-});
+}).WithTags("employee");
+
+yardGroup.MapDelete("/{id}/employees/{employeeId}", async Task<Results<NoContent, NotFound<ProblemHttpResult>>> (
+    IYardRepository yardRepository,
+    IYardEmployeeRepository yardEmployeeRepository,
+    IMapper mapper,
+    string id,
+    string employeeId
+) => {
+    var yard = await yardRepository.FindAsync(id);
+
+    if (yard is null) {
+        return TypedResults.NotFound(
+            TypedResults.Problem(
+                title: "Not Found",
+                detail: $"Yard with id '{id}' not found.",
+                statusCode: StatusCodes.Status404NotFound
+            )
+        );
+    }
+
+    var yardEmployee = await yardEmployeeRepository.FindAsync(employeeId);
+
+    if (yardEmployee is null) {
+        return TypedResults.NotFound(
+            TypedResults.Problem(
+                title: "Not Found",
+                detail: $"Yard employee with id '{employeeId}' not found.",
+                statusCode: StatusCodes.Status404NotFound
+            )
+        );
+    }
+
+    await yardEmployeeRepository.DeleteAsync(yardEmployee);
+
+    return TypedResults.NoContent();
+}).WithTags("employee");
+
 app.Run();
