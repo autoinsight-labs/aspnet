@@ -14,12 +14,17 @@ namespace AutoInsightAPI.Repositories
 
       public async Task<YardEmployee> CreateAsync(YardEmployee employee)
       {
-          Console.Write(employee.YardId);
 
           _db.YardEmployees.Add(employee);
           await _db.SaveChangesAsync();
 
           return employee;
+      }
+
+
+      public async Task<YardEmployee?> FindAsync(string id)
+      {
+        return await _db.YardEmployees.FirstOrDefaultAsync(ye => ye.Id == id);
       }
 
       public async Task<PagedResponse<YardEmployee>> ListPagedAsync(int page, int pageSize, Yard yard)

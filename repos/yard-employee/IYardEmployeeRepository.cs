@@ -6,5 +6,6 @@ namespace AutoInsightAPI.Repositories
   {
     Task<PagedResponse<YardEmployee>> ListPagedAsync(int page, int pageSize, Yard yard);
     Task<YardEmployee> CreateAsync(YardEmployee employee);
+    Task<YardEmployee?> FindAsync(string id);
   }
 }

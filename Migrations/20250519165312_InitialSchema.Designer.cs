@@ -11,7 +11,7 @@ using Oracle.EntityFrameworkCore.Metadata;
 namespace AutoInsightAPI.Migrations
 {
     [DbContext(typeof(AutoInsightDB))]
-    [Migration("20250513130508_InitialSchema")]
+    [Migration("20250519165312_InitialSchema")]
     partial class InitialSchema
     {
         /// <inheritdoc />
@@ -24,9 +24,10 @@ namespace AutoInsightAPI.Migrations
 
             OracleModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Address", b =>
+            modelBuilder.Entity("AutoInsightAPI.Models.Address", b =>
                 {
                     b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<string>("City")
@@ -57,9 +58,10 @@ namespace AutoInsightAPI.Migrations
                     b.ToTable("Addresses");
                 });
 
-            modelBuilder.Entity("Booking", b =>
+            modelBuilder.Entity("AutoInsightAPI.Models.Booking", b =>
                 {
                     b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<DateTime?>("CancelledAt")
@@ -70,24 +72,21 @@ namespace AutoInsightAPI.Migrations
 
                     b.Property<string>("VehicleId")
                         .IsRequired()
-                        .HasColumnType("NVARCHAR2(450)");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("YardId")
                         .IsRequired()
-                        .HasColumnType("NVARCHAR2(450)");
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("VehicleId");
-
-                    b.HasIndex("YardId");
 
                     b.ToTable("Bookings");
                 });
 
-            modelBuilder.Entity("EmployeeInvite", b =>
+            modelBuilder.Entity("AutoInsightAPI.Models.EmployeeInvite", b =>
                 {
                     b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<string>("YardEmployeeId")
@@ -107,26 +106,10 @@ namespace AutoInsightAPI.Migrations
                     b.ToTable("EmployeeInvites");
                 });
 
-            modelBuilder.Entity("Model", b =>
+            modelBuilder.Entity("AutoInsightAPI.Models.QRCode", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("NVARCHAR2(450)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("NUMBER(10)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Models");
-                });
-
-            modelBuilder.Entity("QRCode", b =>
-                {
-                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<string>("VehicleId")
@@ -145,33 +128,10 @@ namespace AutoInsightAPI.Migrations
                     b.ToTable("QRCodes");
                 });
 
-            modelBuilder.Entity("Vehicle", b =>
+            modelBuilder.Entity("AutoInsightAPI.Models.Yard", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("NVARCHAR2(450)");
-
-                    b.Property<string>("ModelId")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(450)");
-
-                    b.Property<string>("Plate")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ModelId");
-
-                    b.ToTable("Vehicles");
-                });
-
-            modelBuilder.Entity("Yard", b =>
-                {
-                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<string>("AddressId")
@@ -189,10 +149,19 @@ namespace AutoInsightAPI.Migrations
                     b.ToTable("Yards");
                 });
 
-            modelBuilder.Entity("YardEmployee", b =>
+            modelBuilder.Entity("AutoInsightAPI.Models.YardEmployee", b =>
                 {
                     b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("NVARCHAR2(450)");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("Role")
                         .HasColumnType("NUMBER(10)");
@@ -212,9 +181,10 @@ namespace AutoInsightAPI.Migrations
                     b.ToTable("YardEmployees");
                 });
 
-            modelBuilder.Entity("YardVehicle", b =>
+            modelBuilder.Entity("AutoInsightAPI.Models.YardVehicle", b =>
                 {
                     b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<DateTime>("EnteredAt")
@@ -243,34 +213,58 @@ namespace AutoInsightAPI.Migrations
                     b.ToTable("YardVehicles");
                 });
 
-            modelBuilder.Entity("Booking", b =>
+            modelBuilder.Entity("Model", b =>
                 {
-                    b.HasOne("Vehicle", "Vehicle")
-                        .WithMany()
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NVARCHAR2(450)");
 
-                    b.HasOne("Yard", "Yard")
-                        .WithMany()
-                        .HasForeignKey("YardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(2000)");
 
-                    b.Navigation("Vehicle");
+                    b.Property<int>("Year")
+                        .HasColumnType("NUMBER(10)");
 
-                    b.Navigation("Yard");
+                    b.HasKey("Id");
+
+                    b.ToTable("Models");
                 });
 
-            modelBuilder.Entity("EmployeeInvite", b =>
+            modelBuilder.Entity("Vehicle", b =>
                 {
-                    b.HasOne("YardEmployee", "YardEmployee")
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NVARCHAR2(450)");
+
+                    b.Property<string>("ModelId")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(450)");
+
+                    b.Property<string>("Plate")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModelId");
+
+                    b.ToTable("Vehicles");
+                });
+
+            modelBuilder.Entity("AutoInsightAPI.Models.EmployeeInvite", b =>
+                {
+                    b.HasOne("AutoInsightAPI.Models.YardEmployee", "YardEmployee")
                         .WithMany()
                         .HasForeignKey("YardEmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Yard", "Yard")
+                    b.HasOne("AutoInsightAPI.Models.Yard", "Yard")
                         .WithMany()
                         .HasForeignKey("YardId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -281,14 +275,55 @@ namespace AutoInsightAPI.Migrations
                     b.Navigation("YardEmployee");
                 });
 
-            modelBuilder.Entity("QRCode", b =>
+            modelBuilder.Entity("AutoInsightAPI.Models.QRCode", b =>
                 {
                     b.HasOne("Vehicle", "Vehicle")
                         .WithMany()
                         .HasForeignKey("VehicleId");
 
-                    b.HasOne("Yard", "Yard")
+                    b.HasOne("AutoInsightAPI.Models.Yard", "Yard")
                         .WithMany()
+                        .HasForeignKey("YardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Vehicle");
+
+                    b.Navigation("Yard");
+                });
+
+            modelBuilder.Entity("AutoInsightAPI.Models.Yard", b =>
+                {
+                    b.HasOne("AutoInsightAPI.Models.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Address");
+                });
+
+            modelBuilder.Entity("AutoInsightAPI.Models.YardEmployee", b =>
+                {
+                    b.HasOne("AutoInsightAPI.Models.Yard", "Yard")
+                        .WithMany("YardEmployees")
+                        .HasForeignKey("YardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Yard");
+                });
+
+            modelBuilder.Entity("AutoInsightAPI.Models.YardVehicle", b =>
+                {
+                    b.HasOne("Vehicle", "Vehicle")
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AutoInsightAPI.Models.Yard", "Yard")
+                        .WithMany("YardVehicles")
                         .HasForeignKey("YardId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -309,48 +344,7 @@ namespace AutoInsightAPI.Migrations
                     b.Navigation("Model");
                 });
 
-            modelBuilder.Entity("Yard", b =>
-                {
-                    b.HasOne("Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Address");
-                });
-
-            modelBuilder.Entity("YardEmployee", b =>
-                {
-                    b.HasOne("Yard", "Yard")
-                        .WithMany("YardEmployees")
-                        .HasForeignKey("YardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Yard");
-                });
-
-            modelBuilder.Entity("YardVehicle", b =>
-                {
-                    b.HasOne("Vehicle", "Vehicle")
-                        .WithMany()
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Yard", "Yard")
-                        .WithMany("YardVehicles")
-                        .HasForeignKey("YardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Vehicle");
-
-                    b.Navigation("Yard");
-                });
-
-            modelBuilder.Entity("Yard", b =>
+            modelBuilder.Entity("AutoInsightAPI.Models.Yard", b =>
                 {
                     b.Navigation("YardEmployees");
 

@@ -29,6 +29,21 @@ namespace AutoInsightAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Bookings",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
+                    OccursAt = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
+                    CancelledAt = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: true),
+                    VehicleId = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
+                    YardId = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Bookings", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Models",
                 columns: table => new
                 {
@@ -85,6 +100,8 @@ namespace AutoInsightAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
+                    Name = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
                     Role = table.Column<int>(type: "NUMBER(10)", nullable: false),
                     UserId = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
                     YardId = table.Column<string>(type: "NVARCHAR2(450)", nullable: false)
@@ -94,33 +111,6 @@ namespace AutoInsightAPI.Migrations
                     table.PrimaryKey("PK_YardEmployees", x => x.Id);
                     table.ForeignKey(
                         name: "FK_YardEmployees_Yards_YardId",
-                        column: x => x.YardId,
-                        principalTable: "Yards",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Bookings",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
-                    OccursAt = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
-                    CancelledAt = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: true),
-                    VehicleId = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
-                    YardId = table.Column<string>(type: "NVARCHAR2(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Bookings", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Bookings_Vehicles_VehicleId",
-                        column: x => x.VehicleId,
-                        principalTable: "Vehicles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Bookings_Yards_YardId",
                         column: x => x.YardId,
                         principalTable: "Yards",
                         principalColumn: "Id",
@@ -203,16 +193,6 @@ namespace AutoInsightAPI.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Bookings_VehicleId",
-                table: "Bookings",
-                column: "VehicleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Bookings_YardId",
-                table: "Bookings",
-                column: "YardId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EmployeeInvites_YardEmployeeId",
