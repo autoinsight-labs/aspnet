@@ -8,5 +8,6 @@ namespace AutoInsightAPI.Repositories
     Task<YardEmployee> CreateAsync(YardEmployee employee);
     Task<YardEmployee?> FindAsync(string id);
     Task DeleteAsync(YardEmployee yardEmployee);
+    Task UpdateAsync();
   }
 }
