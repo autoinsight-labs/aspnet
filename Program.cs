@@ -6,6 +6,8 @@ using AutoInsightAPI.Repositories;
 using AutoInsightAPI.Dtos;
 using AutoInsightAPI.Profiles;
 using AutoInsightAPI.Models;
+using Microsoft.AspNetCore.Http.Json;
+using System.Text.Json.Serialization;
 
 DotNetEnv.Env.Load();
 
@@ -19,6 +21,11 @@ builder.Services.AddAutoMapper(typeof(PagedResponseProfile));
 
 builder.Services.AddScoped<IYardRepository, YardRepository>();
 builder.Services.AddScoped<IYardEmployeeRepository, YardEmployeeRepository>();
+
+builder.Services.Configure<JsonOptions>(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 var oracleConnectionString = Environment.GetEnvironmentVariable("ORACLE_CONNECTION_STRING");
 builder.Services.AddDbContext<AutoInsightDB>(opt
@@ -277,7 +284,7 @@ yardGroup.MapDelete("/{id}/employees/{employeeId}", async Task<Results<NoContent
     return TypedResults.NoContent();
 }).WithTags("employee");
 
-yardGroup.MapPatch("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmployeeDTO>, NotFound<ProblemHttpResult>>> (
+yardGroup.MapPatch("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmployeeDTO>, BadRequest<ProblemHttpResult> , NotFound<ProblemHttpResult>>> (
     IYardRepository yardRepository,
     IYardEmployeeRepository yardEmployeeRepository,
     IMapper mapper,
@@ -285,6 +292,17 @@ yardGroup.MapPatch("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmp
     string id,
     string employeeId
 ) => {
+    if (!Enum.IsDefined(typeof(EmployeeRole), yardEmployeeDTO.Role))
+    {
+        return TypedResults.BadRequest(
+            TypedResults.Problem(
+                title: "Invalid Role",
+                detail: $"The role value '{yardEmployeeDTO.Role}' is not valid.",
+                statusCode: StatusCodes.Status400BadRequest
+            )
+        );
+    }
+
     var yard = await yardRepository.FindAsync(id);
 
     if (yard is null) {
