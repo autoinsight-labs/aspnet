@@ -52,7 +52,7 @@ app.MapGet("/health", () => Results.Ok())
 // Yard Routes
 var yardGroup = app.MapGroup("/yard").WithTags("yard");
 
-yardGroup.MapGet("/", async Task<Results<Ok<PagedResponseDTO<YardDTO>>, BadRequest<ProblemHttpResult>>> (
+yardGroup.MapGet("/", async Task<Results<Ok<PagedResponseDTO<YardDTO>>, BadRequest>> (
     IYardRepository yardRepository,
     IMapper mapper,
     int pageNumber = 1,
@@ -60,21 +60,21 @@ yardGroup.MapGet("/", async Task<Results<Ok<PagedResponseDTO<YardDTO>>, BadReque
 ) => {
     if (pageNumber <= 0) {
         return TypedResults.BadRequest(
-            TypedResults.Problem(
-                title: "Bad Request",
-                detail: $"{nameof(pageNumber)} must be greater than 0",
-                statusCode: StatusCodes.Status400BadRequest
-            )
+            // TypedResults.Problem(
+            //     title: "Bad Request",
+            //     detail: $"{nameof(pageNumber)} must be greater than 0",
+            //     statusCode: StatusCodes.Status400BadRequest
+            // )
         );
     }
 
     if (pageSize <= 0) {
         return TypedResults.BadRequest(
-            TypedResults.Problem(
-                title: "Bad Request",
-                detail: $"{nameof(pageSize)} must be greater than 0",
-                statusCode: StatusCodes.Status400BadRequest
-            )
+            // TypedResults.Problem(
+            //     title: "Bad Request",
+            //     detail: $"{nameof(pageSize)} must be greater than 0",
+            //     statusCode: StatusCodes.Status400BadRequest
+            // )
         );
     }
 
@@ -124,7 +124,7 @@ yardGroup.MapDelete("/{id}", async Task<Results<NoContent, NotFound>> (string id
    return TypedResults.NoContent();
 });
 
-yardGroup.MapPatch("/{id}", async Task<Results<Ok<YardDTO>, NotFound>> (string id, YardDTO yardDTO, IYardRepository yardRepository, IMapper mapper) => {
+yardGroup.MapPut("/{id}", async Task<Results<Ok<YardDTO>, NotFound>> (string id, YardDTO yardDTO, IYardRepository yardRepository, IMapper mapper) => {
     var existingYard = await yardRepository.FindAsync(id);
 
     if (existingYard is null) {
@@ -141,7 +141,7 @@ yardGroup.MapPatch("/{id}", async Task<Results<Ok<YardDTO>, NotFound>> (string i
 
 // Employee routes
 
-yardGroup.MapGet("/{id}/employees", async Task<Results<Ok<PagedResponseDTO<YardEmployeeDTO>>, BadRequest<ProblemHttpResult>, NotFound<ProblemHttpResult>>> (
+yardGroup.MapGet("/{id}/employees", async Task<Results<Ok<PagedResponseDTO<YardEmployeeDTO>>, BadRequest, NotFound>> (
     IYardRepository yardRepository,
     IYardEmployeeRepository yardEmployeeRepository,
     IMapper mapper,
@@ -151,21 +151,21 @@ yardGroup.MapGet("/{id}/employees", async Task<Results<Ok<PagedResponseDTO<YardE
 ) => {
     if (pageNumber <= 0) {
         return TypedResults.BadRequest(
-            TypedResults.Problem(
-                title: "Bad Request",
-                detail: $"{nameof(pageNumber)} must be greater than 0",
-                statusCode: StatusCodes.Status400BadRequest
-            )
+            // TypedResults.Problem(
+            //     title: "Bad Request",
+            //     detail: $"{nameof(pageNumber)} must be greater than 0",
+            //     statusCode: StatusCodes.Status400BadRequest
+            // )
         );
     }
 
     if (pageSize <= 0) {
         return TypedResults.BadRequest(
-            TypedResults.Problem(
-                title: "Bad Request",
-                detail: $"{nameof(pageSize)} must be greater than 0",
-                statusCode: StatusCodes.Status400BadRequest
-            )
+            // TypedResults.Problem(
+            //     title: "Bad Request",
+            //     detail: $"{nameof(pageSize)} must be greater than 0",
+            //     statusCode: StatusCodes.Status400BadRequest
+            // )
         );
     }
 
@@ -173,11 +173,11 @@ yardGroup.MapGet("/{id}/employees", async Task<Results<Ok<PagedResponseDTO<YardE
 
     if (yard is null) {
         return TypedResults.NotFound(
-            TypedResults.Problem(
-                title: "Not Found",
-                detail: $"Yard with id '{id}' not found.",
-                statusCode: StatusCodes.Status404NotFound
-            )
+            // TypedResults.Problem(
+            //     title: "Not Found",
+            //     detail: $"Yard with id '{id}' not found.",
+            //     statusCode: StatusCodes.Status404NotFound
+            // )
         );
     }
 
@@ -186,7 +186,7 @@ yardGroup.MapGet("/{id}/employees", async Task<Results<Ok<PagedResponseDTO<YardE
     return TypedResults.Ok(mapper.Map<PagedResponseDTO<YardEmployeeDTO>>(employees));
 }).WithTags("employee");
 
-yardGroup.MapPost("/{id}/employees", async Task<Results<Created<YardEmployeeDTO>, NotFound<ProblemHttpResult>>> (
+yardGroup.MapPost("/{id}/employees", async Task<Results<Created<YardEmployeeDTO>, NotFound>> (
     IYardRepository yardRepository,
     IYardEmployeeRepository yardEmployeeRepository,
     IMapper mapper,
@@ -197,11 +197,11 @@ yardGroup.MapPost("/{id}/employees", async Task<Results<Created<YardEmployeeDTO>
 
     if (yard is null) {
         return TypedResults.NotFound(
-            TypedResults.Problem(
-                title: "Not Found",
-                detail: $"Yard with id '{id}' not found.",
-                statusCode: StatusCodes.Status404NotFound
-            )
+            // TypedResults.Problem(
+            //     title: "Not Found",
+            //     detail: $"Yard with id '{id}' not found.",
+            //     statusCode: StatusCodes.Status404NotFound
+            // )
         );
     }
 
@@ -219,7 +219,7 @@ yardGroup.MapPost("/{id}/employees", async Task<Results<Created<YardEmployeeDTO>
     return TypedResults.Created($"/yard/{createdYardEmployee.YardId}/employees/{createdYardEmployee.Id}", yardEmployeeDTOResult);
 }).WithTags("employee");
 
-yardGroup.MapGet("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmployeeDTO>, NotFound<ProblemHttpResult>>> (
+yardGroup.MapGet("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmployeeDTO>, NotFound>> (
     IYardRepository yardRepository,
     IYardEmployeeRepository yardEmployeeRepository,
     IMapper mapper,
@@ -229,11 +229,11 @@ yardGroup.MapGet("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmplo
 
     if (yard is null) {
         return TypedResults.NotFound(
-            TypedResults.Problem(
-                title: "Not Found",
-                detail: $"Yard with id '{id}' not found.",
-                statusCode: StatusCodes.Status404NotFound
-            )
+            // TypedResults.Problem(
+            //     title: "Not Found",
+            //     detail: $"Yard with id '{id}' not found.",
+            //     statusCode: StatusCodes.Status404NotFound
+            // )
         );
     }
 
@@ -241,11 +241,11 @@ yardGroup.MapGet("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmplo
 
     if (yardEmployee is null) {
         return TypedResults.NotFound(
-            TypedResults.Problem(
-                title: "Not Found",
-                detail: $"Yard employee with id '{employeeId}' not found.",
-                statusCode: StatusCodes.Status404NotFound
-            )
+            // TypedResults.Problem(
+            //     title: "Not Found",
+            //     detail: $"Yard employee with id '{employeeId}' not found.",
+            //     statusCode: StatusCodes.Status404NotFound
+            // )
         );
     }
 
@@ -254,7 +254,7 @@ yardGroup.MapGet("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmplo
     return TypedResults.Ok(yardEmployeeResult);
 }).WithTags("employee");
 
-yardGroup.MapDelete("/{id}/employees/{employeeId}", async Task<Results<NoContent, NotFound<ProblemHttpResult>>> (
+yardGroup.MapDelete("/{id}/employees/{employeeId}", async Task<Results<NoContent, NotFound>> (
     IYardRepository yardRepository,
     IYardEmployeeRepository yardEmployeeRepository,
     IMapper mapper,
@@ -265,11 +265,11 @@ yardGroup.MapDelete("/{id}/employees/{employeeId}", async Task<Results<NoContent
 
     if (yard is null) {
         return TypedResults.NotFound(
-            TypedResults.Problem(
-                title: "Not Found",
-                detail: $"Yard with id '{id}' not found.",
-                statusCode: StatusCodes.Status404NotFound
-            )
+            // TypedResults.Problem(
+            //     title: "Not Found",
+            //     detail: $"Yard with id '{id}' not found.",
+            //     statusCode: StatusCodes.Status404NotFound
+            // )
         );
     }
 
@@ -277,11 +277,11 @@ yardGroup.MapDelete("/{id}/employees/{employeeId}", async Task<Results<NoContent
 
     if (yardEmployee is null) {
         return TypedResults.NotFound(
-            TypedResults.Problem(
-                title: "Not Found",
-                detail: $"Yard employee with id '{employeeId}' not found.",
-                statusCode: StatusCodes.Status404NotFound
-            )
+            // TypedResults.Problem(
+            //     title: "Not Found",
+            //     detail: $"Yard employee with id '{employeeId}' not found.",
+            //     statusCode: StatusCodes.Status404NotFound
+            // )
         );
     }
 
@@ -290,7 +290,7 @@ yardGroup.MapDelete("/{id}/employees/{employeeId}", async Task<Results<NoContent
     return TypedResults.NoContent();
 }).WithTags("employee");
 
-yardGroup.MapPatch("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmployeeDTO>, BadRequest<ProblemHttpResult> , NotFound<ProblemHttpResult>>> (
+yardGroup.MapPut("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmployeeDTO>, BadRequest , NotFound>> (
     IYardRepository yardRepository,
     IYardEmployeeRepository yardEmployeeRepository,
     IMapper mapper,
@@ -301,11 +301,11 @@ yardGroup.MapPatch("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmp
     if (!Enum.IsDefined(typeof(EmployeeRole), yardEmployeeDTO.Role))
     {
         return TypedResults.BadRequest(
-            TypedResults.Problem(
-                title: "Invalid Role",
-                detail: $"The role value '{yardEmployeeDTO.Role}' is not valid.",
-                statusCode: StatusCodes.Status400BadRequest
-            )
+            // TypedResults.Problem(
+            //     title: "Invalid Role",
+            //     detail: $"The role value '{yardEmployeeDTO.Role}' is not valid.",
+            //     statusCode: StatusCodes.Status400BadRequest
+            // )
         );
     }
 
@@ -313,11 +313,11 @@ yardGroup.MapPatch("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmp
 
     if (yard is null) {
         return TypedResults.NotFound(
-            TypedResults.Problem(
-                title: "Not Found",
-                detail: $"Yard with id '{id}' not found.",
-                statusCode: StatusCodes.Status404NotFound
-            )
+            // TypedResults.Problem(
+            //     title: "Not Found",
+            //     detail: $"Yard with id '{id}' not found.",
+            //     statusCode: StatusCodes.Status404NotFound
+            // )
         );
     }
 
@@ -325,11 +325,11 @@ yardGroup.MapPatch("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmp
 
     if (yardEmployee is null) {
         return TypedResults.NotFound(
-            TypedResults.Problem(
-                title: "Not Found",
-                detail: $"Yard employee with id '{employeeId}' not found.",
-                statusCode: StatusCodes.Status404NotFound
-            )
+            // TypedResults.Problem(
+            //     title: "Not Found",
+            //     detail: $"Yard employee with id '{employeeId}' not found.",
+            //     statusCode: StatusCodes.Status404NotFound
+            // )
         );
     }
 
@@ -369,7 +369,7 @@ vehicleGroup.MapGet("/{id}", async Task<Results<Ok<VehicleDTO>, NotFound>> (stri
     return TypedResults.Ok(vehicleResponse);
 });
 
-yardGroup.MapGet("/{id}/vehicles", async Task<Results<Ok<PagedResponseDTO<YardVehicleDTO>>, BadRequest<ProblemHttpResult>, NotFound<ProblemHttpResult>>> (
+yardGroup.MapGet("/{id}/vehicles", async Task<Results<Ok<PagedResponseDTO<YardVehicleDTO>>, BadRequest, NotFound>> (
     IYardRepository yardRepository,
     IYardVehicleRepository yardVehicleRepository,
     IMapper mapper,
@@ -379,21 +379,21 @@ yardGroup.MapGet("/{id}/vehicles", async Task<Results<Ok<PagedResponseDTO<YardVe
 ) => {
     if (pageNumber <= 0) {
         return TypedResults.BadRequest(
-            TypedResults.Problem(
-                title: "Bad Request",
-                detail: $"{nameof(pageNumber)} must be greater than 0",
-                statusCode: StatusCodes.Status400BadRequest
-            )
+            // TypedResults.Problem(
+            //     title: "Bad Request",
+            //     detail: $"{nameof(pageNumber)} must be greater than 0",
+            //     statusCode: StatusCodes.Status400BadRequest
+            // )
         );
     }
 
     if (pageSize <= 0) {
         return TypedResults.BadRequest(
-            TypedResults.Problem(
-                title: "Bad Request",
-                detail: $"{nameof(pageSize)} must be greater than 0",
-                statusCode: StatusCodes.Status400BadRequest
-            )
+            // TypedResults.Problem(
+            //     title: "Bad Request",
+            //     detail: $"{nameof(pageSize)} must be greater than 0",
+            //     statusCode: StatusCodes.Status400BadRequest
+            // )
         );
     }
 
@@ -401,11 +401,11 @@ yardGroup.MapGet("/{id}/vehicles", async Task<Results<Ok<PagedResponseDTO<YardVe
 
     if (yard is null) {
         return TypedResults.NotFound(
-            TypedResults.Problem(
-                title: "Not Found",
-                detail: $"Yard with id '{id}' not found.",
-                statusCode: StatusCodes.Status404NotFound
-            )
+            // TypedResults.Problem(
+            //     title: "Not Found",
+            //     detail: $"Yard with id '{id}' not found.",
+            //     statusCode: StatusCodes.Status404NotFound
+            // )
         );
     }
 
@@ -414,7 +414,7 @@ yardGroup.MapGet("/{id}/vehicles", async Task<Results<Ok<PagedResponseDTO<YardVe
     return TypedResults.Ok(mapper.Map<PagedResponseDTO<YardVehicleDTO>>(yardVehicles));
 }).WithTags("vehicle");
 
-yardGroup.MapGet("/{id}/vehicles/{yardVehicleId}", async Task<Results<Ok<YardVehicleDTO>, BadRequest<ProblemHttpResult>, NotFound<ProblemHttpResult>>> (
+yardGroup.MapGet("/{id}/vehicles/{yardVehicleId}", async Task<Results<Ok<YardVehicleDTO>, BadRequest, NotFound>> (
     IYardRepository yardRepository,
     IYardVehicleRepository yardVehicleRepository,
     IMapper mapper,
@@ -425,11 +425,11 @@ yardGroup.MapGet("/{id}/vehicles/{yardVehicleId}", async Task<Results<Ok<YardVeh
 
     if (yard is null) {
         return TypedResults.NotFound(
-            TypedResults.Problem(
-                title: "Not Found",
-                detail: $"Yard with id '{id}' not found.",
-                statusCode: StatusCodes.Status404NotFound
-            )
+            // TypedResults.Problem(
+            //     title: "Not Found",
+            //     detail: $"Yard with id '{id}' not found.",
+            //     statusCode: StatusCodes.Status404NotFound
+            // )
         );
     }
 
@@ -437,11 +437,11 @@ yardGroup.MapGet("/{id}/vehicles/{yardVehicleId}", async Task<Results<Ok<YardVeh
 
     if (yardVehicle is null) {
         return TypedResults.NotFound(
-            TypedResults.Problem(
-                title: "Not Found",
-                detail: $"Yard vehicle with id '{yardVehicleId}' not found.",
-                statusCode: StatusCodes.Status404NotFound
-            )
+            // TypedResults.Problem(
+            //     title: "Not Found",
+            //     detail: $"Yard vehicle with id '{yardVehicleId}' not found.",
+            //     statusCode: StatusCodes.Status404NotFound
+            // )
         );
     }
 
@@ -450,7 +450,7 @@ yardGroup.MapGet("/{id}/vehicles/{yardVehicleId}", async Task<Results<Ok<YardVeh
     return TypedResults.Ok(yardVehicleResult);
 }).WithTags("vehicle");
 
-yardGroup.MapPatch("/{id}/vehicles/{yardVehicleId}", async Task<Results<Ok<YardVehicleDTO>, BadRequest<ProblemHttpResult>, NotFound<ProblemHttpResult>>> (
+yardGroup.MapPut("/{id}/vehicles/{yardVehicleId}", async Task<Results<Ok<YardVehicleDTO>, BadRequest, NotFound>> (
     IYardRepository yardRepository,
     IYardVehicleRepository yardVehicleRepository,
     IMapper mapper,
@@ -461,11 +461,11 @@ yardGroup.MapPatch("/{id}/vehicles/{yardVehicleId}", async Task<Results<Ok<YardV
     if (!Enum.IsDefined(typeof(Status), yardVehicleDTO.Status))
     {
         return TypedResults.BadRequest(
-            TypedResults.Problem(
-                title: "Invalid Role",
-                detail: $"The role value '{yardVehicleDTO.Status}' is not valid.",
-                statusCode: StatusCodes.Status400BadRequest
-            )
+            // TypedResults.Problem(
+            //     title: "Invalid Role",
+            //     detail: $"The role value '{yardVehicleDTO.Status}' is not valid.",
+            //     statusCode: StatusCodes.Status400BadRequest
+            // )
         );
     }
 
@@ -473,11 +473,11 @@ yardGroup.MapPatch("/{id}/vehicles/{yardVehicleId}", async Task<Results<Ok<YardV
 
     if (yard is null) {
         return TypedResults.NotFound(
-            TypedResults.Problem(
-                title: "Not Found",
-                detail: $"Yard with id '{id}' not found.",
-                statusCode: StatusCodes.Status404NotFound
-            )
+            // TypedResults.Problem(
+            //     title: "Not Found",
+            //     detail: $"Yard with id '{id}' not found.",
+            //     statusCode: StatusCodes.Status404NotFound
+            // )
         );
     }
 
@@ -485,11 +485,11 @@ yardGroup.MapPatch("/{id}/vehicles/{yardVehicleId}", async Task<Results<Ok<YardV
 
     if (yardVehicle is null) {
         return TypedResults.NotFound(
-            TypedResults.Problem(
-                title: "Not Found",
-                detail: $"Yard vehicle with id '{yardVehicleId}' not found.",
-                statusCode: StatusCodes.Status404NotFound
-            )
+            // TypedResults.Problem(
+            //     title: "Not Found",
+            //     detail: $"Yard vehicle with id '{yardVehicleId}' not found.",
+            //     statusCode: StatusCodes.Status404NotFound
+            // )
         );
     }
 
@@ -502,7 +502,7 @@ yardGroup.MapPatch("/{id}/vehicles/{yardVehicleId}", async Task<Results<Ok<YardV
     return TypedResults.Ok(newYardEmployee);
 }).WithTags("vehicle");
 
-yardGroup.MapPost("/{id}/vehicles", async Task<Results<Created<YardVehicleDTO>, BadRequest<ProblemHttpResult>, NotFound<ProblemHttpResult>>> (
+yardGroup.MapPost("/{id}/vehicles", async Task<Results<Created<YardVehicleDTO>, BadRequest, NotFound>> (
     IYardRepository yardRepository,
     IYardVehicleRepository yardVehicleRepository,
     IVehicleRepository vehicleRepository,
@@ -513,22 +513,22 @@ yardGroup.MapPost("/{id}/vehicles", async Task<Results<Created<YardVehicleDTO>, 
     if (!Enum.IsDefined(typeof(Status), yardVehicleDTO.Status))
     {
         return TypedResults.BadRequest(
-            TypedResults.Problem(
-                title: "Invalid Role",
-                detail: $"The role value '{yardVehicleDTO.Status}' is not valid.",
-                statusCode: StatusCodes.Status400BadRequest
-            )
+            // TypedResults.Problem(
+            //     title: "Invalid Role",
+            //     detail: $"The role value '{yardVehicleDTO.Status}' is not valid.",
+            //     statusCode: StatusCodes.Status400BadRequest
+            // )
         );
     }
 
     if (yardVehicleDTO.EnteredAt is not DateTime enteredAt)
     {
         return TypedResults.BadRequest(
-            TypedResults.Problem(
-                title: "Invalid entered_at time",
-                detail: $"The entered_at field cannot be null",
-                statusCode: StatusCodes.Status400BadRequest
-            )
+            // TypedResults.Problem(
+            //     title: "Invalid entered_at time",
+            //     detail: $"The entered_at field cannot be null",
+            //     statusCode: StatusCodes.Status400BadRequest
+            // )
         );
     }
 
@@ -536,11 +536,11 @@ yardGroup.MapPost("/{id}/vehicles", async Task<Results<Created<YardVehicleDTO>, 
 
     if (yard is null) {
         return TypedResults.NotFound(
-            TypedResults.Problem(
-                title: "Not Found",
-                detail: $"Yard with id '{id}' not found.",
-                statusCode: StatusCodes.Status404NotFound
-            )
+            // TypedResults.Problem(
+            //     title: "Not Found",
+            //     detail: $"Yard with id '{id}' not found.",
+            //     statusCode: StatusCodes.Status404NotFound
+            // )
         );
     }
 
@@ -549,11 +549,11 @@ yardGroup.MapPost("/{id}/vehicles", async Task<Results<Created<YardVehicleDTO>, 
     if (vehicle is null)
     {
         return TypedResults.NotFound(
-            TypedResults.Problem(
-                title: "Not Found",
-                detail: $"Vehicle with id '{yardVehicleDTO.Vehicle.Id}' not found.",
-                statusCode: StatusCodes.Status404NotFound
-            )
+            // TypedResults.Problem(
+            //     title: "Not Found",
+            //     detail: $"Vehicle with id '{yardVehicleDTO.Vehicle.Id}' not found.",
+            //     statusCode: StatusCodes.Status404NotFound
+            // )
         );
     }
 
