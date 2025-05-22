@@ -1,14 +1,27 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class Vehicle
+namespace AutoInsightAPI.Models
 {
-  [Key]
-  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-  public required string Id {get; set;}
+  public class Vehicle
+  {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public string Id {get; private set;}
 
-  public required string Plate {get; set;}
-  public required string ModelId {get; set;}
-  public required Model Model {get; set;}
-  public required string UserId {get; set;}
+    public string Plate {get; private set;}
+    public string ModelId {get; private set;}
+    public Model Model {get; private set;}
+    public string UserId {get; private set;}
+
+    public Vehicle() { }
+
+    public Vehicle(string plate, Model model, string userId)
+    {
+      this.Plate = plate;
+      this.ModelId = model.Id;
+      this.Model = model;
+      this.UserId = userId;
+    }
+  }
 }

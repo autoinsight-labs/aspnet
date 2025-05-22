@@ -7,22 +7,17 @@ namespace AutoInsightAPI.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string Id { get; set; }
+        public string Id { get; private set; }
 
-        public string? VehicleId { get; set; }
-        public Vehicle? Vehicle { get; set; }
-        public string YardId { get; set; }
-        public Yard Yard { get; set; }
+        public string? VehicleId { get; private set; }
+        public Vehicle? Vehicle { get; private set; }
 
         public QRCode() { }
 
-        public QRCode(string id, Vehicle? vehicle, Yard yard )
+        public QRCode(Vehicle? vehicle)
         {
-            this.Id = id;
             this.VehicleId = vehicle?.Id;
             this.Vehicle = vehicle;
-            this.YardId = yard.Id;
-            this.Yard = yard;
         }
     }
 }

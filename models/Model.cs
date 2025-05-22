@@ -1,12 +1,23 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class Model
+namespace AutoInsightAPI.Models
 {
-  [Key]
-  [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-  public required string Id { get; set; }
+  public class Model
+  {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public string Id { get; private set; }
 
-  public required string Name { get; set; }
-  public required int Year { get; set; }
+    public string Name { get; private set; }
+    public int Year { get; private set; }
+
+    public Model() { }
+
+    public Model(string name, int year)
+    {
+      this.Name = name;
+      this.Year = year;
+    }
+  }
 }

@@ -18,9 +18,12 @@ builder.Services.AddAutoMapper(typeof(YardEmployeeProfile));
 builder.Services.AddAutoMapper(typeof(YardVehicleProfile));
 builder.Services.AddAutoMapper(typeof(AddressProfile));
 builder.Services.AddAutoMapper(typeof(PagedResponseProfile));
+builder.Services.AddAutoMapper(typeof(QRCodeProfile));
+builder.Services.AddAutoMapper(typeof(VehicleProfile));
 
 builder.Services.AddScoped<IYardRepository, YardRepository>();
 builder.Services.AddScoped<IYardEmployeeRepository, YardEmployeeRepository>();
+builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 
 builder.Services.Configure<JsonOptions>(options =>
 {
@@ -334,5 +337,33 @@ yardGroup.MapPatch("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmp
 
     return TypedResults.Ok(newYardEmployee);
 }).WithTags("employee");
+
+// Vehicle Routes
+
+var vehicleGroup = app.MapGroup("/vehicle").WithTags("vehicle");
+
+vehicleGroup.MapGet("/", async Task<Results<Ok<VehicleDTO>, NotFound>> (string qrCodeId, IVehicleRepository vehicleRepository, IMapper mapper) => {
+    var vehicle = await vehicleRepository.FindAsyncByQRCode(qrCodeId);
+
+    if (vehicle is null) {
+        return TypedResults.NotFound();
+    }
+
+
+    var vehicleResponse = mapper.Map<VehicleDTO>(vehicle);
+    return TypedResults.Ok(vehicleResponse);
+});
+
+vehicleGroup.MapGet("/{id}", async Task<Results<Ok<VehicleDTO>, NotFound>> (string id, IVehicleRepository vehicleRepository, IMapper mapper) => {
+    var vehicle = await vehicleRepository.FindAsyncById(id);
+
+    if (vehicle is null) {
+        return TypedResults.NotFound();
+    }
+
+
+    var vehicleResponse = mapper.Map<VehicleDTO>(vehicle);
+    return TypedResults.Ok(vehicleResponse);
+});
 
 app.Run();
