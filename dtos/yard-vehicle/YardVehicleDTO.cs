@@ -6,7 +6,7 @@ namespace AutoInsightAPI.Dtos
   {
     public string Id {get; private set;}
     public Status Status {get; set;}
-    public DateTime EnteredAt {get; set;}
+    public DateTime? EnteredAt {get; set;}
     public DateTime? LeftAt {get; set;}
     public VehicleDTO Vehicle {get; set;}
   }

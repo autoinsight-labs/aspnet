@@ -18,7 +18,7 @@ namespace AutoInsightAPI.Models
     public string Id {get; private set;}
 
     public Status Status {get; private set;}
-    public DateTime EnteredAt {get; private set;}
+    public DateTime? EnteredAt {get; private set;}
     public DateTime? LeftAt {get; private set;}
     public string VehicleId {get; private set;}
     public Vehicle Vehicle {get; private set;}
@@ -27,7 +27,7 @@ namespace AutoInsightAPI.Models
 
     public YardVehicle() { }
 
-    public YardVehicle(Status status, DateTime enteredAt, DateTime? leftAt, Vehicle vehicle, Yard yard)
+    public YardVehicle(Status status, DateTime? enteredAt, DateTime? leftAt, Vehicle vehicle, Yard yard)
     {
       this.Status = status;
       this.EnteredAt = enteredAt;

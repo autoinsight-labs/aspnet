@@ -7,5 +7,6 @@ namespace AutoInsightAPI.Repositories
     Task<YardVehicle> CreateAsync(YardVehicle vehicle);
     Task<YardVehicle?> FindAsync(string id);
     Task<PagedResponse<YardVehicle>> ListPagedAsync(int page, int pageSize, Yard yard);
+    Task UpdateAsync();
   }
 }

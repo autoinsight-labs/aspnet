@@ -43,5 +43,10 @@ namespace AutoInsightAPI.Repositories
 
         return pagedResponse;
       }
+
+      public async Task UpdateAsync()
+      {
+        await _db.SaveChangesAsync();
+      }
     }
 }

@@ -450,7 +450,59 @@ yardGroup.MapGet("/{id}/vehicles/{yardVehicleId}", async Task<Results<Ok<YardVeh
     return TypedResults.Ok(yardVehicleResult);
 }).WithTags("vehicle");
 
-yardGroup.MapPost("/{id}/vehicles", async Task<Results<Created<YardVehicleDTO>, NotFound<ProblemHttpResult>>> (
+yardGroup.MapPatch("/{id}/vehicles/{yardVehicleId}", async Task<Results<Ok<YardVehicleDTO>, BadRequest<ProblemHttpResult>, NotFound<ProblemHttpResult>>> (
+    IYardRepository yardRepository,
+    IYardVehicleRepository yardVehicleRepository,
+    IMapper mapper,
+    string id,
+    string yardVehicleId,
+    YardVehicleDTO yardVehicleDTO
+) => {
+    if (!Enum.IsDefined(typeof(Status), yardVehicleDTO.Status))
+    {
+        return TypedResults.BadRequest(
+            TypedResults.Problem(
+                title: "Invalid Role",
+                detail: $"The role value '{yardVehicleDTO.Status}' is not valid.",
+                statusCode: StatusCodes.Status400BadRequest
+            )
+        );
+    }
+
+    var yard = await yardRepository.FindAsync(id);
+
+    if (yard is null) {
+        return TypedResults.NotFound(
+            TypedResults.Problem(
+                title: "Not Found",
+                detail: $"Yard with id '{id}' not found.",
+                statusCode: StatusCodes.Status404NotFound
+            )
+        );
+    }
+
+    var yardVehicle = await yardVehicleRepository.FindAsync(yardVehicleId);
+
+    if (yardVehicle is null) {
+        return TypedResults.NotFound(
+            TypedResults.Problem(
+                title: "Not Found",
+                detail: $"Yard vehicle with id '{yardVehicleId}' not found.",
+                statusCode: StatusCodes.Status404NotFound
+            )
+        );
+    }
+
+
+    mapper.Map(yardVehicleDTO, yardVehicle);
+    await yardVehicleRepository.UpdateAsync();
+
+    var newYardEmployee = mapper.Map<YardVehicleDTO>(yardVehicle);
+
+    return TypedResults.Ok(newYardEmployee);
+}).WithTags("vehicle");
+
+yardGroup.MapPost("/{id}/vehicles", async Task<Results<Created<YardVehicleDTO>, BadRequest<ProblemHttpResult>, NotFound<ProblemHttpResult>>> (
     IYardRepository yardRepository,
     IYardVehicleRepository yardVehicleRepository,
     IVehicleRepository vehicleRepository,
@@ -458,6 +510,28 @@ yardGroup.MapPost("/{id}/vehicles", async Task<Results<Created<YardVehicleDTO>, 
     string id,
     YardVehicleDTO yardVehicleDTO
 ) => {
+    if (!Enum.IsDefined(typeof(Status), yardVehicleDTO.Status))
+    {
+        return TypedResults.BadRequest(
+            TypedResults.Problem(
+                title: "Invalid Role",
+                detail: $"The role value '{yardVehicleDTO.Status}' is not valid.",
+                statusCode: StatusCodes.Status400BadRequest
+            )
+        );
+    }
+
+    if (yardVehicleDTO.EnteredAt is not DateTime enteredAt)
+    {
+        return TypedResults.BadRequest(
+            TypedResults.Problem(
+                title: "Invalid entered_at time",
+                detail: $"The entered_at field cannot be null",
+                statusCode: StatusCodes.Status400BadRequest
+            )
+        );
+    }
+
     var yard = await yardRepository.FindAsync(id);
 
     if (yard is null) {
@@ -485,7 +559,7 @@ yardGroup.MapPost("/{id}/vehicles", async Task<Results<Created<YardVehicleDTO>, 
 
     var newYardVehicle = new YardVehicle(
         status: yardVehicleDTO.Status,
-        enteredAt: yardVehicleDTO.EnteredAt,
+        enteredAt: enteredAt,
         leftAt: yardVehicleDTO.LeftAt,
         vehicle: vehicle,
         yard: yard
