@@ -8,6 +8,6 @@ namespace AutoInsightAPI.Dtos
     public Status Status {get; set;}
     public DateTime EnteredAt {get; set;}
     public DateTime? LeftAt {get; set;}
-    public Vehicle Vehicle {get; set;}
+    public VehicleDTO Vehicle {get; set;}
   }
 }

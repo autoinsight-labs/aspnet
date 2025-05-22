@@ -27,9 +27,8 @@ namespace AutoInsightAPI.Models
 
     public YardVehicle() { }
 
-    public YardVehicle(string id, Status status, DateTime enteredAt, DateTime? leftAt, Vehicle vehicle, Yard yard)
+    public YardVehicle(Status status, DateTime enteredAt, DateTime? leftAt, Vehicle vehicle, Yard yard)
     {
-      this.Id = id;
       this.Status = status;
       this.EnteredAt = enteredAt;
       this.LeftAt = leftAt;

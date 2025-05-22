@@ -23,6 +23,7 @@ builder.Services.AddAutoMapper(typeof(VehicleProfile));
 
 builder.Services.AddScoped<IYardRepository, YardRepository>();
 builder.Services.AddScoped<IYardEmployeeRepository, YardEmployeeRepository>();
+builder.Services.AddScoped<IYardVehicleRepository, YardVehicleRepository>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 
 builder.Services.Configure<JsonOptions>(options =>
@@ -137,6 +138,8 @@ yardGroup.MapPatch("/{id}", async Task<Results<Ok<YardDTO>, NotFound>> (string i
     var newYard = mapper.Map<YardDTO>(existingYard);
     return TypedResults.Ok(newYard);
 });
+
+// Employee routes
 
 yardGroup.MapGet("/{id}/employees", async Task<Results<Ok<PagedResponseDTO<YardEmployeeDTO>>, BadRequest<ProblemHttpResult>, NotFound<ProblemHttpResult>>> (
     IYardRepository yardRepository,
@@ -365,5 +368,52 @@ vehicleGroup.MapGet("/{id}", async Task<Results<Ok<VehicleDTO>, NotFound>> (stri
     var vehicleResponse = mapper.Map<VehicleDTO>(vehicle);
     return TypedResults.Ok(vehicleResponse);
 });
+
+yardGroup.MapPost("/{id}/vehicles", async Task<Results<Created<YardVehicleDTO>, NotFound<ProblemHttpResult>>> (
+    IYardRepository yardRepository,
+    IYardVehicleRepository yardVehicleRepository,
+    IVehicleRepository vehicleRepository,
+    IMapper mapper,
+    string id,
+    YardVehicleDTO yardVehicleDTO
+) => {
+    var yard = await yardRepository.FindAsync(id);
+
+    if (yard is null) {
+        return TypedResults.NotFound(
+            TypedResults.Problem(
+                title: "Not Found",
+                detail: $"Yard with id '{id}' not found.",
+                statusCode: StatusCodes.Status404NotFound
+            )
+        );
+    }
+
+    var vehicle = await vehicleRepository.FindAsyncById(yardVehicleDTO.Vehicle.Id);
+
+    if (vehicle is null)
+    {
+        return TypedResults.NotFound(
+            TypedResults.Problem(
+                title: "Not Found",
+                detail: $"Vehicle with id '{yardVehicleDTO.Vehicle.Id}' not found.",
+                statusCode: StatusCodes.Status404NotFound
+            )
+        );
+    }
+
+    var newYardVehicle = new YardVehicle(
+        status: yardVehicleDTO.Status,
+        enteredAt: yardVehicleDTO.EnteredAt,
+        leftAt: yardVehicleDTO.LeftAt,
+        vehicle: vehicle,
+        yard: yard
+    );
+
+    var createdYardVehicle = await yardVehicleRepository.CreateAsync(newYardVehicle);
+    var yardVehicleDTOResult = mapper.Map<YardVehicleDTO>(createdYardVehicle);
+
+    return TypedResults.Created($"/yard/{createdYardVehicle.YardId}/vehicles/{createdYardVehicle.Id}", yardVehicleDTOResult);
+}).WithTags("vehicle");
 
 app.Run();
