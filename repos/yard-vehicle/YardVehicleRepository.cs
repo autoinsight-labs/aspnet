@@ -1,4 +1,5 @@
 using AutoInsightAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AutoInsightAPI.Repositories
 {
@@ -17,6 +18,30 @@ namespace AutoInsightAPI.Repositories
         await _db.SaveChangesAsync();
 
         return vehicle;
+      }
+
+      public async Task<YardVehicle?> FindAsync(string id)
+      {
+        return await _db.YardVehicles.Include(yv => yv.Vehicle).ThenInclude(v => v.Model).FirstOrDefaultAsync(ye => ye.Id == id);
+      }
+
+      public async Task<PagedResponse<YardVehicle>> ListPagedAsync(int page, int pageSize, Yard yard)
+      {
+        var totalRecords = _db.YardVehicles.Where(yv => yv.YardId == yard.Id).Count();
+
+        var vehicles = await _db.YardVehicles
+          .AsNoTracking()
+          .Include(yv => yv.Vehicle)
+          .ThenInclude(v => v.Model)
+          .Where(yv => yv.YardId == yard.Id)
+          .OrderBy(ye => ye.Id)
+          .Skip((page - 1) * pageSize)
+          .Take(pageSize)
+          .ToListAsync();
+
+        var pagedResponse = new PagedResponse<YardVehicle>(vehicles, page, pageSize, totalRecords);
+
+        return pagedResponse;
       }
     }
 }

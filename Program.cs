@@ -369,6 +369,87 @@ vehicleGroup.MapGet("/{id}", async Task<Results<Ok<VehicleDTO>, NotFound>> (stri
     return TypedResults.Ok(vehicleResponse);
 });
 
+yardGroup.MapGet("/{id}/vehicles", async Task<Results<Ok<PagedResponseDTO<YardVehicleDTO>>, BadRequest<ProblemHttpResult>, NotFound<ProblemHttpResult>>> (
+    IYardRepository yardRepository,
+    IYardVehicleRepository yardVehicleRepository,
+    IMapper mapper,
+    string id,
+    int pageNumber = 1,
+    int pageSize = 10
+) => {
+    if (pageNumber <= 0) {
+        return TypedResults.BadRequest(
+            TypedResults.Problem(
+                title: "Bad Request",
+                detail: $"{nameof(pageNumber)} must be greater than 0",
+                statusCode: StatusCodes.Status400BadRequest
+            )
+        );
+    }
+
+    if (pageSize <= 0) {
+        return TypedResults.BadRequest(
+            TypedResults.Problem(
+                title: "Bad Request",
+                detail: $"{nameof(pageSize)} must be greater than 0",
+                statusCode: StatusCodes.Status400BadRequest
+            )
+        );
+    }
+
+    var yard = await yardRepository.FindAsync(id);
+
+    if (yard is null) {
+        return TypedResults.NotFound(
+            TypedResults.Problem(
+                title: "Not Found",
+                detail: $"Yard with id '{id}' not found.",
+                statusCode: StatusCodes.Status404NotFound
+            )
+        );
+    }
+
+    var yardVehicles = await yardVehicleRepository.ListPagedAsync(pageNumber, pageSize, yard);
+
+    return TypedResults.Ok(mapper.Map<PagedResponseDTO<YardVehicleDTO>>(yardVehicles));
+}).WithTags("vehicle");
+
+yardGroup.MapGet("/{id}/vehicles/{yardVehicleId}", async Task<Results<Ok<YardVehicleDTO>, BadRequest<ProblemHttpResult>, NotFound<ProblemHttpResult>>> (
+    IYardRepository yardRepository,
+    IYardVehicleRepository yardVehicleRepository,
+    IMapper mapper,
+    string id,
+    string yardVehicleId
+) => {
+    var yard = await yardRepository.FindAsync(id);
+
+    if (yard is null) {
+        return TypedResults.NotFound(
+            TypedResults.Problem(
+                title: "Not Found",
+                detail: $"Yard with id '{id}' not found.",
+                statusCode: StatusCodes.Status404NotFound
+            )
+        );
+    }
+
+    var yardVehicle = await yardVehicleRepository.FindAsync(yardVehicleId);
+
+    if (yardVehicle is null) {
+        return TypedResults.NotFound(
+            TypedResults.Problem(
+                title: "Not Found",
+                detail: $"Yard vehicle with id '{yardVehicleId}' not found.",
+                statusCode: StatusCodes.Status404NotFound
+            )
+        );
+    }
+
+    var yardVehicleResult = mapper.Map<YardVehicleDTO>(yardVehicle);
+
+    return TypedResults.Ok(yardVehicleResult);
+}).WithTags("vehicle");
+
 yardGroup.MapPost("/{id}/vehicles", async Task<Results<Created<YardVehicleDTO>, NotFound<ProblemHttpResult>>> (
     IYardRepository yardRepository,
     IYardVehicleRepository yardVehicleRepository,
