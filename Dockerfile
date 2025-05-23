@@ -5,8 +5,7 @@ EXPOSE 8081
 
 RUN apk add --no-cache \
     libc6-compat \
-    libaio \
-    && ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2
+    libaio
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 ARG BUILD_CONFIGURATION=Release
