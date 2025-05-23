@@ -1,9 +1,14 @@
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+RUN apk add --no-cache \
+    libc6-compat \
+    libaio \
+    && ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2
+
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
@@ -21,13 +26,12 @@ RUN dotnet publish "./AutoInsightAPI.csproj" -c $BUILD_CONFIGURATION -o /app/pub
 FROM base AS final
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-    libaio1 \
-    && rm -rf /var/lib/apt/lists/*
-
 COPY --from=publish /app/publish .
 
-RUN adduser --disabled-password --gecos '' appuser && chown -R appuser /app
+RUN addgroup -g 1001 -S appuser && \
+    adduser -S appuser -G appuser -u 1001 && \
+    chown -R appuser:appuser /app
+
 USER appuser
 
 ENTRYPOINT ["dotnet", "AutoInsightAPI.dll"]
