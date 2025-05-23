@@ -93,34 +93,34 @@ O projeto utiliza Entity Framework Core com Oracle Database e inclui as seguinte
 ### 🏢 Yards (Pátios)
 | Método | Endpoint | Descrição | Parâmetros | Retorno |
 |--------|----------|-----------|------------|---------|
-| GET | `/yard` | Lista pátios com paginação | `pageNumber`, `pageSize` | 200 OK, 400 BadRequest |
-| GET | `/yard/{id}` | Busca pátio por ID | `id` (path) | 200 OK, 404 NotFound |
-| POST | `/yard` | Cria novo pátio | Body: `YardDTO` | 201 Created, 500 InternalServerError |
-| PUT | `/yard/{id}` | Atualiza pátio existente | `id` (path), Body: `YardDTO` | 200 OK, 404 NotFound |
-| DELETE | `/yard/{id}` | Remove pátio | `id` (path) | 204 NoContent, 404 NotFound |
+| GET | `/yards` | Lista pátios com paginação | `pageNumber`, `pageSize` | 200 OK, 400 BadRequest |
+| GET | `/yards/{id}` | Busca pátio por ID | `id` (path) | 200 OK, 404 NotFound |
+| POST | `/yards` | Cria novo pátio | Body: `YardDTO` | 201 Created, 500 InternalServerError |
+| PUT | `/yards/{id}` | Atualiza pátio existente | `id` (path), Body: `YardDTO` | 200 OK, 404 NotFound |
+| DELETE | `/yards/{id}` | Remove pátio | `id` (path) | 204 NoContent, 404 NotFound |
 
 ### 👥 Employees (Funcionários)
 | Método | Endpoint | Descrição | Parâmetros | Retorno |
 |--------|----------|-----------|------------|---------|
-| GET | `/yard/{id}/employees` | Lista funcionários do pátio | `id` (path), `pageNumber`, `pageSize` | 200 OK, 400 BadRequest, 404 NotFound |
-| GET | `/yard/{id}/employees/{employeeId}` | Busca funcionário específico | `id`, `employeeId` (path) | 200 OK, 404 NotFound |
-| POST | `/yard/{id}/employees` | Adiciona funcionário ao pátio | `id` (path), Body: `YardEmployeeDTO` | 201 Created, 404 NotFound |
-| PUT | `/yard/{id}/employees/{employeeId}` | Atualiza funcionário | `id`, `employeeId` (path), Body: `YardEmployeeDTO` | 200 OK, 400 BadRequest, 404 NotFound |
-| DELETE | `/yard/{id}/employees/{employeeId}` | Remove funcionário | `id`, `employeeId` (path) | 204 NoContent, 404 NotFound |
+| GET | `/yards/{id}/employees` | Lista funcionários do pátio | `id` (path), `pageNumber`, `pageSize` | 200 OK, 400 BadRequest, 404 NotFound |
+| GET | `/yards/{id}/employees/{employeeId}` | Busca funcionário específico | `id`, `employeeId` (path) | 200 OK, 404 NotFound |
+| POST | `/yards/{id}/employees` | Adiciona funcionário ao pátio | `id` (path), Body: `YardEmployeeDTO` | 201 Created, 404 NotFound |
+| PUT | `/yards/{id}/employees/{employeeId}` | Atualiza funcionário | `id`, `employeeId` (path), Body: `YardEmployeeDTO` | 200 OK, 400 BadRequest, 404 NotFound |
+| DELETE | `/yards/{id}/employees/{employeeId}` | Remove funcionário | `id`, `employeeId` (path) | 204 NoContent, 404 NotFound |
 
 ### 🏍️ Vehicles (Veículos)
 | Método | Endpoint | Descrição | Parâmetros | Retorno |
 |--------|----------|-----------|------------|---------|
-| GET | `/vehicle` | Busca veículo por QR Code | `qrCodeId` (query) | 200 OK, 404 NotFound |
-| GET | `/vehicle/{id}` | Busca veículo por ID | `id` (path) | 200 OK, 404 NotFound |
+| GET | `/vehicles` | Busca veículo por QR Code | `qrCodeId` (query) | 200 OK, 404 NotFound |
+| GET | `/vehicles/{id}` | Busca veículo por ID | `id` (path) | 200 OK, 404 NotFound |
 
 ### 🏍️ Yard Vehicles (Veículos do Pátio)
 | Método | Endpoint | Descrição | Parâmetros | Retorno |
 |--------|----------|-----------|------------|---------|
-| GET | `/yard/{id}/vehicles` | Lista veículos do pátio | `id` (path), `pageNumber`, `pageSize` | 200 OK, 400 BadRequest, 404 NotFound |
-| GET | `/yard/{id}/vehicles/{yardVehicleId}` | Busca veículo específico do pátio | `id`, `yardVehicleId` (path) | 200 OK, 400 BadRequest, 404 NotFound |
-| POST | `/yard/{id}/vehicles` | Adiciona veículo ao pátio | `id` (path), Body: `YardVehicleDTO` | 201 Created, 400 BadRequest, 404 NotFound |
-| PUT | `/yard/{id}/vehicles/{yardVehicleId}` | Atualiza veículo do pátio | `id`, `yardVehicleId` (path), Body: `YardVehicleDTO` | 200 OK, 400 BadRequest, 404 NotFound |
+| GET | `/yards/{id}/vehicles` | Lista veículos do pátio | `id` (path), `pageNumber`, `pageSize` | 200 OK, 400 BadRequest, 404 NotFound |
+| GET | `/yards/{id}/vehicles/{yardVehicleId}` | Busca veículo específico do pátio | `id`, `yardVehicleId` (path) | 200 OK, 400 BadRequest, 404 NotFound |
+| POST | `/yards/{id}/vehicles` | Adiciona veículo ao pátio | `id` (path), Body: `YardVehicleDTO` | 201 Created, 400 BadRequest, 404 NotFound |
+| PUT | `/yards/{id}/vehicles/{yardVehicleId}` | Atualiza veículo do pátio | `id`, `yardVehicleId` (path), Body: `YardVehicleDTO` | 200 OK, 400 BadRequest, 404 NotFound |
 
 ## 🎯 Funcionalidades Implementadas
 
@@ -155,10 +155,10 @@ O projeto utiliza Entity Framework Core com Oracle Database e inclui as seguinte
 
 ```bash
 # Listar pátios
-curl -X GET "http://localhost:5100/yard?pageNumber=1&pageSize=10"
+curl -X GET "http://localhost:5100/yards?pageNumber=1&pageSize=10"
 
 # Criar novo pátio
-curl http://localhost:5100/yard \
+curl http://localhost:5100/yards \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{
@@ -174,7 +174,7 @@ curl http://localhost:5100/yard \
 }'
 
 # Buscar veículo por QR Code
-curl -X GET "http://localhost:5100/vehicle?qrCodeId=QR123"
+curl -X GET "http://localhost:5100/vehicles?qrCodeId=QR123"
 ```
 
 ## 📝 Padrões de Desenvolvimento

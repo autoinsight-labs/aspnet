@@ -50,7 +50,7 @@ app.MapGet("/health", () => Results.Ok())
     .WithDescription("Always returns 200 when the application is running.");
 
 // Yard Routes
-var yardGroup = app.MapGroup("/yard").WithTags("yard");
+var yardGroup = app.MapGroup("/yards").WithTags("yard");
 
 yardGroup.MapGet("/", async Task<Results<Ok<PagedResponseDTO<YardDTO>>, BadRequest>> (
     IYardRepository yardRepository,
@@ -343,7 +343,7 @@ yardGroup.MapPut("/{id}/employees/{employeeId}", async Task<Results<Ok<YardEmplo
 
 // Vehicle Routes
 
-var vehicleGroup = app.MapGroup("/vehicle").WithTags("vehicle");
+var vehicleGroup = app.MapGroup("/vehicles").WithTags("vehicle");
 
 vehicleGroup.MapGet("/", async Task<Results<Ok<VehicleDTO>, NotFound>> (string qrCodeId, IVehicleRepository vehicleRepository, IMapper mapper) => {
     var vehicle = await vehicleRepository.FindAsyncByQRCode(qrCodeId);
