@@ -47,6 +47,7 @@ O projeto utiliza Entity Framework Core com Oracle Database e inclui as seguinte
 ### Pré-requisitos
 
 - .NET 9.0 SDK
+- .NET Entity Framework CLI
 - Oracle Database
 - Git
 
