@@ -16,11 +16,11 @@ RUN dotnet restore "./AutoInsightAPI.csproj"
 
 COPY . .
 WORKDIR "/src/."
-RUN dotnet build "./AutoInsightAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./AutoInsightAPI.csproj" -c "$BUILD_CONFIGURATION" -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./AutoInsightAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./AutoInsightAPI.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
