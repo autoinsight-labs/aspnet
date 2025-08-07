@@ -1,8 +1,3 @@
-using Microsoft.AspNetCore.Http.HttpResults;
-using AutoMapper;
-using AutoInsightAPI.Repositories;
-using AutoInsightAPI.Dtos;
-using AutoInsightAPI.Models;
 using AutoInsightAPI.configs;
 using AutoInsightAPI.handlers;
 
