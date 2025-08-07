@@ -1,3 +1,4 @@
+using AutoInsightAPI.models;
 using AutoInsightAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -5,9 +6,9 @@ namespace AutoInsightAPI.Repositories
 {
     public class VehicleRepository : IVehicleRepository
     {
-      private readonly AutoInsightDB _db;
+      private readonly AutoInsightDb _db;
 
-      public VehicleRepository(AutoInsightDB db)
+      public VehicleRepository(AutoInsightDb db)
       {
         this._db = db;
       }
@@ -20,7 +21,7 @@ namespace AutoInsightAPI.Repositories
 
       public async Task<Vehicle?> FindAsyncByQRCode(string qrCodeId)
       {
-        var qrCode = await _db.QRCodes.Include(y => y.Vehicle).ThenInclude(v => v!.Model)
+        var qrCode = await _db.QrCodes.Include(y => y.Vehicle).ThenInclude(v => v!.Model)
                               .FirstOrDefaultAsync(y => y.Id == qrCodeId);
 
         return qrCode?.Vehicle;

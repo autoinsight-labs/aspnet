@@ -1,3 +1,4 @@
+using AutoInsightAPI.models;
 using Microsoft.EntityFrameworkCore;
 using AutoInsightAPI.Models;
 
@@ -5,9 +6,9 @@ namespace AutoInsightAPI.Repositories
 {
     class YardEmployeeRepository : IYardEmployeeRepository
     {
-      private readonly AutoInsightDB _db;
+      private readonly AutoInsightDb _db;
 
-      public YardEmployeeRepository(AutoInsightDB db)
+      public YardEmployeeRepository(AutoInsightDb db)
       {
         this._db = db;
       }

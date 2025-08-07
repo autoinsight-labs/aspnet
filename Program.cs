@@ -8,6 +8,7 @@ using AutoInsightAPI.Profiles;
 using AutoInsightAPI.Models;
 using Microsoft.AspNetCore.Http.Json;
 using System.Text.Json.Serialization;
+using AutoInsightAPI.models;
 
 DotNetEnv.Env.Load();
 
@@ -32,7 +33,7 @@ builder.Services.Configure<JsonOptions>(options =>
 });
 
 var oracleConnectionString = Environment.GetEnvironmentVariable("ORACLE_CONNECTION_STRING");
-builder.Services.AddDbContext<AutoInsightDB>(opt
+builder.Services.AddDbContext<AutoInsightDb>(opt
     => opt.UseOracle(oracleConnectionString));
 
 builder.Services.AddOpenApi();
