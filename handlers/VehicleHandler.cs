@@ -1,0 +1,266 @@
+using AutoInsightAPI.Dtos;
+using AutoInsightAPI.Models;
+using AutoInsightAPI.Repositories;
+using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
+
+namespace AutoInsightAPI.handlers;
+
+public static class VehicleHandler
+{
+    public static void Map(WebApplication app)
+    {
+        var vehicleGroup = app.MapGroup("/vehicles").WithTags("vehicle");
+        var yardVehicleGroup = app.MapGroup("/yards/{id}/vehicles").WithTags(["vehicle", "yard"]);
+
+        vehicleGroup.MapGet("/",
+            async Task<Results<Ok<VehicleDTO>, NotFound>> (string qrCodeId, IVehicleRepository vehicleRepository,
+                IMapper mapper) =>
+            {
+                var vehicle = await vehicleRepository.FindAsyncByQRCode(qrCodeId);
+
+                if (vehicle is null)
+                {
+                    return TypedResults.NotFound();
+                }
+
+
+                var vehicleResponse = mapper.Map<VehicleDTO>(vehicle);
+                return TypedResults.Ok(vehicleResponse);
+            });
+
+        vehicleGroup.MapGet("/{id}",
+            async Task<Results<Ok<VehicleDTO>, NotFound>> (string id, IVehicleRepository vehicleRepository,
+                IMapper mapper) =>
+            {
+                var vehicle = await vehicleRepository.FindAsyncById(id);
+
+                if (vehicle is null)
+                {
+                    return TypedResults.NotFound();
+                }
+
+
+                var vehicleResponse = mapper.Map<VehicleDTO>(vehicle);
+                return TypedResults.Ok(vehicleResponse);
+            });
+
+        yardVehicleGroup.MapGet("/",
+            async Task<Results<Ok<PagedResponseDTO<YardVehicleDTO>>, BadRequest, NotFound>> (
+                IYardRepository yardRepository,
+                IYardVehicleRepository yardVehicleRepository,
+                IMapper mapper,
+                string id,
+                int pageNumber = 1,
+                int pageSize = 10
+            ) =>
+            {
+                if (pageNumber <= 0)
+                {
+                    return TypedResults.BadRequest(
+                        // TypedResults.Problem(
+                        //     title: "Bad Request",
+                        //     detail: $"{nameof(pageNumber)} must be greater than 0",
+                        //     statusCode: StatusCodes.Status400BadRequest
+                        // )
+                    );
+                }
+
+                if (pageSize <= 0)
+                {
+                    return TypedResults.BadRequest(
+                        // TypedResults.Problem(
+                        //     title: "Bad Request",
+                        //     detail: $"{nameof(pageSize)} must be greater than 0",
+                        //     statusCode: StatusCodes.Status400BadRequest
+                        // )
+                    );
+                }
+
+                var yard = await yardRepository.FindAsync(id);
+
+                if (yard is null)
+                {
+                    return TypedResults.NotFound(
+                        // TypedResults.Problem(
+                        //     title: "Not Found",
+                        //     detail: $"Yard with id '{id}' not found.",
+                        //     statusCode: StatusCodes.Status404NotFound
+                        // )
+                    );
+                }
+
+                var yardVehicles = await yardVehicleRepository.ListPagedAsync(pageNumber, pageSize, yard);
+
+                return TypedResults.Ok(mapper.Map<PagedResponseDTO<YardVehicleDTO>>(yardVehicles));
+            }).WithTags("vehicle");
+
+        yardVehicleGroup.MapGet("/{yardVehicleId}",
+            async Task<Results<Ok<YardVehicleDTO>, BadRequest, NotFound>> (
+                IYardRepository yardRepository,
+                IYardVehicleRepository yardVehicleRepository,
+                IMapper mapper,
+                string id,
+                string yardVehicleId
+            ) =>
+            {
+                var yard = await yardRepository.FindAsync(id);
+
+                if (yard is null)
+                {
+                    return TypedResults.NotFound(
+                        // TypedResults.Problem(
+                        //     title: "Not Found",
+                        //     detail: $"Yard with id '{id}' not found.",
+                        //     statusCode: StatusCodes.Status404NotFound
+                        // )
+                    );
+                }
+
+                var yardVehicle = await yardVehicleRepository.FindAsync(yardVehicleId);
+
+                if (yardVehicle is null)
+                {
+                    return TypedResults.NotFound(
+                        // TypedResults.Problem(
+                        //     title: "Not Found",
+                        //     detail: $"Yard vehicle with id '{yardVehicleId}' not found.",
+                        //     statusCode: StatusCodes.Status404NotFound
+                        // )
+                    );
+                }
+
+                var yardVehicleResult = mapper.Map<YardVehicleDTO>(yardVehicle);
+
+                return TypedResults.Ok(yardVehicleResult);
+            }).WithTags("vehicle");
+
+        yardVehicleGroup.MapPut("/{yardVehicleId}",
+            async Task<Results<Ok<YardVehicleDTO>, BadRequest, NotFound>> (
+                IYardRepository yardRepository,
+                IYardVehicleRepository yardVehicleRepository,
+                IMapper mapper,
+                string id,
+                string yardVehicleId,
+                YardVehicleDTO yardVehicleDto
+            ) =>
+            {
+                if (!Enum.IsDefined(typeof(Status), yardVehicleDto.Status))
+                {
+                    return TypedResults.BadRequest(
+                        // TypedResults.Problem(
+                        //     title: "Invalid Role",
+                        //     detail: $"The role value '{yardVehicleDTO.Status}' is not valid.",
+                        //     statusCode: StatusCodes.Status400BadRequest
+                        // )
+                    );
+                }
+
+                var yard = await yardRepository.FindAsync(id);
+
+                if (yard is null)
+                {
+                    return TypedResults.NotFound(
+                        // TypedResults.Problem(
+                        //     title: "Not Found",
+                        //     detail: $"Yard with id '{id}' not found.",
+                        //     statusCode: StatusCodes.Status404NotFound
+                        // )
+                    );
+                }
+
+                var yardVehicle = await yardVehicleRepository.FindAsync(yardVehicleId);
+
+                if (yardVehicle is null)
+                {
+                    return TypedResults.NotFound(
+                        // TypedResults.Problem(
+                        //     title: "Not Found",
+                        //     detail: $"Yard vehicle with id '{yardVehicleId}' not found.",
+                        //     statusCode: StatusCodes.Status404NotFound
+                        // )
+                    );
+                }
+
+
+                mapper.Map(yardVehicleDto, yardVehicle);
+                await yardVehicleRepository.UpdateAsync();
+
+                var newYardEmployee = mapper.Map<YardVehicleDTO>(yardVehicle);
+
+                return TypedResults.Ok(newYardEmployee);
+            }).WithTags("vehicle");
+
+        yardVehicleGroup.MapPost("/", async Task<Results<Created<YardVehicleDTO>, BadRequest, NotFound>> (
+            IYardRepository yardRepository,
+            IYardVehicleRepository yardVehicleRepository,
+            IVehicleRepository vehicleRepository,
+            IMapper mapper,
+            string id,
+            YardVehicleDTO yardVehicleDto
+        ) =>
+        {
+            if (!Enum.IsDefined(typeof(Status), yardVehicleDto.Status))
+            {
+                return TypedResults.BadRequest(
+                    // TypedResults.Problem(
+                    //     title: "Invalid Role",
+                    //     detail: $"The role value '{yardVehicleDTO.Status}' is not valid.",
+                    //     statusCode: StatusCodes.Status400BadRequest
+                    // )
+                );
+            }
+
+            if (yardVehicleDto.EnteredAt is not DateTime enteredAt)
+            {
+                return TypedResults.BadRequest(
+                    // TypedResults.Problem(
+                    //     title: "Invalid entered_at time",
+                    //     detail: $"The entered_at field cannot be null",
+                    //     statusCode: StatusCodes.Status400BadRequest
+                    // )
+                );
+            }
+
+            var yard = await yardRepository.FindAsync(id);
+
+            if (yard is null)
+            {
+                return TypedResults.NotFound(
+                    // TypedResults.Problem(
+                    //     title: "Not Found",
+                    //     detail: $"Yard with id '{id}' not found.",
+                    //     statusCode: StatusCodes.Status404NotFound
+                    // )
+                );
+            }
+
+            var vehicle = await vehicleRepository.FindAsyncById(yardVehicleDto.Vehicle.Id);
+
+            if (vehicle is null)
+            {
+                return TypedResults.NotFound(
+                    // TypedResults.Problem(
+                    //     title: "Not Found",
+                    //     detail: $"Vehicle with id '{yardVehicleDTO.Vehicle.Id}' not found.",
+                    //     statusCode: StatusCodes.Status404NotFound
+                    // )
+                );
+            }
+
+            var newYardVehicle = new YardVehicle(
+                status: yardVehicleDto.Status,
+                enteredAt: enteredAt,
+                leftAt: yardVehicleDto.LeftAt,
+                vehicle: vehicle,
+                yard: yard
+            );
+
+            var createdYardVehicle = await yardVehicleRepository.CreateAsync(newYardVehicle);
+            var yardVehicleDtoResult = mapper.Map<YardVehicleDTO>(createdYardVehicle);
+
+            return TypedResults.Created($"/yard/{createdYardVehicle.YardId}/vehicles/{createdYardVehicle.Id}",
+                yardVehicleDtoResult);
+        }).WithTags("vehicle");
+    }
+}
