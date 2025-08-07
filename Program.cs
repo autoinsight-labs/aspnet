@@ -21,4 +21,5 @@ YardHandler.Map(app);
 EmployeeHandler.Map(app);
 // Vehicle Routes
 VehicleHandler.Map(app);
-app.Run();
+
+await app.RunAsync();
