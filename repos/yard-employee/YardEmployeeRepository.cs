@@ -34,7 +34,7 @@ namespace AutoInsightAPI.Repositories
 
       public async Task<PagedResponse<YardEmployee>> ListPagedAsync(int page, int pageSize, Yard yard)
       {
-        var totalRecords = _db.YardEmployees.Where(ye => ye.YardId == yard.Id).Count();
+        var totalRecords = await _db.YardEmployees.Where(ye => ye.YardId == yard.Id).CountAsync();
 
         var employees = await _db.YardEmployees
           .AsNoTracking()
