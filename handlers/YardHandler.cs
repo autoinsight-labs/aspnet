@@ -12,107 +12,122 @@ public static class YardHandler
     {
         var yardGroup = app.MapGroup("/yards").WithTags("yard");
 
-        yardGroup.MapGet("/", async Task<Results<Ok<PagedResponseDTO<YardDTO>>, BadRequest>> (
-            IYardRepository yardRepository,
-            IMapper mapper,
-            int pageNumber = 1,
-            int pageSize = 10
-        ) =>
+        yardGroup.MapGet("/", GetYards);
+        yardGroup.MapGet("/{id}", GetYardById);
+        yardGroup.MapPost("/", CreateYard);
+        yardGroup.MapDelete("/{id}", DeleteYard);
+        yardGroup.MapPut("/{id}",  UpdateYard);
+    }
+
+    private static async Task<Results<Ok<PagedResponseDTO<YardDTO>>, BadRequest>> GetYards(
+        IYardRepository yardRepository,
+        IMapper mapper,
+        int pageNumber = 1,
+        int pageSize = 10
+    )
+    {
+        if (pageNumber <= 0)
         {
-            if (pageNumber <= 0)
-            {
-                return TypedResults.BadRequest(
-                    // TypedResults.Problem(
-                    //     title: "Bad Request",
-                    //     detail: $"{nameof(pageNumber)} must be greater than 0",
-                    //     statusCode: StatusCodes.Status400BadRequest
-                    // )
-                );
-            }
+            return TypedResults.BadRequest(
+                // TypedResults.Problem(
+                //     title: "Bad Request",
+                //     detail: $"{nameof(pageNumber)} must be greater than 0",
+                //     statusCode: StatusCodes.Status400BadRequest
+                // )
+            );
+        }
 
-            if (pageSize <= 0)
-            {
-                return TypedResults.BadRequest(
-                    // TypedResults.Problem(
-                    //     title: "Bad Request",
-                    //     detail: $"{nameof(pageSize)} must be greater than 0",
-                    //     statusCode: StatusCodes.Status400BadRequest
-                    // )
-                );
-            }
+        if (pageSize <= 0)
+        {
+            return TypedResults.BadRequest(
+                // TypedResults.Problem(
+                //     title: "Bad Request",
+                //     detail: $"{nameof(pageSize)} must be greater than 0",
+                //     statusCode: StatusCodes.Status400BadRequest
+                // )
+            );
+        }
 
-            var yards = await yardRepository.ListPagedAsync(pageNumber, pageSize);
+        var yards = await yardRepository.ListPagedAsync(pageNumber, pageSize);
 
-            return TypedResults.Ok(mapper.Map<PagedResponseDTO<YardDTO>>(yards));
-        });
+        return TypedResults.Ok(mapper.Map<PagedResponseDTO<YardDTO>>(yards));
+    }
 
-        yardGroup.MapGet("/{id}",
-            async Task<Results<Ok<YardDTO>, NotFound>> (string id, IYardRepository yardRepository, IMapper mapper) =>
-            {
-                var yard = await yardRepository.FindAsync(id);
+    private static async Task<Results<Ok<YardDTO>, NotFound>> GetYardById(
+        string id,
+        IYardRepository yardRepository,
+        IMapper mapper
+    )
+    {
+        var yard = await yardRepository.FindAsync(id);
 
-                if (yard is null)
-                {
-                    return TypedResults.NotFound();
-                }
+        if (yard is null)
+        {
+            return TypedResults.NotFound();
+        }
 
-                var yardResponse = mapper.Map<YardDTO>(yard);
-                return TypedResults.Ok(yardResponse);
-            });
+        var yardResponse = mapper.Map<YardDTO>(yard);
+        return TypedResults.Ok(yardResponse);
+    }
 
-        yardGroup.MapPost("/",
-            async Task<Results<Created<YardDTO>, ProblemHttpResult>> (YardDTO yardDto, IYardRepository yardRepository,
-                IMapper mapper) =>
-            {
-                try
-                {
-                    var createdYard = await yardRepository.CreateAsync(mapper.Map<Yard>(yardDto));
+    private static async Task<Results<Created<YardDTO>, ProblemHttpResult>> CreateYard(
+        YardDTO yardDto,
+        IYardRepository yardRepository,
+        IMapper mapper
+    )
+    {
+        try
+        {
+            var createdYard = await yardRepository.CreateAsync(mapper.Map<Yard>(yardDto));
 
-                    var yardDtoResult = mapper.Map<YardDTO>(createdYard);
-                    return TypedResults.Created($"/yard/{createdYard.Id}", yardDtoResult);
-                }
-                catch (Exception)
-                {
-                    return TypedResults.Problem(
-                        title: "Internal Server Error",
-                        detail: "Something went wrong, please try again.",
-                        statusCode: StatusCodes.Status500InternalServerError
-                    );
-                }
-            });
+            var yardDtoResult = mapper.Map<YardDTO>(createdYard);
+            return TypedResults.Created($"/yard/{createdYard.Id}", yardDtoResult);
+        }
+        catch (Exception)
+        {
+            return TypedResults.Problem(
+                title: "Internal Server Error",
+                detail: "Something went wrong, please try again.",
+                statusCode: StatusCodes.Status500InternalServerError
+            );
+        }
+    }
 
-        yardGroup.MapDelete("/{id}",
-            async Task<Results<NoContent, NotFound>> (string id, IYardRepository yardRepository) =>
-            {
-                var existingYard = await yardRepository.FindAsync(id);
+    private static async Task<Results<NoContent, NotFound>> DeleteYard(string id,
+        IYardRepository yardRepository
+    )
+    {
+        var existingYard = await yardRepository.FindAsync(id);
 
-                if (existingYard is null)
-                {
-                    return TypedResults.NotFound();
-                }
+        if (existingYard is null)
+        {
+            return TypedResults.NotFound();
+        }
 
-                await yardRepository.DeleteAsync(existingYard);
+        await yardRepository.DeleteAsync(existingYard);
 
-                return TypedResults.NoContent();
-            });
+        return TypedResults.NoContent();
+    }
 
-        yardGroup.MapPut("/{id}",
-            async Task<Results<Ok<YardDTO>, NotFound>> (string id, YardDTO yardDto, IYardRepository yardRepository,
-                IMapper mapper) =>
-            {
-                var existingYard = await yardRepository.FindAsync(id);
+    private static async Task<Results<Ok<YardDTO>, NotFound>> UpdateYard(
+        string id,
+        YardDTO yardDto,
+        IYardRepository yardRepository,
+        IMapper mapper
+    )
+    {
+        var existingYard = await yardRepository.FindAsync(id);
 
-                if (existingYard is null)
-                {
-                    return TypedResults.NotFound();
-                }
+        if (existingYard is null)
+        {
+            return TypedResults.NotFound();
+        }
 
-                mapper.Map(yardDto, existingYard);
+        mapper.Map(yardDto, existingYard);
 
-                await yardRepository.UpdateAsync();
+        await yardRepository.UpdateAsync();
 
-                var newYard = mapper.Map<YardDTO>(existingYard);
-                return TypedResults.Ok(newYard);
-            });
+        var newYard = mapper.Map<YardDTO>(existingYard);
+        return TypedResults.Ok(newYard);
     }
 }
