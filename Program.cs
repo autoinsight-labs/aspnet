@@ -1,50 +1,19 @@
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
-using Scalar.AspNetCore;
 using AutoMapper;
 using AutoInsightAPI.Repositories;
 using AutoInsightAPI.Dtos;
-using AutoInsightAPI.Profiles;
 using AutoInsightAPI.Models;
-using Microsoft.AspNetCore.Http.Json;
-using System.Text.Json.Serialization;
-using AutoInsightAPI.models;
+using AutoInsightAPI.configs;
 
 DotNetEnv.Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAutoMapper(typeof(YardProfile));
-builder.Services.AddAutoMapper(typeof(YardEmployeeProfile));
-builder.Services.AddAutoMapper(typeof(YardVehicleProfile));
-builder.Services.AddAutoMapper(typeof(AddressProfile));
-builder.Services.AddAutoMapper(typeof(PagedResponseProfile));
-builder.Services.AddAutoMapper(typeof(QRCodeProfile));
-builder.Services.AddAutoMapper(typeof(VehicleProfile));
-
-builder.Services.AddScoped<IYardRepository, YardRepository>();
-builder.Services.AddScoped<IYardEmployeeRepository, YardEmployeeRepository>();
-builder.Services.AddScoped<IYardVehicleRepository, YardVehicleRepository>();
-builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
-
-builder.Services.Configure<JsonOptions>(options =>
-{
-    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-});
-
-var oracleConnectionString = Environment.GetEnvironmentVariable("ORACLE_CONNECTION_STRING");
-builder.Services.AddDbContext<AutoInsightDb>(opt
-    => opt.UseOracle(oracleConnectionString));
-
-builder.Services.AddOpenApi();
+ServicesConfigurator.Configure(builder.Services);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
+MiddlewareConfigurator.Configure(app);
 
 app.MapGet("/health", () => Results.Ok())
     .WithSummary("Health Check")

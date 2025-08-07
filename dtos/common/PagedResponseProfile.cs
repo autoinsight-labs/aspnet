@@ -2,7 +2,7 @@ using AutoInsightAPI.Models;
 using AutoInsightAPI.Dtos;
 using AutoMapper;
 
-namespace AutoInsightAPI.Repositories
+namespace AutoInsightAPI.Profiles
 {
   public class PagedResponseProfile : Profile
   {
