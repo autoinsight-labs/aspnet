@@ -37,7 +37,7 @@ namespace AutoInsightAPI.Repositories
 
             Console.WriteLine(error);
 
-            throw error;
+            throw;
         }
       }
 
