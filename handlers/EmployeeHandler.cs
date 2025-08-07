@@ -10,7 +10,7 @@ public static class EmployeeHandler
 {
     public static void Map(WebApplication app)
     {
-        var employeeGroup = app.MapGroup("/yards/{id}/employees").WithTags(["yard", "employee"]);
+        var employeeGroup = app.MapGroup("/yards/{id}/employees").WithTags("yard", "employee");
 
         employeeGroup.MapGet("/", GetYardEmployees);
         employeeGroup.MapPost("/", CreateYardEmployee);
@@ -145,7 +145,6 @@ public static class EmployeeHandler
     private static async Task<Results<NoContent, NotFound>> DeleteYardEmployee(
         IYardRepository yardRepository,
         IYardEmployeeRepository yardEmployeeRepository,
-        IMapper _,
         string id,
         string employeeId
     )

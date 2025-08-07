@@ -11,7 +11,7 @@ public static class VehicleHandler
     public static void Map(WebApplication app)
     {
         var vehicleGroup = app.MapGroup("/vehicles").WithTags("vehicle");
-        var yardVehicleGroup = app.MapGroup("/yards/{id}/vehicles").WithTags(["vehicle", "yard"]);
+        var yardVehicleGroup = app.MapGroup("/yards/{id}/vehicles").WithTags("vehicle", "yard");
 
         vehicleGroup.MapGet("/", GetVehicleByQrCode);
         vehicleGroup.MapGet("/{id}", GetVehicleById);
