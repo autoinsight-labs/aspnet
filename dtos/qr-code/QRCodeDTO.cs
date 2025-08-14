@@ -1,8 +1,8 @@
 namespace AutoInsightAPI.Dtos
 {
-  public class QRCodeDTO
+  public class QrCodeDto
   {
     public string Id {get; private set;}
-    public VehicleDTO? Vehicle { get; set; }
+    public VehicleDto? Vehicle { get; set; }
   }
 }

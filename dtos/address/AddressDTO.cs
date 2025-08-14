@@ -1,6 +1,6 @@
 namespace AutoInsightAPI.Dtos
 {
-  public class AddressDTO
+  public class AddressDto
   {
     public string? Id { get; private set; }
 

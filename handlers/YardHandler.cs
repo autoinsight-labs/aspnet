@@ -19,7 +19,7 @@ public static class YardHandler
         yardGroup.MapPut("/{id}",  UpdateYard);
     }
 
-    private static async Task<Results<Ok<PagedResponseDTO<YardDTO>>, BadRequest>> GetYards(
+    private static async Task<Results<Ok<PagedResponseDto<YardDto>>, BadRequest>> GetYards(
         IYardRepository yardRepository,
         IMapper mapper,
         int pageNumber = 1,
@@ -50,10 +50,10 @@ public static class YardHandler
 
         var yards = await yardRepository.ListPagedAsync(pageNumber, pageSize);
 
-        return TypedResults.Ok(mapper.Map<PagedResponseDTO<YardDTO>>(yards));
+        return TypedResults.Ok(mapper.Map<PagedResponseDto<YardDto>>(yards));
     }
 
-    private static async Task<Results<Ok<YardDTO>, NotFound>> GetYardById(
+    private static async Task<Results<Ok<YardDto>, NotFound>> GetYardById(
         string id,
         IYardRepository yardRepository,
         IMapper mapper
@@ -66,12 +66,12 @@ public static class YardHandler
             return TypedResults.NotFound();
         }
 
-        var yardResponse = mapper.Map<YardDTO>(yard);
+        var yardResponse = mapper.Map<YardDto>(yard);
         return TypedResults.Ok(yardResponse);
     }
 
-    private static async Task<Results<Created<YardDTO>, ProblemHttpResult>> CreateYard(
-        YardDTO yardDto,
+    private static async Task<Results<Created<YardDto>, ProblemHttpResult>> CreateYard(
+        YardDto yardDto,
         IYardRepository yardRepository,
         IMapper mapper
     )
@@ -80,7 +80,7 @@ public static class YardHandler
         {
             var createdYard = await yardRepository.CreateAsync(mapper.Map<Yard>(yardDto));
 
-            var yardDtoResult = mapper.Map<YardDTO>(createdYard);
+            var yardDtoResult = mapper.Map<YardDto>(createdYard);
             return TypedResults.Created($"/yard/{createdYard.Id}", yardDtoResult);
         }
         catch (Exception)
@@ -109,9 +109,9 @@ public static class YardHandler
         return TypedResults.NoContent();
     }
 
-    private static async Task<Results<Ok<YardDTO>, NotFound>> UpdateYard(
+    private static async Task<Results<Ok<YardDto>, NotFound>> UpdateYard(
         string id,
-        YardDTO yardDto,
+        YardDto yardDto,
         IYardRepository yardRepository,
         IMapper mapper
     )
@@ -127,7 +127,7 @@ public static class YardHandler
 
         await yardRepository.UpdateAsync();
 
-        var newYard = mapper.Map<YardDTO>(existingYard);
+        var newYard = mapper.Map<YardDto>(existingYard);
         return TypedResults.Ok(newYard);
     }
 }

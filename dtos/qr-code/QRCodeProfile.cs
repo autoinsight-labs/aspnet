@@ -8,8 +8,8 @@ namespace AutoInsightAPI.Profiles
   {
     public QRCodeProfile()
     {
-      CreateMap<QRCode, QRCodeDTO>();
-      CreateMap<QRCodeDTO, QRCode>()
+      CreateMap<QRCode, QrCodeDto>();
+      CreateMap<QrCodeDto, QRCode>()
        .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember is not null));
     }
   }
