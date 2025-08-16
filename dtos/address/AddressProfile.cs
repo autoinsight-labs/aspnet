@@ -8,8 +8,8 @@ namespace AutoInsightAPI.Profiles
   {
     public AddressProfile()
     {
-      CreateMap<Address, AddressDTO>();
-      CreateMap<AddressDTO, Address>()
+      CreateMap<Address, AddressDto>();
+      CreateMap<AddressDto, Address>()
        .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember is not null));
     }
   }

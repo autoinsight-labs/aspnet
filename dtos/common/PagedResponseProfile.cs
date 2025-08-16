@@ -8,7 +8,7 @@ namespace AutoInsightAPI.Profiles
   {
      public PagedResponseProfile()
      {
-         CreateMap(typeof(PagedResponse<>), typeof(PagedResponseDTO<>));
+         CreateMap(typeof(PagedResponse<>), typeof(PagedResponseDto<>));
      }
   }
 }

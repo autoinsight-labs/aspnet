@@ -1,10 +1,10 @@
 namespace AutoInsightAPI.Dtos
 {
-  public class YardDTO
+  public class YardDto
   {
     public string Id {get; private set;}
 
-    public AddressDTO Address {get; set;}
+    public AddressDto Address {get; set;}
     public string OwnerId {get; set;}
   }
 }

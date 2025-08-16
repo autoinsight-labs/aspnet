@@ -8,8 +8,8 @@ namespace AutoInsightAPI.Profiles
   {
     public YardVehicleProfile()
     {
-      CreateMap<YardVehicle, YardVehicleDTO>();
-      CreateMap<YardVehicleDTO, YardVehicle>()
+      CreateMap<YardVehicle, YardVehicleDto>();
+      CreateMap<YardVehicleDto, YardVehicle>()
        .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember is not null));
     }
   }

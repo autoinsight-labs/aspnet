@@ -92,21 +92,21 @@ O projeto utiliza Entity Framework Core com Oracle Database e inclui as seguinte
 | GET | `/health` | Verificação de saúde da API | 200 OK |
 
 ### 🏢 Yards (Pátios)
-| Método | Endpoint | Descrição | Parâmetros | Retorno |
-|--------|----------|-----------|------------|---------|
-| GET | `/yards` | Lista pátios com paginação | `pageNumber`, `pageSize` | 200 OK, 400 BadRequest |
-| GET | `/yards/{id}` | Busca pátio por ID | `id` (path) | 200 OK, 404 NotFound |
-| POST | `/yards` | Cria novo pátio | Body: `YardDTO` | 201 Created, 500 InternalServerError |
-| PUT | `/yards/{id}` | Atualiza pátio existente | `id` (path), Body: `YardDTO` | 200 OK, 404 NotFound |
-| DELETE | `/yards/{id}` | Remove pátio | `id` (path) | 204 NoContent, 404 NotFound |
+| Método | Endpoint | Descrição | Parâmetros                   | Retorno |
+|--------|----------|-----------|------------------------------|---------|
+| GET | `/yards` | Lista pátios com paginação | `pageNumber`, `pageSize`     | 200 OK, 400 BadRequest |
+| GET | `/yards/{id}` | Busca pátio por ID | `id` (path)                  | 200 OK, 404 NotFound |
+| POST | `/yards` | Cria novo pátio | Body: `YardDto`              | 201 Created, 500 InternalServerError |
+| PUT | `/yards/{id}` | Atualiza pátio existente | `id` (path), Body: `YardDto` | 200 OK, 404 NotFound |
+| DELETE | `/yards/{id}` | Remove pátio | `id` (path)                  | 204 NoContent, 404 NotFound |
 
 ### 👥 Employees (Funcionários)
 | Método | Endpoint | Descrição | Parâmetros | Retorno |
 |--------|----------|-----------|------------|---------|
 | GET | `/yards/{id}/employees` | Lista funcionários do pátio | `id` (path), `pageNumber`, `pageSize` | 200 OK, 400 BadRequest, 404 NotFound |
 | GET | `/yards/{id}/employees/{employeeId}` | Busca funcionário específico | `id`, `employeeId` (path) | 200 OK, 404 NotFound |
-| POST | `/yards/{id}/employees` | Adiciona funcionário ao pátio | `id` (path), Body: `YardEmployeeDTO` | 201 Created, 404 NotFound |
-| PUT | `/yards/{id}/employees/{employeeId}` | Atualiza funcionário | `id`, `employeeId` (path), Body: `YardEmployeeDTO` | 200 OK, 400 BadRequest, 404 NotFound |
+| POST | `/yards/{id}/employees` | Adiciona funcionário ao pátio | `id` (path), Body: `YardEmployeeDto` | 201 Created, 404 NotFound |
+| PUT | `/yards/{id}/employees/{employeeId}` | Atualiza funcionário | `id`, `employeeId` (path), Body: `YardEmployeeDto` | 200 OK, 400 BadRequest, 404 NotFound |
 | DELETE | `/yards/{id}/employees/{employeeId}` | Remove funcionário | `id`, `employeeId` (path) | 204 NoContent, 404 NotFound |
 
 ### 🏍️ Vehicles (Veículos)
@@ -120,8 +120,8 @@ O projeto utiliza Entity Framework Core com Oracle Database e inclui as seguinte
 |--------|----------|-----------|------------|---------|
 | GET | `/yards/{id}/vehicles` | Lista veículos do pátio | `id` (path), `pageNumber`, `pageSize` | 200 OK, 400 BadRequest, 404 NotFound |
 | GET | `/yards/{id}/vehicles/{yardVehicleId}` | Busca veículo específico do pátio | `id`, `yardVehicleId` (path) | 200 OK, 400 BadRequest, 404 NotFound |
-| POST | `/yards/{id}/vehicles` | Adiciona veículo ao pátio | `id` (path), Body: `YardVehicleDTO` | 201 Created, 400 BadRequest, 404 NotFound |
-| PUT | `/yards/{id}/vehicles/{yardVehicleId}` | Atualiza veículo do pátio | `id`, `yardVehicleId` (path), Body: `YardVehicleDTO` | 200 OK, 400 BadRequest, 404 NotFound |
+| POST | `/yards/{id}/vehicles` | Adiciona veículo ao pátio | `id` (path), Body: `YardVehicleDto` | 201 Created, 400 BadRequest, 404 NotFound |
+| PUT | `/yards/{id}/vehicles/{yardVehicleId}` | Atualiza veículo do pátio | `id`, `yardVehicleId` (path), Body: `YardVehicleDto` | 200 OK, 400 BadRequest, 404 NotFound |
 
 ## 🎯 Funcionalidades Implementadas
 

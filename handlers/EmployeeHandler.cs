@@ -19,7 +19,7 @@ public static class EmployeeHandler
         employeeGroup.MapPut("/{employeeId}", UpdateYardEmployee);
     }
 
-    private static async Task<Results<Ok<PagedResponseDTO<YardEmployeeDTO>>, BadRequest, NotFound>> GetYardEmployees(
+    private static async Task<Results<Ok<PagedResponseDto<YardEmployeeDto>>, BadRequest, NotFound>> GetYardEmployees(
         IYardRepository yardRepository,
         IYardEmployeeRepository yardEmployeeRepository,
         IMapper mapper,
@@ -65,15 +65,15 @@ public static class EmployeeHandler
 
         var employees = await yardEmployeeRepository.ListPagedAsync(pageNumber, pageSize, yard);
 
-        return TypedResults.Ok(mapper.Map<PagedResponseDTO<YardEmployeeDTO>>(employees));
+        return TypedResults.Ok(mapper.Map<PagedResponseDto<YardEmployeeDto>>(employees));
     }
 
-    private static async Task<Results<Created<YardEmployeeDTO>, NotFound>> CreateYardEmployee(
+    private static async Task<Results<Created<YardEmployeeDto>, NotFound>> CreateYardEmployee(
         IYardRepository yardRepository,
         IYardEmployeeRepository yardEmployeeRepository,
         IMapper mapper,
         string id,
-        YardEmployeeDTO yardEmployeeDto
+        YardEmployeeDto yardEmployeeDto
     )
     {
         var yard = await yardRepository.FindAsync(id);
@@ -98,13 +98,13 @@ public static class EmployeeHandler
         );
 
         var createdYardEmployee = await yardEmployeeRepository.CreateAsync(newEmployee);
-        var yardEmployeeDtoResult = mapper.Map<YardEmployeeDTO>(createdYardEmployee);
+        var yardEmployeeDtoResult = mapper.Map<YardEmployeeDto>(createdYardEmployee);
 
         return TypedResults.Created($"/yard/{createdYardEmployee.YardId}/employees/{createdYardEmployee.Id}",
             yardEmployeeDtoResult);
     }
 
-    private static async Task<Results<Ok<YardEmployeeDTO>, NotFound>> GetYardEmployeeById(
+    private static async Task<Results<Ok<YardEmployeeDto>, NotFound>> GetYardEmployeeById(
         IYardRepository yardRepository,
         IYardEmployeeRepository yardEmployeeRepository,
         IMapper mapper,
@@ -137,7 +137,7 @@ public static class EmployeeHandler
             );
         }
 
-        var yardEmployeeResult = mapper.Map<YardEmployeeDTO>(yardEmployee);
+        var yardEmployeeResult = mapper.Map<YardEmployeeDto>(yardEmployee);
 
         return TypedResults.Ok(yardEmployeeResult);
     }
@@ -180,11 +180,11 @@ public static class EmployeeHandler
         return TypedResults.NoContent();
     }
 
-    private static async Task<Results<Ok<YardEmployeeDTO>, BadRequest, NotFound>> UpdateYardEmployee(
+    private static async Task<Results<Ok<YardEmployeeDto>, BadRequest, NotFound>> UpdateYardEmployee(
         IYardRepository yardRepository,
         IYardEmployeeRepository yardEmployeeRepository,
         IMapper mapper,
-        YardEmployeeDTO yardEmployeeDto,
+        YardEmployeeDto yardEmployeeDto,
         string id,
         string employeeId
     )
@@ -229,7 +229,7 @@ public static class EmployeeHandler
         mapper.Map(yardEmployeeDto, yardEmployee);
         await yardEmployeeRepository.UpdateAsync();
 
-        var newYardEmployee = mapper.Map<YardEmployeeDTO>(yardEmployee);
+        var newYardEmployee = mapper.Map<YardEmployeeDto>(yardEmployee);
 
         return TypedResults.Ok(newYardEmployee);
     }
