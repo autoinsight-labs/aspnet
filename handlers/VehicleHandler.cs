@@ -22,7 +22,7 @@ public static class VehicleHandler
         yardVehicleGroup.MapPost("/", CreateYardVehicle);
     }
 
-    private static async Task<Results<Ok<VehicleDTO>, NotFound>> GetVehicleByQrCode(
+    private static async Task<Results<Ok<VehicleDto>, NotFound>> GetVehicleByQrCode(
         string qrCodeId,
         IVehicleRepository vehicleRepository,
         IMapper mapper
@@ -36,11 +36,11 @@ public static class VehicleHandler
         }
 
 
-        var vehicleResponse = mapper.Map<VehicleDTO>(vehicle);
+        var vehicleResponse = mapper.Map<VehicleDto>(vehicle);
         return TypedResults.Ok(vehicleResponse);
     }
 
-    private static async Task<Results<Ok<VehicleDTO>, NotFound>> GetVehicleById(
+    private static async Task<Results<Ok<VehicleDto>, NotFound>> GetVehicleById(
         string id,
         IVehicleRepository vehicleRepository,
         IMapper mapper
@@ -54,11 +54,11 @@ public static class VehicleHandler
         }
 
 
-        var vehicleResponse = mapper.Map<VehicleDTO>(vehicle);
+        var vehicleResponse = mapper.Map<VehicleDto>(vehicle);
         return TypedResults.Ok(vehicleResponse);
     }
 
-    private static async Task<Results<Ok<PagedResponseDTO<YardVehicleDTO>>, BadRequest, NotFound>> GetYardVehicles(
+    private static async Task<Results<Ok<PagedResponseDto<YardVehicleDto>>, BadRequest, NotFound>> GetYardVehicles(
         IYardRepository yardRepository,
         IYardVehicleRepository yardVehicleRepository,
         IMapper mapper,
@@ -104,10 +104,10 @@ public static class VehicleHandler
 
         var yardVehicles = await yardVehicleRepository.ListPagedAsync(pageNumber, pageSize, yard);
 
-        return TypedResults.Ok(mapper.Map<PagedResponseDTO<YardVehicleDTO>>(yardVehicles));
+        return TypedResults.Ok(mapper.Map<PagedResponseDto<YardVehicleDto>>(yardVehicles));
     }
 
-    private static async Task<Results<Ok<YardVehicleDTO>, BadRequest, NotFound>> GetYardVehicleById(
+    private static async Task<Results<Ok<YardVehicleDto>, BadRequest, NotFound>> GetYardVehicleById(
         IYardRepository yardRepository,
         IYardVehicleRepository yardVehicleRepository,
         IMapper mapper,
@@ -141,18 +141,18 @@ public static class VehicleHandler
             );
         }
 
-        var yardVehicleResult = mapper.Map<YardVehicleDTO>(yardVehicle);
+        var yardVehicleResult = mapper.Map<YardVehicleDto>(yardVehicle);
 
         return TypedResults.Ok(yardVehicleResult);
     }
 
-    private static async Task<Results<Ok<YardVehicleDTO>, BadRequest, NotFound>> UpdateYardVehicle(
+    private static async Task<Results<Ok<YardVehicleDto>, BadRequest, NotFound>> UpdateYardVehicle(
         IYardRepository yardRepository,
         IYardVehicleRepository yardVehicleRepository,
         IMapper mapper,
         string id,
         string yardVehicleId,
-        YardVehicleDTO yardVehicleDto
+        YardVehicleDto yardVehicleDto
     )
     {
         if (!Enum.IsDefined(typeof(Status), yardVehicleDto.Status))
@@ -196,18 +196,18 @@ public static class VehicleHandler
         mapper.Map(yardVehicleDto, yardVehicle);
         await yardVehicleRepository.UpdateAsync();
 
-        var newYardEmployee = mapper.Map<YardVehicleDTO>(yardVehicle);
+        var newYardEmployee = mapper.Map<YardVehicleDto>(yardVehicle);
 
         return TypedResults.Ok(newYardEmployee);
     }
 
-    private static async Task<Results<Created<YardVehicleDTO>, BadRequest, NotFound>> CreateYardVehicle(
+    private static async Task<Results<Created<YardVehicleDto>, BadRequest, NotFound>> CreateYardVehicle(
         IYardRepository yardRepository,
         IYardVehicleRepository yardVehicleRepository,
         IVehicleRepository vehicleRepository,
         IMapper mapper,
         string id,
-        YardVehicleDTO yardVehicleDto
+        YardVehicleDto yardVehicleDto
     )
     {
         if (!Enum.IsDefined(typeof(Status), yardVehicleDto.Status))
@@ -267,7 +267,7 @@ public static class VehicleHandler
         );
 
         var createdYardVehicle = await yardVehicleRepository.CreateAsync(newYardVehicle);
-        var yardVehicleDtoResult = mapper.Map<YardVehicleDTO>(createdYardVehicle);
+        var yardVehicleDtoResult = mapper.Map<YardVehicleDto>(createdYardVehicle);
 
         return TypedResults.Created($"/yard/{createdYardVehicle.YardId}/vehicles/{createdYardVehicle.Id}",
             yardVehicleDtoResult);

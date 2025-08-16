@@ -8,11 +8,11 @@ namespace AutoInsightAPI.Profiles
   {
     public VehicleProfile()
     {
-      CreateMap<Vehicle, VehicleDTO>();
-      CreateMap<VehicleDTO, Vehicle>()
+      CreateMap<Vehicle, VehicleDto>();
+      CreateMap<VehicleDto, Vehicle>()
        .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember is not null));
-      CreateMap<Model, ModelDTO>();
-      CreateMap<ModelDTO, Model>()
+      CreateMap<Model, ModelDto>();
+      CreateMap<ModelDto, Model>()
        .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember is not null));
     }
   }

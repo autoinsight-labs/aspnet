@@ -1,6 +1,6 @@
 namespace AutoInsightAPI.Dtos
 {
-  public record PagedResponseDTO<T>
+  public record PagedResponseDto<T>
   {
       public int PageNumber { get; set; }
       public int PageSize { get; set; }

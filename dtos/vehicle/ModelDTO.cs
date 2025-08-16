@@ -1,6 +1,6 @@
 namespace AutoInsightAPI.Dtos
 {
-  public class ModelDTO
+  public class ModelDto
   {
     public string Id {get; private set;}
     public string Name {get; set;}
