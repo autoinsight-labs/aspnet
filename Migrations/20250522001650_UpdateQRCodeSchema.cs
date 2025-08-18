@@ -8,6 +8,7 @@ namespace AutoInsightAPI.Migrations
     public partial class UpdateQRCodeSchema : Migration
     {
         private const string QRCODE_TABLE = "QRCodes";
+        private const string YARD_ID_NAME = "YardId";
         
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,7 +22,7 @@ namespace AutoInsightAPI.Migrations
                 table: QRCODE_TABLE);
 
             migrationBuilder.DropColumn(
-                name: "YardId",
+                name: YARD_ID_NAME,
                 table: QRCODE_TABLE);
         }
 
@@ -29,7 +30,7 @@ namespace AutoInsightAPI.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "YardId",
+                name: YARD_ID_NAME,
                 table: QRCODE_TABLE,
                 type: "NVARCHAR2(450)",
                 nullable: false,
@@ -38,12 +39,12 @@ namespace AutoInsightAPI.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_QRCodes_YardId",
                 table: QRCODE_TABLE,
-                column: "YardId");
+                column: YARD_ID_NAME);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_QRCodes_Yards_YardId",
                 table: QRCODE_TABLE,
-                column: "YardId",
+                column: YARD_ID_NAME,
                 principalTable: "Yards",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
