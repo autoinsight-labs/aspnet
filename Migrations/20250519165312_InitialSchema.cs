@@ -8,6 +8,17 @@ namespace AutoInsightAPI.Migrations
     /// <inheritdoc />
     public partial class InitialSchema : Migration
     {
+        private const string ID_COLUMN = "NVARCHAR2(450)";
+        private const string STRING_COLUMN = "NVARCHAR2(2000)";
+        private const string DATETIMME_COLUMN = "TIMESTAMP(7)";
+        private const string YARD_TABLE = "Yards";
+        private const string VEHICLE_TABLE = "Vehicles";
+        private const string YARD_EMPLOYEE_TABLE = "YardEmployees";
+        private const string QRCODE_TABLE = "QRCodes";
+        private const string YARD_VEHICLE_TABLE = "YardVehicles";
+        private const string EMPLOYEE_INVITE_TABLE = "EmployeeInvites";
+        private const string YARD_ID_COLUMN = "YardId";
+
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -15,13 +26,13 @@ namespace AutoInsightAPI.Migrations
                 name: "Addresses",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
-                    Country = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    State = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    City = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    ZipCode = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    Neighborhood = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    Complement = table.Column<string>(type: "NVARCHAR2(2000)", nullable: true)
+                    Id = table.Column<string>(type: ID_COLUMN, nullable: false),
+                    Country = table.Column<string>(type: STRING_COLUMN, nullable: false),
+                    State = table.Column<string>(type: STRING_COLUMN, nullable: false),
+                    City = table.Column<string>(type: STRING_COLUMN, nullable: false),
+                    ZipCode = table.Column<string>(type: STRING_COLUMN, nullable: false),
+                    Neighborhood = table.Column<string>(type: STRING_COLUMN, nullable: false),
+                    Complement = table.Column<string>(type: STRING_COLUMN, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -32,11 +43,11 @@ namespace AutoInsightAPI.Migrations
                 name: "Bookings",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
-                    OccursAt = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
-                    CancelledAt = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: true),
-                    VehicleId = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    YardId = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false)
+                    Id = table.Column<string>(type: ID_COLUMN, nullable: false),
+                    OccursAt = table.Column<DateTime>(type: DATETIMME_COLUMN, nullable: false),
+                    CancelledAt = table.Column<DateTime>(type: DATETIMME_COLUMN, nullable: true),
+                    VehicleId = table.Column<string>(type: STRING_COLUMN, nullable: false),
+                    YardId = table.Column<string>(type: STRING_COLUMN, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -47,8 +58,8 @@ namespace AutoInsightAPI.Migrations
                 name: "Models",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
-                    Name = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
+                    Id = table.Column<string>(type: ID_COLUMN, nullable: false),
+                    Name = table.Column<string>(type: STRING_COLUMN, nullable: false),
                     Year = table.Column<int>(type: "NUMBER(10)", nullable: false)
                 },
                 constraints: table =>
@@ -57,12 +68,12 @@ namespace AutoInsightAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Yards",
+                name: YARD_TABLE,
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
-                    AddressId = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
-                    OwnerId = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false)
+                    Id = table.Column<string>(type: ID_COLUMN, nullable: false),
+                    AddressId = table.Column<string>(type: ID_COLUMN, nullable: false),
+                    OwnerId = table.Column<string>(type: STRING_COLUMN, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -76,13 +87,13 @@ namespace AutoInsightAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Vehicles",
+                name: VEHICLE_TABLE,
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
-                    Plate = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    ModelId = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
-                    UserId = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false)
+                    Id = table.Column<string>(type: ID_COLUMN, nullable: false),
+                    Plate = table.Column<string>(type: STRING_COLUMN, nullable: false),
+                    ModelId = table.Column<string>(type: ID_COLUMN, nullable: false),
+                    UserId = table.Column<string>(type: STRING_COLUMN, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -96,15 +107,15 @@ namespace AutoInsightAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "YardEmployees",
+                name: YARD_EMPLOYEE_TABLE,
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
-                    Name = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    ImageUrl = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
+                    Id = table.Column<string>(type: ID_COLUMN, nullable: false),
+                    Name = table.Column<string>(type: STRING_COLUMN, nullable: false),
+                    ImageUrl = table.Column<string>(type: STRING_COLUMN, nullable: false),
                     Role = table.Column<int>(type: "NUMBER(10)", nullable: false),
-                    UserId = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    YardId = table.Column<string>(type: "NVARCHAR2(450)", nullable: false)
+                    UserId = table.Column<string>(type: STRING_COLUMN, nullable: false),
+                    YardId = table.Column<string>(type: ID_COLUMN, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -112,18 +123,18 @@ namespace AutoInsightAPI.Migrations
                     table.ForeignKey(
                         name: "FK_YardEmployees_Yards_YardId",
                         column: x => x.YardId,
-                        principalTable: "Yards",
+                        principalTable: YARD_TABLE,
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "QRCodes",
+                name: QRCODE_TABLE,
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
-                    VehicleId = table.Column<string>(type: "NVARCHAR2(450)", nullable: true),
-                    YardId = table.Column<string>(type: "NVARCHAR2(450)", nullable: false)
+                    Id = table.Column<string>(type: ID_COLUMN, nullable: false),
+                    VehicleId = table.Column<string>(type: ID_COLUMN, nullable: true),
+                    YardId = table.Column<string>(type: ID_COLUMN, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -131,26 +142,26 @@ namespace AutoInsightAPI.Migrations
                     table.ForeignKey(
                         name: "FK_QRCodes_Vehicles_VehicleId",
                         column: x => x.VehicleId,
-                        principalTable: "Vehicles",
+                        principalTable: VEHICLE_TABLE,
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_QRCodes_Yards_YardId",
                         column: x => x.YardId,
-                        principalTable: "Yards",
+                        principalTable: YARD_TABLE,
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "YardVehicles",
+                name: YARD_VEHICLE_TABLE,
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
+                    Id = table.Column<string>(type: ID_COLUMN, nullable: false),
                     Status = table.Column<int>(type: "NUMBER(10)", nullable: false),
-                    EnteredAt = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false),
-                    LeftAt = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: true),
-                    VehicleId = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
-                    YardId = table.Column<string>(type: "NVARCHAR2(450)", nullable: false)
+                    EnteredAt = table.Column<DateTime>(type: DATETIMME_COLUMN, nullable: false),
+                    LeftAt = table.Column<DateTime>(type: DATETIMME_COLUMN, nullable: true),
+                    VehicleId = table.Column<string>(type: ID_COLUMN, nullable: false),
+                    YardId = table.Column<string>(type: ID_COLUMN, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -158,24 +169,24 @@ namespace AutoInsightAPI.Migrations
                     table.ForeignKey(
                         name: "FK_YardVehicles_Vehicles_VehicleId",
                         column: x => x.VehicleId,
-                        principalTable: "Vehicles",
+                        principalTable: VEHICLE_TABLE,
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_YardVehicles_Yards_YardId",
                         column: x => x.YardId,
-                        principalTable: "Yards",
+                        principalTable: YARD_TABLE,
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "EmployeeInvites",
+                name: EMPLOYEE_INVITE_TABLE,
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
-                    YardEmployeeId = table.Column<string>(type: "NVARCHAR2(450)", nullable: false),
-                    YardId = table.Column<string>(type: "NVARCHAR2(450)", nullable: false)
+                    Id = table.Column<string>(type: ID_COLUMN, nullable: false),
+                    YardEmployeeId = table.Column<string>(type: ID_COLUMN, nullable: false),
+                    YardId = table.Column<string>(type: ID_COLUMN, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -183,61 +194,61 @@ namespace AutoInsightAPI.Migrations
                     table.ForeignKey(
                         name: "FK_EmployeeInvites_YardEmployees_YardEmployeeId",
                         column: x => x.YardEmployeeId,
-                        principalTable: "YardEmployees",
+                        principalTable: YARD_EMPLOYEE_TABLE,
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_EmployeeInvites_Yards_YardId",
                         column: x => x.YardId,
-                        principalTable: "Yards",
+                        principalTable: YARD_TABLE,
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_EmployeeInvites_YardEmployeeId",
-                table: "EmployeeInvites",
+                table: EMPLOYEE_INVITE_TABLE,
                 column: "YardEmployeeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EmployeeInvites_YardId",
-                table: "EmployeeInvites",
-                column: "YardId");
+                table: EMPLOYEE_INVITE_TABLE,
+                column: YARD_ID_COLUMN);
 
             migrationBuilder.CreateIndex(
                 name: "IX_QRCodes_VehicleId",
-                table: "QRCodes",
+                table: QRCODE_TABLE,
                 column: "VehicleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_QRCodes_YardId",
-                table: "QRCodes",
-                column: "YardId");
+                table: QRCODE_TABLE,
+                column: YARD_ID_COLUMN);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Vehicles_ModelId",
-                table: "Vehicles",
+                table: VEHICLE_TABLE,
                 column: "ModelId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_YardEmployees_YardId",
-                table: "YardEmployees",
-                column: "YardId");
+                table: YARD_EMPLOYEE_TABLE,
+                column: YARD_ID_COLUMN);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Yards_AddressId",
-                table: "Yards",
+                table: YARD_TABLE,
                 column: "AddressId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_YardVehicles_VehicleId",
-                table: "YardVehicles",
+                table: YARD_VEHICLE_TABLE,
                 column: "VehicleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_YardVehicles_YardId",
-                table: "YardVehicles",
-                column: "YardId");
+                table: YARD_VEHICLE_TABLE,
+                column: YARD_ID_COLUMN);
         }
 
         /// <inheritdoc />
@@ -247,22 +258,22 @@ namespace AutoInsightAPI.Migrations
                 name: "Bookings");
 
             migrationBuilder.DropTable(
-                name: "EmployeeInvites");
+                name: EMPLOYEE_INVITE_TABLE);
 
             migrationBuilder.DropTable(
-                name: "QRCodes");
+                name: QRCODE_TABLE);
 
             migrationBuilder.DropTable(
-                name: "YardVehicles");
+                name: YARD_VEHICLE_TABLE);
 
             migrationBuilder.DropTable(
-                name: "YardEmployees");
+                name: YARD_EMPLOYEE_TABLE);
 
             migrationBuilder.DropTable(
-                name: "Vehicles");
+                name: VEHICLE_TABLE);
 
             migrationBuilder.DropTable(
-                name: "Yards");
+                name: YARD_TABLE);
 
             migrationBuilder.DropTable(
                 name: "Models");
