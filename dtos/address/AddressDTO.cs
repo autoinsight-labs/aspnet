@@ -3,7 +3,6 @@ namespace AutoInsightAPI.Dtos
   public class AddressDto
   {
     public string? Id { get; private set; }
-
     public string Country { get; set; }
     public string State { get; set; }
     public string City { get; set; }
