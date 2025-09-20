@@ -36,9 +36,11 @@ public class LinkService(IHttpContextAccessor httpContextAccessor, LinkGenerator
         if (httpContext == null) return links;
 
         var baseUrl = GetBaseUrl(httpContext);
-        var resourcePath = resourceType.Split('/').Last();
+        
+        var parts = resourceType.Split('/');
+        var resourcePath = parts[^1];
         var resourceName = ToTitleCase(resourcePath.TrimEnd('s'));
-
+        
         // Self link
         links.Add(new LinkDto
         {
@@ -116,9 +118,10 @@ public class LinkService(IHttpContextAccessor httpContextAccessor, LinkGenerator
         if (httpContext == null) return links;
 
         var baseUrl = GetBaseUrl(httpContext);
+        var parts = resourceType.Split('/');
         var resourcePath = resourceType.ToLower();
-        var resourceName = ToTitleCase(resourceType.Split('/').Last());
-
+        var resourceName = ToTitleCase(parts[^1]);
+        
         // Self link
         links.Add(new LinkDto
         {
