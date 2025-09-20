@@ -1,45 +1,37 @@
 using System.Globalization;
 using AutoInsightAPI.Dtos.Common;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 
 namespace AutoInsightAPI.Services;
 
-public class LinkService : ILinkService
+public class LinkService(IHttpContextAccessor httpContextAccessor, LinkGenerator linkGenerator)
+    : ILinkService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly LinkGenerator _linkGenerator;
-
-    public LinkService(IHttpContextAccessor httpContextAccessor, LinkGenerator linkGenerator)
-    {
-        _httpContextAccessor = httpContextAccessor;
-        _linkGenerator = linkGenerator;
-    }
-
+    private const string ApplicationJson = "application/json";
+    
     public string GenerateLink(string routeName, object? routeValues = null)
     {
-        var httpContext = _httpContextAccessor.HttpContext;
+        var httpContext = httpContextAccessor.HttpContext;
         if (httpContext == null)
             throw new InvalidOperationException("HttpContext is not available");
 
-        var link = _linkGenerator.GetUriByName(httpContext, routeName, routeValues);
+        var link = linkGenerator.GetUriByName(httpContext, routeName, routeValues);
         return link ?? string.Empty;
     }
 
     public string GenerateLink(string action, string controller, object? routeValues = null)
     {
-        var httpContext = _httpContextAccessor.HttpContext;
+        var httpContext = httpContextAccessor.HttpContext;
         if (httpContext == null)
             throw new InvalidOperationException("HttpContext is not available");
 
-        var link = _linkGenerator.GetUriByAction(httpContext, action, controller, routeValues);
+        var link = linkGenerator.GetUriByAction(httpContext, action, controller, routeValues);
         return link ?? string.Empty;
     }
 
     public List<LinkDto> GenerateResourceLinks(string resourceType, string resourceId, bool includeRelated = true)
     {
         var links = new List<LinkDto>();
-        var httpContext = _httpContextAccessor.HttpContext;
+        var httpContext = httpContextAccessor.HttpContext;
         
         if (httpContext == null) return links;
 
@@ -54,7 +46,7 @@ public class LinkService : ILinkService
             Rel = "self",
             Method = "GET",
             Title = $"Get {resourceName} Details",
-            Type = "application/json"
+            Type = ApplicationJson
         });
 
         // Update link
@@ -64,7 +56,7 @@ public class LinkService : ILinkService
             Rel = "update",
             Method = "PATCH",
             Title = $"Update {resourceName}",
-            Type = "application/json"
+            Type = ApplicationJson
         });
 
         // Delete link
@@ -74,7 +66,7 @@ public class LinkService : ILinkService
             Rel = "delete",
             Method = "DELETE",
             Title = $"Delete {resourceName}",
-            Type = "application/json"
+            Type = ApplicationJson
         });
 
         // Related resources based on resource type
@@ -89,7 +81,7 @@ public class LinkService : ILinkService
                         Rel = "employees",
                         Method = "GET",
                         Title = "List Yard Employees",
-                        Type = "application/json"
+                        Type = ApplicationJson 
                     });
                     links.Add(new LinkDto
                     {
@@ -97,7 +89,7 @@ public class LinkService : ILinkService
                         Rel = "vehicles",
                         Method = "GET",
                         Title = "List Yard Vehicles",
-                        Type = "application/json"
+                        Type = ApplicationJson
                     });
                     break;
                 case "vehicle":
@@ -107,7 +99,7 @@ public class LinkService : ILinkService
                         Rel = "qr-code",
                         Method = "GET",
                         Title = "Get Vehicle by QR Code",
-                        Type = "application/json"
+                        Type = ApplicationJson
                     });
                     break;
             }
@@ -119,7 +111,7 @@ public class LinkService : ILinkService
     public List<LinkDto> GenerateCollectionLinks(string resourceType, int pageNumber, int pageSize, int totalPages)
     {
         var links = new List<LinkDto>();
-        var httpContext = _httpContextAccessor.HttpContext;
+        var httpContext = httpContextAccessor.HttpContext;
         
         if (httpContext == null) return links;
 
@@ -134,7 +126,7 @@ public class LinkService : ILinkService
             Rel = "self",
             Method = "GET",
             Title = $"List {resourceName}",
-            Type = "application/json"
+            Type = ApplicationJson
         });
 
         // Create link
@@ -144,7 +136,7 @@ public class LinkService : ILinkService
             Rel = "create",
             Method = "POST",
             Title = $"Create New {resourceName}",
-            Type = "application/json"
+            Type = ApplicationJson
         });
 
         // Pagination links
@@ -156,7 +148,7 @@ public class LinkService : ILinkService
                 Rel = "prev",
                 Method = "GET",
                 Title = "Previous Page",
-                Type = "application/json"
+                Type = ApplicationJson
             });
         }
 
@@ -168,7 +160,7 @@ public class LinkService : ILinkService
                 Rel = "next",
                 Method = "GET",
                 Title = "Next Page",
-                Type = "application/json"
+                Type = ApplicationJson
             });
         }
 
@@ -181,7 +173,7 @@ public class LinkService : ILinkService
                 Rel = "first",
                 Method = "GET",
                 Title = "First Page",
-                Type = "application/json"
+                Type = ApplicationJson
             });
         }
 
@@ -194,7 +186,7 @@ public class LinkService : ILinkService
                 Rel = "last",
                 Method = "GET",
                 Title = "Last Page",
-                Type = "application/json"
+                Type = ApplicationJson
             });
         }
 

@@ -9,9 +9,11 @@ namespace AutoInsightAPI.handlers;
 
 public static class YardHandler
 {
+    private const string YardResource = "yards";
+    
     public static void Map(WebApplication app)
     {
-        var yardGroup = app.MapGroup("/yards").WithTags("yard");
+        var yardGroup = app.MapGroup($"/{YardResource}").WithTags("yard");
 
         yardGroup.MapGet("/", GetYards);
         yardGroup.MapGet("/{id}", GetYardById);
@@ -53,11 +55,11 @@ public static class YardHandler
         var yards = await yardRepository.ListPagedAsync(pageNumber, pageSize);
         var yardsResponse = mapper.Map<PagedResponseDto<YardDto>>(yards);
 
-        yardsResponse.Links = linkService.GenerateCollectionLinks("yards", pageNumber, pageSize, yards.TotalPages);
+        yardsResponse.Links = linkService.GenerateCollectionLinks(YardResource, pageNumber, pageSize, yards.TotalPages);
 
         foreach (var yard in yardsResponse.Data)
         {
-            yard.Links = linkService.GenerateResourceLinks("yards", yard.Id);
+            yard.Links = linkService.GenerateResourceLinks(YardResource, yard.Id);
         }
 
         return TypedResults.Ok(yardsResponse);
@@ -79,7 +81,7 @@ public static class YardHandler
 
         var yardResponse = mapper.Map<YardDto>(yard);
 
-        yardResponse.Links = linkService.GenerateResourceLinks("yards", yard.Id);
+        yardResponse.Links = linkService.GenerateResourceLinks(YardResource, yard.Id);
 
         return TypedResults.Ok(yardResponse);
     }
@@ -97,9 +99,9 @@ public static class YardHandler
 
             var yardDtoResult = mapper.Map<YardDto>(createdYard);
 
-            yardDtoResult.Links = linkService.GenerateResourceLinks("yards", createdYard.Id);
+            yardDtoResult.Links = linkService.GenerateResourceLinks(YardResource, createdYard.Id);
 
-            return TypedResults.Created($"/yards/{createdYard.Id}", yardDtoResult);
+            return TypedResults.Created($"/{YardResource}/{createdYard.Id}", yardDtoResult);
         }
         catch (Exception)
         {
@@ -148,7 +150,7 @@ public static class YardHandler
 
         var newYard = mapper.Map<YardDto>(existingYard);
 
-        newYard.Links = linkService.GenerateResourceLinks("yards", existingYard.Id);
+        newYard.Links = linkService.GenerateResourceLinks(YardResource, existingYard.Id);
 
         return TypedResults.Ok(newYard);
     }
