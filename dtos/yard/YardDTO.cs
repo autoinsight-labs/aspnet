@@ -1,6 +1,8 @@
+using AutoInsightAPI.Dtos.Common;
+
 namespace AutoInsightAPI.Dtos
 {
-  public class YardDto
+  public class YardDto : HateoasResourceDto
   {
     public string Id {get; private set;}
 

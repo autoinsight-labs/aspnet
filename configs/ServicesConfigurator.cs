@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using AutoInsightAPI.models;
 using AutoInsightAPI.Profiles;
 using AutoInsightAPI.Repositories;
+using AutoInsightAPI.Services;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,6 +24,9 @@ public static class ServicesConfigurator
         services.AddScoped<IYardEmployeeRepository, YardEmployeeRepository>();
         services.AddScoped<IYardVehicleRepository, YardVehicleRepository>();
         services.AddScoped<IVehicleRepository, VehicleRepository>();
+
+        services.AddHttpContextAccessor();
+        services.AddScoped<ILinkService, LinkService>();
 
         services.Configure<JsonOptions>(options =>
         {

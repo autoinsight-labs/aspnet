@@ -1,6 +1,7 @@
 using AutoInsightAPI.Dtos;
 using AutoInsightAPI.Models;
 using AutoInsightAPI.Repositories;
+using AutoInsightAPI.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -16,12 +17,13 @@ public static class YardHandler
         yardGroup.MapGet("/{id}", GetYardById);
         yardGroup.MapPost("/", CreateYard);
         yardGroup.MapDelete("/{id}", DeleteYard);
-        yardGroup.MapPut("/{id}",  UpdateYard);
+        yardGroup.MapPatch("/{id}",  UpdateYard);
     }
 
     private static async Task<Results<Ok<PagedResponseDto<YardDto>>, BadRequest>> GetYards(
         IYardRepository yardRepository,
         IMapper mapper,
+        ILinkService linkService,
         int pageNumber = 1,
         int pageSize = 10
     )
@@ -49,14 +51,23 @@ public static class YardHandler
         }
 
         var yards = await yardRepository.ListPagedAsync(pageNumber, pageSize);
+        var yardsResponse = mapper.Map<PagedResponseDto<YardDto>>(yards);
 
-        return TypedResults.Ok(mapper.Map<PagedResponseDto<YardDto>>(yards));
+        yardsResponse.Links = linkService.GenerateCollectionLinks("yards", pageNumber, pageSize, yards.TotalPages);
+
+        foreach (var yard in yardsResponse.Data)
+        {
+            yard.Links = linkService.GenerateResourceLinks("yards", yard.Id);
+        }
+
+        return TypedResults.Ok(yardsResponse);
     }
 
     private static async Task<Results<Ok<YardDto>, NotFound>> GetYardById(
         string id,
         IYardRepository yardRepository,
-        IMapper mapper
+        IMapper mapper,
+        ILinkService linkService
     )
     {
         var yard = await yardRepository.FindAsync(id);
@@ -67,13 +78,17 @@ public static class YardHandler
         }
 
         var yardResponse = mapper.Map<YardDto>(yard);
+
+        yardResponse.Links = linkService.GenerateResourceLinks("yards", yard.Id);
+
         return TypedResults.Ok(yardResponse);
     }
 
     private static async Task<Results<Created<YardDto>, ProblemHttpResult>> CreateYard(
         YardDto yardDto,
         IYardRepository yardRepository,
-        IMapper mapper
+        IMapper mapper,
+        ILinkService linkService
     )
     {
         try
@@ -81,7 +96,10 @@ public static class YardHandler
             var createdYard = await yardRepository.CreateAsync(mapper.Map<Yard>(yardDto));
 
             var yardDtoResult = mapper.Map<YardDto>(createdYard);
-            return TypedResults.Created($"/yard/{createdYard.Id}", yardDtoResult);
+
+            yardDtoResult.Links = linkService.GenerateResourceLinks("yards", createdYard.Id);
+
+            return TypedResults.Created($"/yards/{createdYard.Id}", yardDtoResult);
         }
         catch (Exception)
         {
@@ -113,7 +131,8 @@ public static class YardHandler
         string id,
         YardDto yardDto,
         IYardRepository yardRepository,
-        IMapper mapper
+        IMapper mapper,
+        ILinkService linkService
     )
     {
         var existingYard = await yardRepository.FindAsync(id);
@@ -128,6 +147,9 @@ public static class YardHandler
         await yardRepository.UpdateAsync();
 
         var newYard = mapper.Map<YardDto>(existingYard);
+
+        newYard.Links = linkService.GenerateResourceLinks("yards", existingYard.Id);
+
         return TypedResults.Ok(newYard);
     }
 }

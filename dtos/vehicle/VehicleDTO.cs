@@ -1,6 +1,8 @@
+using AutoInsightAPI.Dtos.Common;
+
 namespace AutoInsightAPI.Dtos
 {
-  public class VehicleDto
+  public class VehicleDto : HateoasResourceDto
   {
     public string Id {get; set;}
     public string Plate {get; set;}
