@@ -19,14 +19,30 @@ public static class VehicleHandler
 
         vehicleGroup.MapGet("/", GetVehicleByQrCode)
             .WithSummary("Get vehicle by QR Code")
-            .WithDescription("Returns a vehicle associated with the provided QR Code. Provide qrCodeId as query parameter.")
+            .WithDescription(@"Returns a vehicle associated with the provided QR Code. Provide qrCodeId as query parameter.
+Example Request:
+`GET /vehicles?qrCodeId=qr_123`
+
+Example Response (200 OK):
+```json
+{
+    ""id"": ""veh_abc123"",
+    ""plate"": ""ABC1D23"",
+    ""model"": {
+        ""id"": ""mdl_001"",
+        ""name"": ""Honda CG 160"",
+        ""year"": 2023
+    },
+    ""userId"": ""usr_001""
+}
+```")
             .WithName("GetVehicleByQrCode")
             .Produces<VehicleDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithOpenApi(op =>
             {
                 op.OperationId = "GetVehicleByQrCode";
-                op.Parameters.Add(new Microsoft.OpenApi.Models.OpenApiParameter
+                op.Parameters.Add(new()
                 {
                     Name = "qrCodeId",
                     In = Microsoft.OpenApi.Models.ParameterLocation.Query,
@@ -49,10 +65,17 @@ public static class VehicleHandler
             });
         vehicleGroup.MapGet("/{id}", GetVehicleById)
             .WithSummary("Get vehicle by id")
-            .WithDescription("Returns a vehicle by its id.")
+            .WithDescription(@"Returns a vehicle by its id.
+Example Request:
+`GET /vehicles/veh_abc123`
+")
             .Produces<VehicleDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .WithOpenApi(op => { op.OperationId = "GetVehicleById"; return op; });
+            .WithOpenApi(op =>
+            {
+                op.OperationId = "GetVehicleById";
+                return op;
+            });
 
         yardVehicleGroup.MapGet("/", GetYardVehicles)
             .WithSummary("List yard vehicles")
@@ -66,9 +89,7 @@ Query Parameters:
 - pageSize (optional): Number of items per page. Must be greater than zero. Default: 10
 
 Example Request:
-```
-GET /yards/yrd_123/vehicles?pageNumber=1&pageSize=10
-```
+`GET /yards/yrd_123/vehicles?pageNumber=1&pageSize=10`
 
 Example Response (200 OK):
 ```json
@@ -95,15 +116,19 @@ Example Response (200 OK):
 ```
 
 Response Codes:
-- 200 OK: Returns paginated yard vehicles (PagedResponseDto<YardVehicleDto>)
-- 400 Bad Request: Invalid pageNumber or pageSize (<= 0)
+- 200 OK: Returns paginated yard vehicles (`PagedResponseDto<YardVehicleDto>`)
+- 400 Bad Request: Invalid `pageNumber` or `pageSize` (<= 0)
 - 404 Not Found: Yard not found
 - 500 Internal Server Error: Unexpected server error")
-            .Produces<AutoInsightAPI.Dtos.PagedResponseDto<YardVehicleDto>>(StatusCodes.Status200OK)
+            .Produces<Dtos.PagedResponseDto<YardVehicleDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .WithOpenApi(op => { op.OperationId = "ListYardVehicles"; return op; });
+            .WithOpenApi(op =>
+            {
+                op.OperationId = "ListYardVehicles";
+                return op;
+            });
         yardVehicleGroup.MapGet("/{yardVehicleId}", GetYardVehicleById)
             .WithSummary("Get yard vehicle by id")
             .WithDescription(@"Returns a yard vehicle by its id.
@@ -113,9 +138,7 @@ Path Parameters:
 - yardVehicleId (string): Yard vehicle identifier
 
 Example Request:
-```
-GET /yards/yrd_123/vehicles/yv_001
-```
+`GET /yards/yrd_123/vehicles/yv_001`
 
 Example Response (200 OK):
 ```json
@@ -134,16 +157,39 @@ Example Response (200 OK):
 ```
 
 Response Codes:
-- 200 OK: Returns yard vehicle (YardVehicleDto)
+- 200 OK: Returns yard vehicle (`YardVehicleDto`)
 - 404 Not Found: Yard or yard vehicle not found
 - 500 Internal Server Error: Unexpected server error")
             .Produces<YardVehicleDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .WithOpenApi(op => { op.OperationId = "GetYardVehicleById"; return op; });
+            .WithOpenApi(op =>
+            {
+                op.OperationId = "GetYardVehicleById";
+                return op;
+            });
         yardVehicleGroup.MapPatch("/{yardVehicleId}", UpdateYardVehicle)
             .WithSummary("Update yard vehicle")
-            .WithDescription("Updates a vehicle associated with the yard. Status must be one of SCHEDULED, WAITING, ON_SERVICE, FINISHED or CANCELLED.")
+            .WithDescription(@"Updates a vehicle associated with the yard. Status must be one of SCHEDULED, WAITING, ON_SERVICE, FINISHED or CANCELLED.
+Example Request Body:
+```json
+{
+    ""status"": ""ON_SERVICE"",
+    ""enteredAt"": ""2025-05-20T10:00:00Z"",
+    ""leftAt"": null,
+    ""vehicle"": {
+        ""id"": ""veh_abc123"",
+        ""plate"": ""ABC1D23"",
+        ""model"": {
+            ""id"": ""mdl_001"",
+            ""name"": ""Honda CG 160"",
+            ""year"": 2023
+        },
+        ""userId"": ""usr_001""
+    }
+}
+```
+")
             .Accepts<YardVehicleDto>("application/json")
             .Produces<YardVehicleDto>(StatusCodes.Status200OK)
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
@@ -152,27 +198,27 @@ Response Codes:
             .WithOpenApi(op =>
             {
                 op.OperationId = "UpdateYardVehicle";
-                op.Parameters.Add(new Microsoft.OpenApi.Models.OpenApiParameter
+                op.Parameters.Add(new()
                 {
                     Name = "id",
                     In = Microsoft.OpenApi.Models.ParameterLocation.Path,
                     Description = "Yard identifier",
                     Required = true
                 });
-                op.Parameters.Add(new Microsoft.OpenApi.Models.OpenApiParameter
+                op.Parameters.Add(new()
                 {
                     Name = "yardVehicleId",
                     In = Microsoft.OpenApi.Models.ParameterLocation.Path,
                     Description = "Yard vehicle identifier",
                     Required = true
                 });
-                op.RequestBody = new Microsoft.OpenApi.Models.OpenApiRequestBody
+                op.RequestBody = new()
                 {
                     Description = "Example payload to update a yard vehicle.",
                     Required = true,
                     Content = new Dictionary<string, Microsoft.OpenApi.Models.OpenApiMediaType>
                     {
-                        ["application/json"] = new Microsoft.OpenApi.Models.OpenApiMediaType
+                        ["application/json"] = new()
                         {
                             Example = new Microsoft.OpenApi.Any.OpenApiObject
                             {
@@ -199,7 +245,25 @@ Response Codes:
             });
         yardVehicleGroup.MapPost("/", CreateYardVehicle)
             .WithSummary("Create yard vehicle")
-            .WithDescription("Creates a link between a vehicle and a yard. Requires a valid vehicle id and a non-null enteredAt.")
+            .WithDescription(@"Creates a link between a vehicle and a yard. Requires a valid vehicle id and a non-null enteredAt.
+Example Request Body:
+```json
+{
+    ""status"": ""WAITING"",
+    ""enteredAt"": ""2025-05-20T09:30:00Z"",
+    ""vehicle"": {
+        ""id"": ""veh_abc123"",
+        ""plate"": ""ABC1D23"",
+        ""model"": {
+            ""id"": ""mdl_001"",
+            ""name"": ""Honda CG 160"",
+            ""year"": 2023
+        },
+        ""userId"": ""usr_001""
+    }
+}
+```
+")
             .Accepts<YardVehicleDto>("application/json")
             .Produces<YardVehicleDto>(StatusCodes.Status201Created)
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
@@ -208,20 +272,20 @@ Response Codes:
             .WithOpenApi(op =>
             {
                 op.OperationId = "CreateYardVehicle";
-                op.Parameters.Add(new Microsoft.OpenApi.Models.OpenApiParameter
+                op.Parameters.Add(new()
                 {
                     Name = "id",
                     In = Microsoft.OpenApi.Models.ParameterLocation.Path,
                     Description = "Yard identifier",
                     Required = true
                 });
-                op.RequestBody = new Microsoft.OpenApi.Models.OpenApiRequestBody
+                op.RequestBody = new()
                 {
                     Description = "Example payload to create a yard vehicle.",
                     Required = true,
                     Content = new Dictionary<string, Microsoft.OpenApi.Models.OpenApiMediaType>
                     {
-                        ["application/json"] = new Microsoft.OpenApi.Models.OpenApiMediaType
+                        ["application/json"] = new()
                         {
                             Example = new Microsoft.OpenApi.Any.OpenApiObject
                             {

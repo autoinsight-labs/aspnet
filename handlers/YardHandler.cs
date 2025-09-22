@@ -26,9 +26,7 @@ Query Parameters:
 - pageSize (optional): Number of items per page. Must be greater than zero. Default: 10
 
 Example Request:
-```
-GET /yards?pageNumber=1&pageSize=5
-```
+`GET /yards?pageNumber=1&pageSize=5`
 
 Example Response (200 OK):
 ```json
@@ -62,24 +60,24 @@ Example Error Response (400 Bad Request):
 ```
 
 Response Codes:
-- 200 OK: Returns paginated yards data (PagedResponseDto<YardDto>)
-- 400 Bad Request: Invalid pageNumber or pageSize (<= 0)
+- 200 OK: Returns paginated yards data (`PagedResponseDto<YardDto>`)
+- 400 Bad Request: Invalid `pageNumber` or `pageSize` (<= 0)
 - 500 Internal Server Error: Unexpected server error")
             .WithName("ListYards")
-            .Produces<AutoInsightAPI.Dtos.PagedResponseDto<YardDto>>(StatusCodes.Status200OK)
+            .Produces<Dtos.PagedResponseDto<YardDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithOpenApi(op =>
             {
                 op.OperationId = "ListYards";
-                op.Parameters.Add(new Microsoft.OpenApi.Models.OpenApiParameter
+                op.Parameters.Add(new()
                 {
                     Name = "pageNumber",
                     In = Microsoft.OpenApi.Models.ParameterLocation.Query,
                     Description = "Page number (>= 1)",
                     Required = false
                 });
-                op.Parameters.Add(new Microsoft.OpenApi.Models.OpenApiParameter
+                op.Parameters.Add(new()
                 {
                     Name = "pageSize",
                     In = Microsoft.OpenApi.Models.ParameterLocation.Query,
@@ -97,9 +95,7 @@ Path Parameters:
 - id (string): Unique identifier of the yard
 
 Example Request:
-```
-GET /yards/yrd_123
-```
+`GET /yards/yrd_123`
 
 Example Response (200 OK):
 ```json
@@ -125,18 +121,52 @@ Example Error Response (404 Not Found):
 ```
 
 Response Codes:
-- 200 OK: Returns yard data (YardDto)
+- 200 OK: Returns yard data (`YardDto`)
 - 404 Not Found: Yard with the specified ID does not exist
 - 500 Internal Server Error: Unexpected server error")
             .WithName("GetYardById")
             .Produces<YardDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .WithOpenApi(op => { op.OperationId = "GetYardById"; return op; });
+            .WithOpenApi(op =>
+            {
+                op.OperationId = "GetYardById";
+                return op;
+            });
 
         yardGroup.MapPost("/", CreateYard)
             .WithSummary("Create yard")
-            .WithDescription("Creates a new yard. The provided address must be complete, and ownerId must reference an existing user.")
+            .WithDescription(@"Creates a new yard. The provided address must be complete, and ownerId must reference an existing user.
+Example Request Body:
+```json
+{
+    ""ownerId"": ""usr_owner_001"",
+    ""address"": {
+        ""country"": ""BR"",
+        ""state"": ""SP"",
+        ""city"": ""São Paulo"",
+        ""zipCode"": ""01311-000"",
+        ""neighborhood"": ""Bela Vista"",
+        ""complement"": ""Av. Paulista, 1106""
+    }
+}
+```
+
+Example Response (201 Created):
+```json
+{
+  ""id"": ""yrd_123"",
+  ""ownerId"": ""usr_owner_001"",
+  ""address"": {
+    ""country"": ""BR"",
+    ""state"": ""SP"",
+    ""city"": ""São Paulo"",
+    ""zipCode"": ""01311-000"",
+    ""neighborhood"": ""Bela Vista""
+  }
+}
+```
+")
             .Accepts<YardDto>("application/json")
             .Produces<YardDto>(StatusCodes.Status201Created)
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
@@ -145,13 +175,13 @@ Response Codes:
             .WithOpenApi(op =>
             {
                 op.OperationId = "CreateYard";
-                op.RequestBody = new Microsoft.OpenApi.Models.OpenApiRequestBody
+                op.RequestBody = new()
                 {
                     Description = "Example payload to create a yard.",
                     Required = true,
                     Content = new Dictionary<string, Microsoft.OpenApi.Models.OpenApiMediaType>
                     {
-                        ["application/json"] = new Microsoft.OpenApi.Models.OpenApiMediaType
+                        ["application/json"] = new()
                         {
                             Example = new Microsoft.OpenApi.Any.OpenApiObject
                             {
@@ -180,14 +210,10 @@ Path Parameters:
 - id (string): Unique identifier of the yard to delete
 
 Example Request:
-```
-DELETE /yards/yrd_123
-```
+`DELETE /yards/yrd_123`
 
 Example Response (204 No Content):
-```
 (Empty response body)
-```
 
 Response Codes:
 - 204 No Content: Yard successfully deleted
@@ -196,11 +222,26 @@ Response Codes:
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .WithOpenApi(op => { op.OperationId = "DeleteYard"; return op; });
+            .WithOpenApi(op =>
+            {
+                op.OperationId = "DeleteYard";
+                return op;
+            });
 
-        yardGroup.MapPatch("/{id}",  UpdateYard)
+        yardGroup.MapPatch("/{id}", UpdateYard)
             .WithSummary("Update yard")
-            .WithDescription("Updates an existing yard by id. At least one field must be provided.")
+            .WithDescription(@"Updates an existing yard by id. At least one field must be provided.
+Example Request Body:
+```json
+{
+    ""ownerId"": ""usr_owner_001"",
+    ""address"": {
+        ""city"": ""São Paulo"",
+        ""neighborhood"": ""Bela Vista""
+    }
+}
+```
+")
             .Accepts<YardDto>("application/json")
             .Produces<YardDto>(StatusCodes.Status200OK)
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
@@ -209,20 +250,20 @@ Response Codes:
             .WithOpenApi(op =>
             {
                 op.OperationId = "UpdateYard";
-                op.Parameters.Add(new Microsoft.OpenApi.Models.OpenApiParameter
+                op.Parameters.Add(new()
                 {
                     Name = "id",
                     In = Microsoft.OpenApi.Models.ParameterLocation.Path,
                     Description = "Yard identifier",
                     Required = true
                 });
-                op.RequestBody = new Microsoft.OpenApi.Models.OpenApiRequestBody
+                op.RequestBody = new()
                 {
                     Description = "Example payload to update a yard.",
                     Required = true,
                     Content = new Dictionary<string, Microsoft.OpenApi.Models.OpenApiMediaType>
                     {
-                        ["application/json"] = new Microsoft.OpenApi.Models.OpenApiMediaType
+                        ["application/json"] = new()
                         {
                             Example = new Microsoft.OpenApi.Any.OpenApiObject
                             {

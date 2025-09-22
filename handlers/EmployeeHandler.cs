@@ -27,9 +27,7 @@ Query Parameters:
 - pageSize (optional): Number of items per page. Must be greater than zero. Default: 10
 
 Example Request:
-```
-GET /yards/yrd_123/employees?pageNumber=1&pageSize=10
-```
+`GET /yards/yrd_123/employees?pageNumber=1&pageSize=10`
 
 Example Response (200 OK):
 ```json
@@ -51,20 +49,34 @@ Example Response (200 OK):
 ```
 
 Response Codes:
-- 200 OK: Returns paginated employees (PagedResponseDto<YardEmployeeDto>)
-- 400 Bad Request: Invalid pageNumber or pageSize (<= 0)
+- 200 OK: Returns paginated employees (`PagedResponseDto<YardEmployeeDto>`)
+- 400 Bad Request: Invalid `pageNumber` or `pageSize` (<= 0)
 - 404 Not Found: Yard not found
 - 500 Internal Server Error: Unexpected server error")
             .WithName("ListYardEmployees")
-            .Produces<AutoInsightAPI.Dtos.PagedResponseDto<YardEmployeeDto>>(StatusCodes.Status200OK)
+            .Produces<Dtos.PagedResponseDto<YardEmployeeDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .WithOpenApi(op => { op.OperationId = "ListYardEmployees"; return op; });
+            .WithOpenApi(op =>
+            {
+                op.OperationId = "ListYardEmployees";
+                return op;
+            });
 
         employeeGroup.MapPost("/", CreateYardEmployee)
             .WithSummary("Create yard employee")
-            .WithDescription("Adds a new employee to the specified yard. Role must be one of ADMIN or MEMBER.")
+            .WithDescription(@"Adds a new employee to the specified yard. Role must be one of ADMIN or MEMBER.
+Example Request Body:
+```json
+{
+    ""name"": ""Jane Doe"",
+    ""imageUrl"": ""https://cdn.example.com/jane.png"",
+    ""role"": ""ADMIN"",
+    ""userId"": ""usr_002""
+}
+```
+")
             .Accepts<YardEmployeeDto>("application/json")
             .Produces<YardEmployeeDto>(StatusCodes.Status201Created)
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
@@ -73,20 +85,20 @@ Response Codes:
             .WithOpenApi(op =>
             {
                 op.OperationId = "CreateYardEmployee";
-                op.Parameters.Add(new Microsoft.OpenApi.Models.OpenApiParameter
+                op.Parameters.Add(new()
                 {
                     Name = "id",
                     In = Microsoft.OpenApi.Models.ParameterLocation.Path,
                     Description = "Yard identifier",
                     Required = true
                 });
-                op.RequestBody = new Microsoft.OpenApi.Models.OpenApiRequestBody
+                op.RequestBody = new()
                 {
                     Description = "Example payload to create a yard employee.",
                     Required = true,
                     Content = new Dictionary<string, Microsoft.OpenApi.Models.OpenApiMediaType>
                     {
-                        ["application/json"] = new Microsoft.OpenApi.Models.OpenApiMediaType
+                        ["application/json"] = new()
                         {
                             Example = new Microsoft.OpenApi.Any.OpenApiObject
                             {
@@ -110,9 +122,7 @@ Path Parameters:
 - employeeId (string): Employee identifier
 
 Example Request:
-```
-GET /yards/yrd_123/employees/emp_001
-```
+`GET /yards/yrd_123/employees/emp_001`
 
 Example Response (200 OK):
 ```json
@@ -126,13 +136,17 @@ Example Response (200 OK):
 ```
 
 Response Codes:
-- 200 OK: Returns the employee data (YardEmployeeDto)
+- 200 OK: Returns the employee data (`YardEmployeeDto`)
 - 404 Not Found: Yard or employee not found
 - 500 Internal Server Error: Unexpected server error")
             .Produces<YardEmployeeDto>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .WithOpenApi(op => { op.OperationId = "GetYardEmployeeById"; return op; });
+            .WithOpenApi(op =>
+            {
+                op.OperationId = "GetYardEmployeeById";
+                return op;
+            });
 
         employeeGroup.MapDelete("/{employeeId}", DeleteYardEmployee)
             .WithSummary("Delete yard employee")
@@ -143,14 +157,10 @@ Path Parameters:
 - employeeId (string): Employee identifier
 
 Example Request:
-```
-DELETE /yards/yrd_123/employees/emp_001
-```
+`DELETE /yards/yrd_123/employees/emp_001`
 
 Example Response (204 No Content):
-```
 (Empty response body)
-```
 
 Response Codes:
 - 204 No Content: Employee successfully removed
@@ -159,11 +169,25 @@ Response Codes:
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .WithOpenApi(op => { op.OperationId = "DeleteYardEmployee"; return op; });
+            .WithOpenApi(op =>
+            {
+                op.OperationId = "DeleteYardEmployee";
+                return op;
+            });
 
         employeeGroup.MapPatch("/{employeeId}", UpdateYardEmployee)
             .WithSummary("Update yard employee")
-            .WithDescription("Updates the employee data within the yard. All fields are replace operations.")
+            .WithDescription(@"Updates the employee data within the yard. All fields are replace operations.
+Example Request Body:
+```json
+{
+    ""name"": ""Jane Doe"",
+    ""imageUrl"": ""https://cdn.example.com/jane.png"",
+    ""role"": ""MEMBER"",
+    ""userId"": ""usr_002""
+}
+```
+")
             .Accepts<YardEmployeeDto>("application/json")
             .Produces<YardEmployeeDto>(StatusCodes.Status200OK)
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
@@ -172,27 +196,27 @@ Response Codes:
             .WithOpenApi(op =>
             {
                 op.OperationId = "UpdateYardEmployee";
-                op.Parameters.Add(new Microsoft.OpenApi.Models.OpenApiParameter
+                op.Parameters.Add(new()
                 {
                     Name = "id",
                     In = Microsoft.OpenApi.Models.ParameterLocation.Path,
                     Description = "Yard identifier",
                     Required = true
                 });
-                op.Parameters.Add(new Microsoft.OpenApi.Models.OpenApiParameter
+                op.Parameters.Add(new()
                 {
                     Name = "employeeId",
                     In = Microsoft.OpenApi.Models.ParameterLocation.Path,
                     Description = "Employee identifier",
                     Required = true
                 });
-                op.RequestBody = new Microsoft.OpenApi.Models.OpenApiRequestBody
+                op.RequestBody = new()
                 {
                     Description = "Example payload to update a yard employee.",
                     Required = true,
                     Content = new Dictionary<string, Microsoft.OpenApi.Models.OpenApiMediaType>
                     {
-                        ["application/json"] = new Microsoft.OpenApi.Models.OpenApiMediaType
+                        ["application/json"] = new()
                         {
                             Example = new Microsoft.OpenApi.Any.OpenApiObject
                             {
