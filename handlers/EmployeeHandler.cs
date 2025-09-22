@@ -57,8 +57,8 @@ Response Codes:
 - 500 Internal Server Error: Unexpected server error")
             .WithName("ListYardEmployees")
             .Produces<AutoInsightAPI.Dtos.PagedResponseDto<YardEmployeeDto>>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithOpenApi(op => { op.OperationId = "ListYardEmployees"; return op; });
 
@@ -67,7 +67,8 @@ Response Codes:
             .WithDescription("Adds a new employee to the specified yard. Role must be one of ADMIN or MEMBER.")
             .Accepts<YardEmployeeDto>("application/json")
             .Produces<YardEmployeeDto>(StatusCodes.Status201Created)
-            .Produces(StatusCodes.Status404NotFound)
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .AddEndpointFilter<ValidationFilter<YardEmployeeDto>>()
             .WithOpenApi(op =>
             {
@@ -129,7 +130,7 @@ Response Codes:
 - 404 Not Found: Yard or employee not found
 - 500 Internal Server Error: Unexpected server error")
             .Produces<YardEmployeeDto>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithOpenApi(op => { op.OperationId = "GetYardEmployeeById"; return op; });
 
@@ -156,7 +157,7 @@ Response Codes:
 - 404 Not Found: Yard or employee not found
 - 500 Internal Server Error: Unexpected server error")
             .Produces(StatusCodes.Status204NoContent)
-            .Produces(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithOpenApi(op => { op.OperationId = "DeleteYardEmployee"; return op; });
 
@@ -165,8 +166,8 @@ Response Codes:
             .WithDescription("Updates the employee data within the yard. All fields are replace operations.")
             .Accepts<YardEmployeeDto>("application/json")
             .Produces<YardEmployeeDto>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status404NotFound)
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .AddEndpointFilter<ValidationFilter<YardEmployeeDto>>()
             .WithOpenApi(op =>
             {

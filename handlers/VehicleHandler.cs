@@ -22,7 +22,7 @@ public static class VehicleHandler
             .WithDescription("Returns a vehicle associated with the provided QR Code. Provide qrCodeId as query parameter.")
             .WithName("GetVehicleByQrCode")
             .Produces<VehicleDto>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .WithOpenApi(op =>
             {
                 op.OperationId = "GetVehicleByQrCode";
@@ -51,7 +51,7 @@ public static class VehicleHandler
             .WithSummary("Get vehicle by id")
             .WithDescription("Returns a vehicle by its id.")
             .Produces<VehicleDto>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .WithOpenApi(op => { op.OperationId = "GetVehicleById"; return op; });
 
         yardVehicleGroup.MapGet("/", GetYardVehicles)
@@ -100,8 +100,8 @@ Response Codes:
 - 404 Not Found: Yard not found
 - 500 Internal Server Error: Unexpected server error")
             .Produces<AutoInsightAPI.Dtos.PagedResponseDto<YardVehicleDto>>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithOpenApi(op => { op.OperationId = "ListYardVehicles"; return op; });
         yardVehicleGroup.MapGet("/{yardVehicleId}", GetYardVehicleById)
@@ -138,7 +138,7 @@ Response Codes:
 - 404 Not Found: Yard or yard vehicle not found
 - 500 Internal Server Error: Unexpected server error")
             .Produces<YardVehicleDto>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithOpenApi(op => { op.OperationId = "GetYardVehicleById"; return op; });
         yardVehicleGroup.MapPatch("/{yardVehicleId}", UpdateYardVehicle)
@@ -146,8 +146,8 @@ Response Codes:
             .WithDescription("Updates a vehicle associated with the yard. Status must be one of SCHEDULED, WAITING, ON_SERVICE, FINISHED or CANCELLED.")
             .Accepts<YardVehicleDto>("application/json")
             .Produces<YardVehicleDto>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status404NotFound)
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .AddEndpointFilter<ValidationFilter<YardVehicleDto>>()
             .WithOpenApi(op =>
             {
@@ -202,8 +202,8 @@ Response Codes:
             .WithDescription("Creates a link between a vehicle and a yard. Requires a valid vehicle id and a non-null enteredAt.")
             .Accepts<YardVehicleDto>("application/json")
             .Produces<YardVehicleDto>(StatusCodes.Status201Created)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status404NotFound)
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .AddEndpointFilter<ValidationFilter<YardVehicleDto>>()
             .WithOpenApi(op =>
             {

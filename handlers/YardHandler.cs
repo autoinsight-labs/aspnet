@@ -67,7 +67,7 @@ Response Codes:
 - 500 Internal Server Error: Unexpected server error")
             .WithName("ListYards")
             .Produces<AutoInsightAPI.Dtos.PagedResponseDto<YardDto>>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithOpenApi(op =>
             {
@@ -130,7 +130,7 @@ Response Codes:
 - 500 Internal Server Error: Unexpected server error")
             .WithName("GetYardById")
             .Produces<YardDto>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithOpenApi(op => { op.OperationId = "GetYardById"; return op; });
 
@@ -139,6 +139,7 @@ Response Codes:
             .WithDescription("Creates a new yard. The provided address must be complete, and ownerId must reference an existing user.")
             .Accepts<YardDto>("application/json")
             .Produces<YardDto>(StatusCodes.Status201Created)
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .AddEndpointFilter<ValidationFilter<YardDto>>()
             .WithOpenApi(op =>
@@ -193,7 +194,7 @@ Response Codes:
 - 404 Not Found: Yard with the specified ID does not exist
 - 500 Internal Server Error: Unexpected server error")
             .Produces(StatusCodes.Status204NoContent)
-            .Produces(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .WithOpenApi(op => { op.OperationId = "DeleteYard"; return op; });
 
@@ -202,7 +203,8 @@ Response Codes:
             .WithDescription("Updates an existing yard by id. At least one field must be provided.")
             .Accepts<YardDto>("application/json")
             .Produces<YardDto>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status404NotFound)
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .AddEndpointFilter<ValidationFilter<YardDto>>()
             .WithOpenApi(op =>
             {

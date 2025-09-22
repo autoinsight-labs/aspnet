@@ -17,7 +17,10 @@ namespace AutoInsightAPI.Validators
 
             if (argument is null)
             {
-                return Results.BadRequest("The request body is empty or invalid.");
+                return Results.ValidationProblem(new Dictionary<string, string[]>
+                {
+                    [""] = new[] { "The request body is empty or invalid." }
+                });
             }
 
             var validationResult = await _validator.ValidateAsync(argument);

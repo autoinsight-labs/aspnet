@@ -76,8 +76,11 @@ and alerting systems to verify that the application is functioning properly.";
         }
         errJson.Example = new Microsoft.OpenApi.Any.OpenApiObject
         {
-            ["statusCode"] = new Microsoft.OpenApi.Any.OpenApiInteger(500),
-            ["message"] = new Microsoft.OpenApi.Any.OpenApiString("Internal server error occurred")
+            ["type"] = new Microsoft.OpenApi.Any.OpenApiString("https://httpstatuses.io/500"),
+            ["title"] = new Microsoft.OpenApi.Any.OpenApiString("An unexpected error occurred."),
+            ["status"] = new Microsoft.OpenApi.Any.OpenApiInteger(500),
+            ["detail"] = new Microsoft.OpenApi.Any.OpenApiString("Internal server error occurred"),
+            ["instance"] = new Microsoft.OpenApi.Any.OpenApiString("/health")
         };
         return op;
     });
