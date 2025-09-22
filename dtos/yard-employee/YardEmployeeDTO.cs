@@ -1,8 +1,9 @@
 using AutoInsightAPI.Models;
+using AutoInsightAPI.Dtos.Common;
 
 namespace AutoInsightAPI.Dtos
 {
-  public class YardEmployeeDto
+  public class YardEmployeeDto : HateoasResourceDto
   {
     public string Id {get; private set;}
     public string Name {get; set;}

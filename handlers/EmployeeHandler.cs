@@ -1,6 +1,7 @@
 using AutoInsightAPI.Dtos;
 using AutoInsightAPI.Models;
 using AutoInsightAPI.Repositories;
+using AutoInsightAPI.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -16,13 +17,14 @@ public static class EmployeeHandler
         employeeGroup.MapPost("/", CreateYardEmployee);
         employeeGroup.MapGet("/{employeeId}", GetYardEmployeeById);
         employeeGroup.MapDelete("/{employeeId}", DeleteYardEmployee);
-        employeeGroup.MapPut("/{employeeId}", UpdateYardEmployee);
+        employeeGroup.MapPatch("/{employeeId}", UpdateYardEmployee);
     }
 
     private static async Task<Results<Ok<PagedResponseDto<YardEmployeeDto>>, BadRequest, NotFound>> GetYardEmployees(
         IYardRepository yardRepository,
         IYardEmployeeRepository yardEmployeeRepository,
         IMapper mapper,
+        ILinkService linkService,
         string id,
         int pageNumber = 1,
         int pageSize = 10
@@ -64,14 +66,23 @@ public static class EmployeeHandler
         }
 
         var employees = await yardEmployeeRepository.ListPagedAsync(pageNumber, pageSize, yard);
+        var employeesResponse = mapper.Map<PagedResponseDto<YardEmployeeDto>>(employees);
 
-        return TypedResults.Ok(mapper.Map<PagedResponseDto<YardEmployeeDto>>(employees));
+        employeesResponse.Links = linkService.GenerateCollectionLinks($"yards/{id}/employees", pageNumber, pageSize, employees.TotalPages);
+
+        foreach (var employee in employeesResponse.Data)
+        {
+            employee.Links = linkService.GenerateResourceLinks($"yards/{id}/employees", employee.Id);
+        }
+
+        return TypedResults.Ok(employeesResponse);
     }
 
     private static async Task<Results<Created<YardEmployeeDto>, NotFound>> CreateYardEmployee(
         IYardRepository yardRepository,
         IYardEmployeeRepository yardEmployeeRepository,
         IMapper mapper,
+        ILinkService linkService,
         string id,
         YardEmployeeDto yardEmployeeDto
     )
@@ -100,7 +111,9 @@ public static class EmployeeHandler
         var createdYardEmployee = await yardEmployeeRepository.CreateAsync(newEmployee);
         var yardEmployeeDtoResult = mapper.Map<YardEmployeeDto>(createdYardEmployee);
 
-        return TypedResults.Created($"/yard/{createdYardEmployee.YardId}/employees/{createdYardEmployee.Id}",
+        yardEmployeeDtoResult.Links = linkService.GenerateResourceLinks($"yards/{id}/employees", createdYardEmployee.Id);
+
+        return TypedResults.Created($"/yards/{createdYardEmployee.YardId}/employees/{createdYardEmployee.Id}",
             yardEmployeeDtoResult);
     }
 
@@ -108,6 +121,7 @@ public static class EmployeeHandler
         IYardRepository yardRepository,
         IYardEmployeeRepository yardEmployeeRepository,
         IMapper mapper,
+        ILinkService linkService,
         string id, string employeeId
     )
     {
@@ -138,6 +152,8 @@ public static class EmployeeHandler
         }
 
         var yardEmployeeResult = mapper.Map<YardEmployeeDto>(yardEmployee);
+
+        yardEmployeeResult.Links = linkService.GenerateResourceLinks($"yards/{id}/employees", yardEmployee.Id);
 
         return TypedResults.Ok(yardEmployeeResult);
     }
@@ -184,6 +200,7 @@ public static class EmployeeHandler
         IYardRepository yardRepository,
         IYardEmployeeRepository yardEmployeeRepository,
         IMapper mapper,
+        ILinkService linkService,
         YardEmployeeDto yardEmployeeDto,
         string id,
         string employeeId
@@ -230,6 +247,8 @@ public static class EmployeeHandler
         await yardEmployeeRepository.UpdateAsync();
 
         var newYardEmployee = mapper.Map<YardEmployeeDto>(yardEmployee);
+
+        newYardEmployee.Links = linkService.GenerateResourceLinks($"yards/{id}/employees", yardEmployee.Id);
 
         return TypedResults.Ok(newYardEmployee);
     }

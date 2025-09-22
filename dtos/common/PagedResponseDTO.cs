@@ -1,6 +1,8 @@
+using AutoInsightAPI.Dtos.Common;
+
 namespace AutoInsightAPI.Dtos
 {
-  public record PagedResponseDto<T>
+  public class PagedResponseDto<T> : HateoasResourceDto
   {
       public int PageNumber { get; set; }
       public int PageSize { get; set; }

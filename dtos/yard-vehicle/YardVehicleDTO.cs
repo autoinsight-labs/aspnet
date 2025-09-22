@@ -1,8 +1,9 @@
 using AutoInsightAPI.Models;
+using AutoInsightAPI.Dtos.Common;
 
 namespace AutoInsightAPI.Dtos
 {
-  public class YardVehicleDto
+  public class YardVehicleDto : HateoasResourceDto
   {
     public string Id {get; private set;}
     public Status Status {get; set;}

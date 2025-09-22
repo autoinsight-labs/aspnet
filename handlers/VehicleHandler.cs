@@ -1,6 +1,7 @@
 using AutoInsightAPI.Dtos;
 using AutoInsightAPI.Models;
 using AutoInsightAPI.Repositories;
+using AutoInsightAPI.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -18,14 +19,15 @@ public static class VehicleHandler
 
         yardVehicleGroup.MapGet("/", GetYardVehicles);
         yardVehicleGroup.MapGet("/{yardVehicleId}", GetYardVehicleById);
-        yardVehicleGroup.MapPut("/{yardVehicleId}", UpdateYardVehicle);
+        yardVehicleGroup.MapPatch("/{yardVehicleId}", UpdateYardVehicle);
         yardVehicleGroup.MapPost("/", CreateYardVehicle);
     }
 
     private static async Task<Results<Ok<VehicleDto>, NotFound>> GetVehicleByQrCode(
         string qrCodeId,
         IVehicleRepository vehicleRepository,
-        IMapper mapper
+        IMapper mapper,
+        ILinkService linkService
     )
     {
         var vehicle = await vehicleRepository.FindAsyncByQRCode(qrCodeId);
@@ -37,13 +39,17 @@ public static class VehicleHandler
 
 
         var vehicleResponse = mapper.Map<VehicleDto>(vehicle);
+
+        vehicleResponse.Links = linkService.GenerateResourceLinks("vehicles", vehicle.Id);
+
         return TypedResults.Ok(vehicleResponse);
     }
 
     private static async Task<Results<Ok<VehicleDto>, NotFound>> GetVehicleById(
         string id,
         IVehicleRepository vehicleRepository,
-        IMapper mapper
+        IMapper mapper,
+        ILinkService linkService
     )
     {
         var vehicle = await vehicleRepository.FindAsyncById(id);
@@ -55,6 +61,9 @@ public static class VehicleHandler
 
 
         var vehicleResponse = mapper.Map<VehicleDto>(vehicle);
+
+        vehicleResponse.Links = linkService.GenerateResourceLinks("vehicles", vehicle.Id);
+
         return TypedResults.Ok(vehicleResponse);
     }
 
@@ -62,6 +71,7 @@ public static class VehicleHandler
         IYardRepository yardRepository,
         IYardVehicleRepository yardVehicleRepository,
         IMapper mapper,
+        ILinkService linkService,
         string id,
         int pageNumber = 1,
         int pageSize = 10
@@ -103,14 +113,24 @@ public static class VehicleHandler
         }
 
         var yardVehicles = await yardVehicleRepository.ListPagedAsync(pageNumber, pageSize, yard);
+        var yardVehiclesResponse = mapper.Map<PagedResponseDto<YardVehicleDto>>(yardVehicles);
 
-        return TypedResults.Ok(mapper.Map<PagedResponseDto<YardVehicleDto>>(yardVehicles));
+        yardVehiclesResponse.Links = linkService.GenerateCollectionLinks($"yards/{id}/vehicles", pageNumber, pageSize, yardVehicles.TotalPages);
+
+        foreach (var yardVehicle in yardVehiclesResponse.Data)
+        {
+            yardVehicle.Links = linkService.GenerateResourceLinks($"yards/{id}/vehicles", yardVehicle.Id);
+            yardVehicle.Vehicle.Links = linkService.GenerateResourceLinks("vehicles", yardVehicle.Vehicle.Id);
+        }
+
+        return TypedResults.Ok(yardVehiclesResponse);
     }
 
     private static async Task<Results<Ok<YardVehicleDto>, BadRequest, NotFound>> GetYardVehicleById(
         IYardRepository yardRepository,
         IYardVehicleRepository yardVehicleRepository,
         IMapper mapper,
+        ILinkService linkService,
         string id,
         string yardVehicleId
     )
@@ -143,6 +163,8 @@ public static class VehicleHandler
 
         var yardVehicleResult = mapper.Map<YardVehicleDto>(yardVehicle);
 
+        yardVehicleResult.Links = linkService.GenerateResourceLinks($"yards/{id}/vehicles", yardVehicle.Id);
+
         return TypedResults.Ok(yardVehicleResult);
     }
 
@@ -150,6 +172,7 @@ public static class VehicleHandler
         IYardRepository yardRepository,
         IYardVehicleRepository yardVehicleRepository,
         IMapper mapper,
+        ILinkService linkService,
         string id,
         string yardVehicleId,
         YardVehicleDto yardVehicleDto
@@ -196,9 +219,11 @@ public static class VehicleHandler
         mapper.Map(yardVehicleDto, yardVehicle);
         await yardVehicleRepository.UpdateAsync();
 
-        var newYardEmployee = mapper.Map<YardVehicleDto>(yardVehicle);
+        var newYardVehicle = mapper.Map<YardVehicleDto>(yardVehicle);
 
-        return TypedResults.Ok(newYardEmployee);
+        newYardVehicle.Links = linkService.GenerateResourceLinks($"yards/{id}/vehicles", yardVehicle.Id);
+
+        return TypedResults.Ok(newYardVehicle);
     }
 
     private static async Task<Results<Created<YardVehicleDto>, BadRequest, NotFound>> CreateYardVehicle(
@@ -206,6 +231,7 @@ public static class VehicleHandler
         IYardVehicleRepository yardVehicleRepository,
         IVehicleRepository vehicleRepository,
         IMapper mapper,
+        ILinkService linkService,
         string id,
         YardVehicleDto yardVehicleDto
     )
@@ -269,7 +295,9 @@ public static class VehicleHandler
         var createdYardVehicle = await yardVehicleRepository.CreateAsync(newYardVehicle);
         var yardVehicleDtoResult = mapper.Map<YardVehicleDto>(createdYardVehicle);
 
-        return TypedResults.Created($"/yard/{createdYardVehicle.YardId}/vehicles/{createdYardVehicle.Id}",
+        yardVehicleDtoResult.Links = linkService.GenerateResourceLinks($"yards/{id}/vehicles", createdYardVehicle.Id);
+
+        return TypedResults.Created($"/yards/{createdYardVehicle.YardId}/vehicles/{createdYardVehicle.Id}",
             yardVehicleDtoResult);
     }
 }
