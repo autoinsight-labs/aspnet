@@ -8,7 +8,8 @@ namespace AutoInsightAPI.Validators
         public YardDtoValidator()
         {
             RuleFor(x => x.OwnerId).NotEmpty().WithMessage("OwnerId is required.");
-            RuleFor(x => x.Address).NotNull().WithMessage("Address is required.");
+            RuleFor(x => x.Address).NotNull().WithMessage("Address is required.")
+                .SetValidator(new AddressDtoValidator());
         }
     }
 }

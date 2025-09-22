@@ -4,6 +4,7 @@ using AutoInsightAPI.Repositories;
 using AutoInsightAPI.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
+using AutoInsightAPI.Validators;
 
 namespace AutoInsightAPI.handlers;
 
@@ -67,6 +68,7 @@ Response Codes:
             .Accepts<YardEmployeeDto>("application/json")
             .Produces<YardEmployeeDto>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status404NotFound)
+            .AddEndpointFilter<ValidationFilter<YardEmployeeDto>>()
             .WithOpenApi(op =>
             {
                 op.OperationId = "CreateYardEmployee";
@@ -165,6 +167,7 @@ Response Codes:
             .Produces<YardEmployeeDto>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status404NotFound)
+            .AddEndpointFilter<ValidationFilter<YardEmployeeDto>>()
             .WithOpenApi(op =>
             {
                 op.OperationId = "UpdateYardEmployee";
@@ -348,11 +351,6 @@ Response Codes:
         string employeeId
     )
     {
-        if (!Enum.IsDefined(typeof(EmployeeRole), yardEmployeeDto.Role))
-        {
-            return TypedResults.BadRequest();
-        }
-
         var yard = await yardRepository.FindAsync(id);
 
         if (yard is null)
