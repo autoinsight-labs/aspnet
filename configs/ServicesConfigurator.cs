@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Any;
+using FluentValidation;
+using AutoInsightAPI.Validators;
 
 namespace AutoInsightAPI.configs;
 
@@ -15,6 +17,10 @@ public static class ServicesConfigurator
 {
     public static void Configure(IServiceCollection services)
     {
+        services.AddValidatorsFromAssemblyContaining<YardVehicleDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<YardDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<YardEmployeeDtoValidator>();
+        
         services.AddAutoMapper(typeof(YardProfile));
         services.AddAutoMapper(typeof(YardEmployeeProfile));
         services.AddAutoMapper(typeof(YardVehicleProfile));

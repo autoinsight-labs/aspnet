@@ -4,6 +4,7 @@ using AutoInsightAPI.Repositories;
 using AutoInsightAPI.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
+using AutoInsightAPI.Validators;
 
 namespace AutoInsightAPI.handlers;
 
@@ -139,6 +140,7 @@ Response Codes:
             .Accepts<YardDto>("application/json")
             .Produces<YardDto>(StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .AddEndpointFilter<ValidationFilter<YardDto>>()
             .WithOpenApi(op =>
             {
                 op.OperationId = "CreateYard";
@@ -201,6 +203,7 @@ Response Codes:
             .Accepts<YardDto>("application/json")
             .Produces<YardDto>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound)
+            .AddEndpointFilter<ValidationFilter<YardDto>>()
             .WithOpenApi(op =>
             {
                 op.OperationId = "UpdateYard";
@@ -294,24 +297,13 @@ Response Codes:
         ILinkService linkService
     )
     {
-        try
-        {
-            var createdYard = await yardRepository.CreateAsync(mapper.Map<Yard>(yardDto));
+        var createdYard = await yardRepository.CreateAsync(mapper.Map<Yard>(yardDto));
 
-            var yardDtoResult = mapper.Map<YardDto>(createdYard);
+        var yardDtoResult = mapper.Map<YardDto>(createdYard);
 
-            yardDtoResult.Links = linkService.GenerateResourceLinks(YardResource, createdYard.Id);
+        yardDtoResult.Links = linkService.GenerateResourceLinks(YardResource, createdYard.Id);
 
-            return TypedResults.Created($"/{YardResource}/{createdYard.Id}", yardDtoResult);
-        }
-        catch (Exception)
-        {
-            return TypedResults.Problem(
-                title: "Internal Server Error",
-                detail: "Something went wrong, please try again.",
-                statusCode: StatusCodes.Status500InternalServerError
-            );
-        }
+        return TypedResults.Created($"/{YardResource}/{createdYard.Id}", yardDtoResult);
     }
 
     private static async Task<Results<NoContent, NotFound>> DeleteYard(string id,

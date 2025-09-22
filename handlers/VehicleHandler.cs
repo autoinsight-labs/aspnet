@@ -4,6 +4,7 @@ using AutoInsightAPI.Repositories;
 using AutoInsightAPI.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
+using AutoInsightAPI.Validators;
 
 namespace AutoInsightAPI.handlers;
 
@@ -147,6 +148,7 @@ Response Codes:
             .Produces<YardVehicleDto>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status404NotFound)
+            .AddEndpointFilter<ValidationFilter<YardVehicleDto>>()
             .WithOpenApi(op =>
             {
                 op.OperationId = "UpdateYardVehicle";
@@ -202,6 +204,7 @@ Response Codes:
             .Produces<YardVehicleDto>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status404NotFound)
+            .AddEndpointFilter<ValidationFilter<YardVehicleDto>>()
             .WithOpenApi(op =>
             {
                 op.OperationId = "CreateYardVehicle";
@@ -375,11 +378,6 @@ Response Codes:
         YardVehicleDto yardVehicleDto
     )
     {
-        if (!Enum.IsDefined(typeof(Status), yardVehicleDto.Status))
-        {
-            return TypedResults.BadRequest();
-        }
-
         var yard = await yardRepository.FindAsync(id);
 
         if (yard is null)
@@ -421,22 +419,6 @@ Response Codes:
         YardVehicleDto yardVehicleDto
     )
     {
-        if (!Enum.IsDefined(typeof(Status), yardVehicleDto.Status))
-        {
-            return TypedResults.BadRequest(
-                // TypedResults.Problem(
-                //     title: "Invalid Role",
-                //     detail: $"The role value '{yardVehicleDTO.Status}' is not valid.",
-                //     statusCode: StatusCodes.Status400BadRequest
-                // )
-            );
-        }
-
-        if (yardVehicleDto.EnteredAt is not DateTime enteredAt)
-        {
-            return TypedResults.BadRequest();
-        }
-
         var yard = await yardRepository.FindAsync(id);
 
         if (yard is null)
@@ -453,7 +435,7 @@ Response Codes:
 
         var newYardVehicle = new YardVehicle(
             status: yardVehicleDto.Status,
-            enteredAt: enteredAt,
+            enteredAt: (DateTime)yardVehicleDto.EnteredAt,
             leftAt: yardVehicleDto.LeftAt,
             vehicle: vehicle,
             yard: yard
