@@ -1,6 +1,11 @@
 namespace AutoInsightAPI.Dtos.Common;
 
-public abstract class HateoasResourceDto
+public interface IIdentifiable
+{
+    string Id { get; }
+}
+
+public class HateoasResourceDto
 {
     public List<LinkDto> Links { get; set; } = new();
 }

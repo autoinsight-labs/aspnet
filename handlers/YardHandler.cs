@@ -289,27 +289,14 @@ Example Request Body:
         int pageSize = 10
     )
     {
-        if (pageNumber <= 0)
-        {
-            return TypedResults.BadRequest();
-        }
-
-        if (pageSize <= 0)
-        {
-            return TypedResults.BadRequest();
-        }
-
-        var yards = await yardRepository.ListPagedAsync(pageNumber, pageSize);
-        var yardsResponse = mapper.Map<PagedResponseDto<YardDto>>(yards);
-
-        yardsResponse.Links = linkService.GenerateCollectionLinks(YardResource, pageNumber, pageSize, yards.TotalPages);
-
-        foreach (var yard in yardsResponse.Data)
-        {
-            yard.Links = linkService.GenerateResourceLinks(YardResource, yard.Id);
-        }
-
-        return TypedResults.Ok(yardsResponse);
+        return await HandlerHelpers.HandlePagedList<Yard, YardDto>(
+            pageNumber,
+            pageSize,
+            yardRepository.ListPagedAsync,
+            mapper,
+            linkService,
+            YardResource
+        );
     }
 
     private static async Task<Results<Ok<YardDto>, NotFound>> GetYardById(
@@ -319,50 +306,40 @@ Example Request Body:
         ILinkService linkService
     )
     {
-        var yard = await yardRepository.FindAsync(id);
-
-        if (yard is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        var yardResponse = mapper.Map<YardDto>(yard);
-
-        yardResponse.Links = linkService.GenerateResourceLinks(YardResource, yard.Id);
-
-        return TypedResults.Ok(yardResponse);
+        return await HandlerHelpers.HandleGetById<Yard, YardDto>(
+            id,
+            yardRepository.FindAsync,
+            mapper,
+            linkService,
+            YardResource
+        );
     }
 
-    private static async Task<Results<Created<YardDto>, ProblemHttpResult>> CreateYard(
+    private static async Task<Results<Created<YardDto>, BadRequest>> CreateYard(
         YardDto yardDto,
         IYardRepository yardRepository,
         IMapper mapper,
         ILinkService linkService
     )
     {
-        var createdYard = await yardRepository.CreateAsync(mapper.Map<Yard>(yardDto));
-
-        var yardDtoResult = mapper.Map<YardDto>(createdYard);
-
-        yardDtoResult.Links = linkService.GenerateResourceLinks(YardResource, createdYard.Id);
-
-        return TypedResults.Created($"/{YardResource}/{createdYard.Id}", yardDtoResult);
+        return await HandlerHelpers.HandleCreate<Yard, YardDto>(
+            yardDto,
+            yardRepository.CreateAsync,
+            mapper,
+            linkService,
+            YardResource
+        );
     }
 
     private static async Task<Results<NoContent, NotFound>> DeleteYard(string id,
         IYardRepository yardRepository
     )
     {
-        var existingYard = await yardRepository.FindAsync(id);
-
-        if (existingYard is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        await yardRepository.DeleteAsync(existingYard);
-
-        return TypedResults.NoContent();
+        return await HandlerHelpers.HandleDelete<Yard>(
+            id,
+            yardRepository.FindAsync,
+            yardRepository.DeleteAsync
+        );
     }
 
     private static async Task<Results<Ok<YardDto>, NotFound>> UpdateYard(
@@ -373,21 +350,14 @@ Example Request Body:
         ILinkService linkService
     )
     {
-        var existingYard = await yardRepository.FindAsync(id);
-
-        if (existingYard is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        mapper.Map(yardDto, existingYard);
-
-        await yardRepository.UpdateAsync();
-
-        var newYard = mapper.Map<YardDto>(existingYard);
-
-        newYard.Links = linkService.GenerateResourceLinks(YardResource, existingYard.Id);
-
-        return TypedResults.Ok(newYard);
+        return await HandlerHelpers.HandleUpdate<Yard, YardDto>(
+            id,
+            yardDto,
+            yardRepository.FindAsync,
+            yardRepository.UpdateAsync,
+            mapper,
+            linkService,
+            YardResource
+        );
     }
 }

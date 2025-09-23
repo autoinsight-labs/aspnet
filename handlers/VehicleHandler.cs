@@ -318,19 +318,13 @@ Example Request Body:
         ILinkService linkService
     )
     {
-        var vehicle = await vehicleRepository.FindAsyncByQRCode(qrCodeId);
-
-        if (vehicle is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-
-        var vehicleResponse = mapper.Map<VehicleDto>(vehicle);
-
-        vehicleResponse.Links = linkService.GenerateResourceLinks("vehicles", vehicle.Id);
-
-        return TypedResults.Ok(vehicleResponse);
+        return await HandlerHelpers.HandleGetById<Vehicle, VehicleDto>(
+            qrCodeId,
+            vehicleRepository.FindAsyncByQRCode,
+            mapper,
+            linkService,
+            "vehicles"
+        );
     }
 
     private static async Task<Results<Ok<VehicleDto>, NotFound>> GetVehicleById(
@@ -340,19 +334,13 @@ Example Request Body:
         ILinkService linkService
     )
     {
-        var vehicle = await vehicleRepository.FindAsyncById(id);
-
-        if (vehicle is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-
-        var vehicleResponse = mapper.Map<VehicleDto>(vehicle);
-
-        vehicleResponse.Links = linkService.GenerateResourceLinks("vehicles", vehicle.Id);
-
-        return TypedResults.Ok(vehicleResponse);
+        return await HandlerHelpers.HandleGetById<Vehicle, VehicleDto>(
+            id,
+            vehicleRepository.FindAsyncById,
+            mapper,
+            linkService,
+            "vehicles"
+        );
     }
 
     private static async Task<Results<Ok<PagedResponseDto<YardVehicleDto>>, BadRequest, NotFound>> GetYardVehicles(
@@ -365,22 +353,13 @@ Example Request Body:
         int pageSize = 10
     )
     {
-        if (pageNumber <= 0)
-        {
-            return TypedResults.BadRequest();
-        }
-
-        if (pageSize <= 0)
-        {
-            return TypedResults.BadRequest();
-        }
+        var validationResult = HandlerHelpers.ValidatePaginationParameters(pageNumber, pageSize);
+        if (validationResult != null)
+            return validationResult;
 
         var yard = await yardRepository.FindAsync(id);
-
         if (yard is null)
-        {
             return TypedResults.NotFound();
-        }
 
         var yardVehicles = await yardVehicleRepository.ListPagedAsync(pageNumber, pageSize, yard);
         var yardVehiclesResponse = mapper.Map<PagedResponseDto<YardVehicleDto>>(yardVehicles);
@@ -405,31 +384,23 @@ Example Request Body:
         string yardVehicleId
     )
     {
-        var yard = await yardRepository.FindAsync(id);
-
-        if (yard is null)
+        var result = await HandlerHelpers.HandleGetChildById<Yard, YardVehicle, YardVehicleDto>(
+            id,
+            yardVehicleId,
+            yardRepository.FindAsync,
+            yardVehicleRepository.FindAsync,
+            mapper,
+            linkService,
+            "yards",
+            "vehicles"
+        );
+        
+        return result.Result switch
         {
-            return TypedResults.NotFound(
-                // TypedResults.Problem(
-                //     title: "Not Found",
-                //     detail: $"Yard with id '{id}' not found.",
-                //     statusCode: StatusCodes.Status404NotFound
-                // )
-            );
-        }
-
-        var yardVehicle = await yardVehicleRepository.FindAsync(yardVehicleId);
-
-        if (yardVehicle is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        var yardVehicleResult = mapper.Map<YardVehicleDto>(yardVehicle);
-
-        yardVehicleResult.Links = linkService.GenerateResourceLinks($"yards/{id}/vehicles", yardVehicle.Id);
-
-        return TypedResults.Ok(yardVehicleResult);
+            Ok<YardVehicleDto> ok => TypedResults.Ok(ok.Value),
+            NotFound notFound => TypedResults.NotFound(),
+            _ => TypedResults.NotFound()
+        };
     }
 
     private static async Task<Results<Ok<YardVehicleDto>, BadRequest, NotFound>> UpdateYardVehicle(
@@ -442,35 +413,25 @@ Example Request Body:
         YardVehicleDto yardVehicleDto
     )
     {
-        var yard = await yardRepository.FindAsync(id);
-
-        if (yard is null)
+        var result = await HandlerHelpers.HandleUpdateChild<Yard, YardVehicle, YardVehicleDto>(
+            id,
+            yardVehicleId,
+            yardVehicleDto,
+            yardRepository.FindAsync,
+            yardVehicleRepository.FindAsync,
+            yardVehicleRepository.UpdateAsync,
+            mapper,
+            linkService,
+            "yards",
+            "vehicles"
+        );
+        
+        return result.Result switch
         {
-            return TypedResults.NotFound();
-        }
-
-        var yardVehicle = await yardVehicleRepository.FindAsync(yardVehicleId);
-
-        if (yardVehicle is null)
-        {
-            return TypedResults.NotFound(
-                // TypedResults.Problem(
-                //     title: "Not Found",
-                //     detail: $"Yard vehicle with id '{yardVehicleId}' not found.",
-                //     statusCode: StatusCodes.Status404NotFound
-                // )
-            );
-        }
-
-
-        mapper.Map(yardVehicleDto, yardVehicle);
-        await yardVehicleRepository.UpdateAsync();
-
-        var newYardVehicle = mapper.Map<YardVehicleDto>(yardVehicle);
-
-        newYardVehicle.Links = linkService.GenerateResourceLinks($"yards/{id}/vehicles", yardVehicle.Id);
-
-        return TypedResults.Ok(newYardVehicle);
+            Ok<YardVehicleDto> ok => TypedResults.Ok(ok.Value),
+            NotFound notFound => TypedResults.NotFound(),
+            _ => TypedResults.NotFound()
+        };
     }
 
     private static async Task<Results<Created<YardVehicleDto>, BadRequest, NotFound>> CreateYardVehicle(
@@ -484,18 +445,12 @@ Example Request Body:
     )
     {
         var yard = await yardRepository.FindAsync(id);
-
         if (yard is null)
-        {
             return TypedResults.NotFound();
-        }
 
         var vehicle = await vehicleRepository.FindAsyncById(yardVehicleDto.Vehicle.Id);
-
         if (vehicle is null)
-        {
             return TypedResults.NotFound();
-        }
 
         var newYardVehicle = new YardVehicle(
             status: yardVehicleDto.Status,

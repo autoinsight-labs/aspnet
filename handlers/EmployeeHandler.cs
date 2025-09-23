@@ -242,34 +242,17 @@ Example Request Body:
         int pageSize = 10
     )
     {
-        if (pageNumber <= 0)
-        {
-            return TypedResults.BadRequest();
-        }
-
-        if (pageSize <= 0)
-        {
-            return TypedResults.BadRequest();
-        }
-
-        var yard = await yardRepository.FindAsync(id);
-
-        if (yard is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        var employees = await yardEmployeeRepository.ListPagedAsync(pageNumber, pageSize, yard);
-        var employeesResponse = mapper.Map<PagedResponseDto<YardEmployeeDto>>(employees);
-
-        employeesResponse.Links = linkService.GenerateCollectionLinks($"yards/{id}/employees", pageNumber, pageSize, employees.TotalPages);
-
-        foreach (var employee in employeesResponse.Data)
-        {
-            employee.Links = linkService.GenerateResourceLinks($"yards/{id}/employees", employee.Id);
-        }
-
-        return TypedResults.Ok(employeesResponse);
+        return await HandlerHelpers.HandlePagedListWithParent<Yard, YardEmployee, YardEmployeeDto>(
+            id,
+            pageNumber,
+            pageSize,
+            yardRepository.FindAsync,
+            yardEmployeeRepository.ListPagedAsync,
+            mapper,
+            linkService,
+            "yards",
+            "employees"
+        );
     }
 
     private static async Task<Results<Created<YardEmployeeDto>, NotFound>> CreateYardEmployee(
@@ -313,31 +296,16 @@ Example Request Body:
         string id, string employeeId
     )
     {
-        var yard = await yardRepository.FindAsync(id);
-
-        if (yard is null)
-        {
-            return TypedResults.NotFound(
-                // TypedResults.Problem(
-                //     title: "Not Found",
-                //     detail: $"Yard with id '{id}' not found.",
-                //     statusCode: StatusCodes.Status404NotFound
-                // )
-            );
-        }
-
-        var yardEmployee = await yardEmployeeRepository.FindAsync(employeeId);
-
-        if (yardEmployee is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        var yardEmployeeResult = mapper.Map<YardEmployeeDto>(yardEmployee);
-
-        yardEmployeeResult.Links = linkService.GenerateResourceLinks($"yards/{id}/employees", yardEmployee.Id);
-
-        return TypedResults.Ok(yardEmployeeResult);
+        return await HandlerHelpers.HandleGetChildById<Yard, YardEmployee, YardEmployeeDto>(
+            id,
+            employeeId,
+            yardRepository.FindAsync,
+            yardEmployeeRepository.FindAsync,
+            mapper,
+            linkService,
+            "yards",
+            "employees"
+        );
     }
 
     private static async Task<Results<NoContent, NotFound>> DeleteYardEmployee(
@@ -347,26 +315,16 @@ Example Request Body:
         string employeeId
     )
     {
-        var yard = await yardRepository.FindAsync(id);
-
-        if (yard is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        var yardEmployee = await yardEmployeeRepository.FindAsync(employeeId);
-
-        if (yardEmployee is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        await yardEmployeeRepository.DeleteAsync(yardEmployee);
-
-        return TypedResults.NoContent();
+        return await HandlerHelpers.HandleDeleteChild<Yard, YardEmployee>(
+            id,
+            employeeId,
+            yardRepository.FindAsync,
+            yardEmployeeRepository.FindAsync,
+            yardEmployeeRepository.DeleteAsync
+        );
     }
 
-    private static async Task<Results<Ok<YardEmployeeDto>, BadRequest, NotFound>> UpdateYardEmployee(
+    private static async Task<Results<Ok<YardEmployeeDto>, NotFound>> UpdateYardEmployee(
         IYardRepository yardRepository,
         IYardEmployeeRepository yardEmployeeRepository,
         IMapper mapper,
@@ -376,27 +334,17 @@ Example Request Body:
         string employeeId
     )
     {
-        var yard = await yardRepository.FindAsync(id);
-
-        if (yard is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        var yardEmployee = await yardEmployeeRepository.FindAsync(employeeId);
-
-        if (yardEmployee is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        mapper.Map(yardEmployeeDto, yardEmployee);
-        await yardEmployeeRepository.UpdateAsync();
-
-        var newYardEmployee = mapper.Map<YardEmployeeDto>(yardEmployee);
-
-        newYardEmployee.Links = linkService.GenerateResourceLinks($"yards/{id}/employees", yardEmployee.Id);
-
-        return TypedResults.Ok(newYardEmployee);
+        return await HandlerHelpers.HandleUpdateChild<Yard, YardEmployee, YardEmployeeDto>(
+            id,
+            employeeId,
+            yardEmployeeDto,
+            yardRepository.FindAsync,
+            yardEmployeeRepository.FindAsync,
+            yardEmployeeRepository.UpdateAsync,
+            mapper,
+            linkService,
+            "yards",
+            "employees"
+        );
     }
 }
