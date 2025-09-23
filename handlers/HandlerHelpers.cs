@@ -4,6 +4,8 @@ using AutoInsightAPI.Models;
 using AutoInsightAPI.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 
 namespace AutoInsightAPI.handlers;
 
@@ -223,5 +225,48 @@ public static class HandlerHelpers
 
         await deleteRepositoryCall(entity);
         return TypedResults.NoContent();
+    }
+
+    public static Func<OpenApiOperation, OpenApiOperation> BuildOpenApiOperation(
+        string operationId,
+        Dictionary<string, (ParameterLocation, string)>? parameters = null,
+        (string, OpenApiObject)? requestBody = null)
+    {
+        return op =>
+        {
+            op.OperationId = operationId;
+
+            if (parameters is not null)
+            {
+                foreach (var (name, (location, description)) in parameters)
+                {
+                    if (op.Parameters.All(p => p.Name != name))
+                    {
+                        op.Parameters.Add(new OpenApiParameter
+                        {
+                            Name = name,
+                            In = location,
+                            Description = description,
+                            Required = true
+                        });
+                    }
+                }
+            }
+
+            if (requestBody is not null)
+            {
+                op.RequestBody = new OpenApiRequestBody
+                {
+                    Description = requestBody.Value.Item1,
+                    Required = true,
+                    Content = new Dictionary<string, OpenApiMediaType>
+                    {
+                        ["application/json"] = new() { Example = requestBody.Value.Item2 }
+                    }
+                };
+            }
+
+            return op;
+        };
     }
 }

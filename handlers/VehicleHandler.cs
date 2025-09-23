@@ -5,6 +5,8 @@ using AutoInsightAPI.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 using AutoInsightAPI.Validators;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 
 namespace AutoInsightAPI.handlers;
 
@@ -49,18 +51,7 @@ Example Response (200 OK):
                     Description = "QR Code identifier",
                     Required = true
                 });
-                op.Responses["200"].Content["application/json"].Example = new Microsoft.OpenApi.Any.OpenApiObject
-                {
-                    ["id"] = new Microsoft.OpenApi.Any.OpenApiString("veh_abc123"),
-                    ["plate"] = new Microsoft.OpenApi.Any.OpenApiString("ABC1D23"),
-                    ["model"] = new Microsoft.OpenApi.Any.OpenApiObject
-                    {
-                        ["id"] = new Microsoft.OpenApi.Any.OpenApiString("mdl_001"),
-                        ["name"] = new Microsoft.OpenApi.Any.OpenApiString("Honda CG 160"),
-                        ["year"] = new Microsoft.OpenApi.Any.OpenApiInteger(2023)
-                    },
-                    ["userId"] = new Microsoft.OpenApi.Any.OpenApiString("usr_001")
-                };
+                op.Responses["200"].Content["application/json"].Example = GetVehicleExample();
                 return op;
             });
         vehicleGroup.MapGet("/{id}", GetVehicleById)
@@ -195,54 +186,21 @@ Example Request Body:
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .AddEndpointFilter<ValidationFilter<YardVehicleDto>>()
-            .WithOpenApi(op =>
-            {
-                op.OperationId = "UpdateYardVehicle";
-                op.Parameters.Add(new()
+            .WithOpenApi(HandlerHelpers.BuildOpenApiOperation(
+                "UpdateYardVehicle",
+                new Dictionary<string, (ParameterLocation, string)>
                 {
-                    Name = "id",
-                    In = Microsoft.OpenApi.Models.ParameterLocation.Path,
-                    Description = "Yard identifier",
-                    Required = true
-                });
-                op.Parameters.Add(new()
+                    { "id", (ParameterLocation.Path, "Yard identifier") },
+                    { "yardVehicleId", (ParameterLocation.Path, "Yard vehicle identifier") }
+                },
+                ("Example payload to update a yard vehicle.", new OpenApiObject
                 {
-                    Name = "yardVehicleId",
-                    In = Microsoft.OpenApi.Models.ParameterLocation.Path,
-                    Description = "Yard vehicle identifier",
-                    Required = true
-                });
-                op.RequestBody = new()
-                {
-                    Description = "Example payload to update a yard vehicle.",
-                    Required = true,
-                    Content = new Dictionary<string, Microsoft.OpenApi.Models.OpenApiMediaType>
-                    {
-                        ["application/json"] = new()
-                        {
-                            Example = new Microsoft.OpenApi.Any.OpenApiObject
-                            {
-                                ["status"] = new Microsoft.OpenApi.Any.OpenApiString("ON_SERVICE"),
-                                ["enteredAt"] = new Microsoft.OpenApi.Any.OpenApiString("2025-05-20T10:00:00Z"),
-                                ["leftAt"] = new Microsoft.OpenApi.Any.OpenApiNull(),
-                                ["vehicle"] = new Microsoft.OpenApi.Any.OpenApiObject
-                                {
-                                    ["id"] = new Microsoft.OpenApi.Any.OpenApiString("veh_abc123"),
-                                    ["plate"] = new Microsoft.OpenApi.Any.OpenApiString("ABC1D23"),
-                                    ["model"] = new Microsoft.OpenApi.Any.OpenApiObject
-                                    {
-                                        ["id"] = new Microsoft.OpenApi.Any.OpenApiString("mdl_001"),
-                                        ["name"] = new Microsoft.OpenApi.Any.OpenApiString("Honda CG 160"),
-                                        ["year"] = new Microsoft.OpenApi.Any.OpenApiInteger(2023)
-                                    },
-                                    ["userId"] = new Microsoft.OpenApi.Any.OpenApiString("usr_001")
-                                }
-                            }
-                        }
-                    }
-                };
-                return op;
-            });
+                    ["status"] = new OpenApiString("ON_SERVICE"),
+                    ["enteredAt"] = new OpenApiString("2025-05-20T10:00:00Z"),
+                    ["leftAt"] = new OpenApiNull(),
+                    ["vehicle"] = GetVehicleExample()
+                })
+            ));
         yardVehicleGroup.MapPost("/", CreateYardVehicle)
             .WithSummary("Create yard vehicle")
             .WithDescription(@"Creates a link between a vehicle and a yard. Requires a valid vehicle id and a non-null enteredAt.
@@ -269,46 +227,35 @@ Example Request Body:
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .AddEndpointFilter<ValidationFilter<YardVehicleDto>>()
-            .WithOpenApi(op =>
+            .WithOpenApi(HandlerHelpers.BuildOpenApiOperation(
+                "CreateYardVehicle",
+                new Dictionary<string, (ParameterLocation, string)>
+                {
+                    { "id", (ParameterLocation.Path, "Yard identifier") }
+                },
+                ("Example payload to create a yard vehicle.", new OpenApiObject
+                {
+                    ["status"] = new OpenApiString("WAITING"),
+                    ["enteredAt"] = new OpenApiString("2025-05-20T09:30:00Z"),
+                    ["vehicle"] = GetVehicleExample()
+                })
+            ));
+    }
+
+    private static OpenApiObject GetVehicleExample()
+    {
+        return new OpenApiObject
+        {
+            ["id"] = new OpenApiString("veh_abc123"),
+            ["plate"] = new OpenApiString("ABC1D23"),
+            ["model"] = new OpenApiObject
             {
-                op.OperationId = "CreateYardVehicle";
-                op.Parameters.Add(new()
-                {
-                    Name = "id",
-                    In = Microsoft.OpenApi.Models.ParameterLocation.Path,
-                    Description = "Yard identifier",
-                    Required = true
-                });
-                op.RequestBody = new()
-                {
-                    Description = "Example payload to create a yard vehicle.",
-                    Required = true,
-                    Content = new Dictionary<string, Microsoft.OpenApi.Models.OpenApiMediaType>
-                    {
-                        ["application/json"] = new()
-                        {
-                            Example = new Microsoft.OpenApi.Any.OpenApiObject
-                            {
-                                ["status"] = new Microsoft.OpenApi.Any.OpenApiString("WAITING"),
-                                ["enteredAt"] = new Microsoft.OpenApi.Any.OpenApiString("2025-05-20T09:30:00Z"),
-                                ["vehicle"] = new Microsoft.OpenApi.Any.OpenApiObject
-                                {
-                                    ["id"] = new Microsoft.OpenApi.Any.OpenApiString("veh_abc123"),
-                                    ["plate"] = new Microsoft.OpenApi.Any.OpenApiString("ABC1D23"),
-                                    ["model"] = new Microsoft.OpenApi.Any.OpenApiObject
-                                    {
-                                        ["id"] = new Microsoft.OpenApi.Any.OpenApiString("mdl_001"),
-                                        ["name"] = new Microsoft.OpenApi.Any.OpenApiString("Honda CG 160"),
-                                        ["year"] = new Microsoft.OpenApi.Any.OpenApiInteger(2023)
-                                    },
-                                    ["userId"] = new Microsoft.OpenApi.Any.OpenApiString("usr_001")
-                                }
-                            }
-                        }
-                    }
-                };
-                return op;
-            });
+                ["id"] = new OpenApiString("mdl_001"),
+                ["name"] = new OpenApiString("Honda CG 160"),
+                ["year"] = new OpenApiInteger(2023)
+            },
+            ["userId"] = new OpenApiString("usr_001")
+        };
     }
 
     private static async Task<Results<Ok<VehicleDto>, NotFound>> GetVehicleByQrCode(

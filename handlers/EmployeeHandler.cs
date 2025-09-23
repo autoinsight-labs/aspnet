@@ -5,6 +5,8 @@ using AutoInsightAPI.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 using AutoInsightAPI.Validators;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 
 namespace AutoInsightAPI.handlers;
 
@@ -82,36 +84,20 @@ Example Request Body:
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .AddEndpointFilter<ValidationFilter<YardEmployeeDto>>()
-            .WithOpenApi(op =>
-            {
-                op.OperationId = "CreateYardEmployee";
-                op.Parameters.Add(new()
+            .WithOpenApi(HandlerHelpers.BuildOpenApiOperation(
+                "CreateYardEmployee",
+                new Dictionary<string, (ParameterLocation, string)>
                 {
-                    Name = "id",
-                    In = Microsoft.OpenApi.Models.ParameterLocation.Path,
-                    Description = "Yard identifier",
-                    Required = true
-                });
-                op.RequestBody = new()
+                    { "id", (ParameterLocation.Path, "Yard identifier") }
+                },
+                ("Example payload to create a yard employee.", new OpenApiObject
                 {
-                    Description = "Example payload to create a yard employee.",
-                    Required = true,
-                    Content = new Dictionary<string, Microsoft.OpenApi.Models.OpenApiMediaType>
-                    {
-                        ["application/json"] = new()
-                        {
-                            Example = new Microsoft.OpenApi.Any.OpenApiObject
-                            {
-                                ["name"] = new Microsoft.OpenApi.Any.OpenApiString("Jane Doe"),
-                                ["imageUrl"] = new Microsoft.OpenApi.Any.OpenApiString("https://cdn.example.com/jane.png"),
-                                ["role"] = new Microsoft.OpenApi.Any.OpenApiString("ADMIN"),
-                                ["userId"] = new Microsoft.OpenApi.Any.OpenApiString("usr_002")
-                            }
-                        }
-                    }
-                };
-                return op;
-            });
+                    ["name"] = new OpenApiString("Jane Doe"),
+                    ["imageUrl"] = new OpenApiString("https://cdn.example.com/jane.png"),
+                    ["role"] = new OpenApiString("ADMIN"),
+                    ["userId"] = new OpenApiString("usr_002")
+                })
+            ));
 
         employeeGroup.MapGet("/{employeeId}", GetYardEmployeeById)
             .WithSummary("Get yard employee by id")
@@ -193,43 +179,21 @@ Example Request Body:
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .AddEndpointFilter<ValidationFilter<YardEmployeeDto>>()
-            .WithOpenApi(op =>
-            {
-                op.OperationId = "UpdateYardEmployee";
-                op.Parameters.Add(new()
+            .WithOpenApi(HandlerHelpers.BuildOpenApiOperation(
+                "UpdateYardEmployee",
+                new Dictionary<string, (ParameterLocation, string)>
                 {
-                    Name = "id",
-                    In = Microsoft.OpenApi.Models.ParameterLocation.Path,
-                    Description = "Yard identifier",
-                    Required = true
-                });
-                op.Parameters.Add(new()
+                    { "id", (ParameterLocation.Path, "Yard identifier") },
+                    { "employeeId", (ParameterLocation.Path, "Employee identifier") }
+                },
+                ("Example payload to update a yard employee.", new OpenApiObject
                 {
-                    Name = "employeeId",
-                    In = Microsoft.OpenApi.Models.ParameterLocation.Path,
-                    Description = "Employee identifier",
-                    Required = true
-                });
-                op.RequestBody = new()
-                {
-                    Description = "Example payload to update a yard employee.",
-                    Required = true,
-                    Content = new Dictionary<string, Microsoft.OpenApi.Models.OpenApiMediaType>
-                    {
-                        ["application/json"] = new()
-                        {
-                            Example = new Microsoft.OpenApi.Any.OpenApiObject
-                            {
-                                ["name"] = new Microsoft.OpenApi.Any.OpenApiString("Jane Doe"),
-                                ["imageUrl"] = new Microsoft.OpenApi.Any.OpenApiString("https://cdn.example.com/jane.png"),
-                                ["role"] = new Microsoft.OpenApi.Any.OpenApiString("MEMBER"),
-                                ["userId"] = new Microsoft.OpenApi.Any.OpenApiString("usr_002")
-                            }
-                        }
-                    }
-                };
-                return op;
-            });
+                    ["name"] = new OpenApiString("Jane Doe"),
+                    ["imageUrl"] = new OpenApiString("https://cdn.example.com/jane.png"),
+                    ["role"] = new OpenApiString("MEMBER"),
+                    ["userId"] = new OpenApiString("usr_002")
+                })
+            ));
     }
 
     private static async Task<Results<Ok<PagedResponseDto<YardEmployeeDto>>, BadRequest, NotFound>> GetYardEmployees(

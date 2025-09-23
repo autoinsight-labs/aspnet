@@ -5,6 +5,8 @@ using AutoInsightAPI.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 using AutoInsightAPI.Validators;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 
 namespace AutoInsightAPI.handlers;
 
@@ -172,35 +174,22 @@ Example Response (201 Created):
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .AddEndpointFilter<ValidationFilter<YardDto>>()
-            .WithOpenApi(op =>
-            {
-                op.OperationId = "CreateYard";
-                op.RequestBody = new()
+            .WithOpenApi(HandlerHelpers.BuildOpenApiOperation(
+                "CreateYard",
+                requestBody: ("Example payload to create a yard.", new OpenApiObject
                 {
-                    Description = "Example payload to create a yard.",
-                    Required = true,
-                    Content = new Dictionary<string, Microsoft.OpenApi.Models.OpenApiMediaType>
+                    ["ownerId"] = new OpenApiString("usr_owner_001"),
+                    ["address"] = new OpenApiObject
                     {
-                        ["application/json"] = new()
-                        {
-                            Example = new Microsoft.OpenApi.Any.OpenApiObject
-                            {
-                                ["ownerId"] = new Microsoft.OpenApi.Any.OpenApiString("usr_owner_001"),
-                                ["address"] = new Microsoft.OpenApi.Any.OpenApiObject
-                                {
-                                    ["country"] = new Microsoft.OpenApi.Any.OpenApiString("BR"),
-                                    ["state"] = new Microsoft.OpenApi.Any.OpenApiString("SP"),
-                                    ["city"] = new Microsoft.OpenApi.Any.OpenApiString("São Paulo"),
-                                    ["zipCode"] = new Microsoft.OpenApi.Any.OpenApiString("01311-000"),
-                                    ["neighborhood"] = new Microsoft.OpenApi.Any.OpenApiString("Bela Vista"),
-                                    ["complement"] = new Microsoft.OpenApi.Any.OpenApiString("Av. Paulista, 1106")
-                                }
-                            }
-                        }
+                        ["country"] = new OpenApiString("BR"),
+                        ["state"] = new OpenApiString("SP"),
+                        ["city"] = new OpenApiString("São Paulo"),
+                        ["zipCode"] = new OpenApiString("01311-000"),
+                        ["neighborhood"] = new OpenApiString("Bela Vista"),
+                        ["complement"] = new OpenApiString("Av. Paulista, 1106")
                     }
-                };
-                return op;
-            });
+                })
+            ));
 
         yardGroup.MapDelete("/{id}", DeleteYard)
             .WithSummary("Delete yard")
@@ -247,38 +236,22 @@ Example Request Body:
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .AddEndpointFilter<ValidationFilter<YardDto>>()
-            .WithOpenApi(op =>
-            {
-                op.OperationId = "UpdateYard";
-                op.Parameters.Add(new()
+            .WithOpenApi(HandlerHelpers.BuildOpenApiOperation(
+                "UpdateYard",
+                new Dictionary<string, (ParameterLocation, string)>
                 {
-                    Name = "id",
-                    In = Microsoft.OpenApi.Models.ParameterLocation.Path,
-                    Description = "Yard identifier",
-                    Required = true
-                });
-                op.RequestBody = new()
+                    { "id", (ParameterLocation.Path, "Yard identifier") }
+                },
+                ("Example payload to update a yard.", new OpenApiObject
                 {
-                    Description = "Example payload to update a yard.",
-                    Required = true,
-                    Content = new Dictionary<string, Microsoft.OpenApi.Models.OpenApiMediaType>
+                    ["ownerId"] = new OpenApiString("usr_owner_001"),
+                    ["address"] = new OpenApiObject
                     {
-                        ["application/json"] = new()
-                        {
-                            Example = new Microsoft.OpenApi.Any.OpenApiObject
-                            {
-                                ["ownerId"] = new Microsoft.OpenApi.Any.OpenApiString("usr_owner_001"),
-                                ["address"] = new Microsoft.OpenApi.Any.OpenApiObject
-                                {
-                                    ["city"] = new Microsoft.OpenApi.Any.OpenApiString("São Paulo"),
-                                    ["neighborhood"] = new Microsoft.OpenApi.Any.OpenApiString("Bela Vista")
-                                }
-                            }
-                        }
+                        ["city"] = new OpenApiString("São Paulo"),
+                        ["neighborhood"] = new OpenApiString("Bela Vista")
                     }
-                };
-                return op;
-            });
+                })
+            ));
     }
 
     private static async Task<Results<Ok<PagedResponseDto<YardDto>>, BadRequest>> GetYards(
