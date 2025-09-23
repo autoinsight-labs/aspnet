@@ -54,10 +54,7 @@ public static class HandlerHelpers
         int pageSize,
         Func<string, Task<TParent?>> parentRepositoryCall,
         Func<int, int, TParent, Task<PagedResponse<TEntity>>> childRepositoryCall,
-        IMapper mapper,
-        ILinkService linkService,
-        string parentResourceName,
-        string childResourceName)
+        ResourceContext context)
         where TDto : HateoasResourceDto, IIdentifiable
     {
         var validationResult = ValidatePaginationParameters(pageNumber, pageSize);
@@ -69,14 +66,14 @@ public static class HandlerHelpers
             return TypedResults.NotFound();
 
         var entities = await childRepositoryCall(pageNumber, pageSize, parent);
-        var response = mapper.Map<PagedResponseDto<TDto>>(entities);
+        var response = context.Mapper.Map<PagedResponseDto<TDto>>(entities);
 
-        var resourcePath = $"{parentResourceName}/{parentId}/{childResourceName}";
-        response.Links = linkService.GenerateCollectionLinks(resourcePath, pageNumber, pageSize, entities.TotalPages);
+        var resourcePath = $"{context.ParentResourceName}/{parentId}/{context.ChildResourceName}";
+        response.Links = context.LinkService.GenerateCollectionLinks(resourcePath, pageNumber, pageSize, entities.TotalPages);
 
         foreach (var item in response.Data)
         {
-            item.Links = linkService.GenerateResourceLinks(resourcePath, item.Id);
+            item.Links = context.LinkService.GenerateResourceLinks(resourcePath, item.Id);
         }
 
         return TypedResults.Ok(response);
@@ -105,10 +102,7 @@ public static class HandlerHelpers
         string childId,
         Func<string, Task<TParent?>> parentRepositoryCall,
         Func<string, Task<TEntity?>> childRepositoryCall,
-        IMapper mapper,
-        ILinkService linkService,
-        string parentResourceName,
-        string childResourceName)
+        ResourceContext context)
         where TDto : HateoasResourceDto, IIdentifiable
     {
         var parent = await parentRepositoryCall(parentId);
@@ -119,8 +113,8 @@ public static class HandlerHelpers
         if (entity is null)
             return TypedResults.NotFound();
 
-        var response = mapper.Map<TDto>(entity);
-        response.Links = linkService.GenerateResourceLinks($"{parentResourceName}/{parentId}/{childResourceName}", childId);
+        var response = context.Mapper.Map<TDto>(entity);
+        response.Links = context.LinkService.GenerateResourceLinks($"{context.ParentResourceName}/{parentId}/{context.ChildResourceName}", childId);
 
         return TypedResults.Ok(response);
     }
@@ -172,10 +166,7 @@ public static class HandlerHelpers
         Func<string, Task<TParent?>> parentRepositoryCall,
         Func<string, Task<TEntity?>> childRepositoryCall,
         Func<Task> updateRepositoryCall,
-        IMapper mapper,
-        ILinkService linkService,
-        string parentResourceName,
-        string childResourceName)
+        ResourceContext context)
         where TDto : HateoasResourceDto, IIdentifiable
     {
         var parent = await parentRepositoryCall(parentId);
@@ -186,11 +177,11 @@ public static class HandlerHelpers
         if (entity is null)
             return TypedResults.NotFound();
 
-        mapper.Map(dto, entity);
+        context.Mapper.Map(dto, entity);
         await updateRepositoryCall();
 
-        var response = mapper.Map<TDto>(entity);
-        response.Links = linkService.GenerateResourceLinks($"{parentResourceName}/{parentId}/{childResourceName}", childId);
+        var response = context.Mapper.Map<TDto>(entity);
+        response.Links = context.LinkService.GenerateResourceLinks($"{context.ParentResourceName}/{parentId}/{context.ChildResourceName}", childId);
 
         return TypedResults.Ok(response);
     }

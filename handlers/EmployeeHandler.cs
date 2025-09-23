@@ -212,10 +212,7 @@ Example Request Body:
             pageSize,
             yardRepository.FindAsync,
             yardEmployeeRepository.ListPagedAsync,
-            mapper,
-            linkService,
-            "yards",
-            "employees"
+            new ResourceContext(mapper, linkService, "yards", "employees")
         );
     }
 
@@ -265,10 +262,7 @@ Example Request Body:
             employeeId,
             yardRepository.FindAsync,
             yardEmployeeRepository.FindAsync,
-            mapper,
-            linkService,
-            "yards",
-            "employees"
+            new ResourceContext(mapper, linkService, "yards", "employees")
         );
     }
 
@@ -305,10 +299,7 @@ Example Request Body:
             yardRepository.FindAsync,
             yardEmployeeRepository.FindAsync,
             yardEmployeeRepository.UpdateAsync,
-            mapper,
-            linkService,
-            "yards",
-            "employees"
+            new ResourceContext(mapper, linkService, "yards", "employees")
         );
     }
 }

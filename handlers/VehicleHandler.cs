@@ -12,11 +12,14 @@ namespace AutoInsightAPI.handlers;
 
 public static class VehicleHandler
 {
+    private const string VehiclesResource = "vehicles";
+    private const string VehicleResource = "vehicle";
+
     public static void Map(WebApplication app)
     {
-        var vehicleGroup = app.MapGroup("/vehicles").WithTags("vehicle")
+        var vehicleGroup = app.MapGroup("/vehicles").WithTags(VehicleResource)
             .WithDescription("Query vehicles by id and QR Code.");
-        var yardVehicleGroup = app.MapGroup("/yards/{id}/vehicles").WithTags("vehicle", "yard")
+        var yardVehicleGroup = app.MapGroup("/yards/{id}/vehicles").WithTags(VehicleResource, "yard")
             .WithDescription("Manage vehicles linked to a specific yard.");
 
         vehicleGroup.MapGet("/", GetVehicleByQrCode)
@@ -198,7 +201,7 @@ Example Request Body:
                     ["status"] = new OpenApiString("ON_SERVICE"),
                     ["enteredAt"] = new OpenApiString("2025-05-20T10:00:00Z"),
                     ["leftAt"] = new OpenApiNull(),
-                    ["vehicle"] = GetVehicleExample()
+                    [VehicleResource] = GetVehicleExample()
                 })
             ));
         yardVehicleGroup.MapPost("/", CreateYardVehicle)
@@ -237,7 +240,7 @@ Example Request Body:
                 {
                     ["status"] = new OpenApiString("WAITING"),
                     ["enteredAt"] = new OpenApiString("2025-05-20T09:30:00Z"),
-                    ["vehicle"] = GetVehicleExample()
+                    [VehicleResource] = GetVehicleExample()
                 })
             ));
     }
@@ -270,7 +273,7 @@ Example Request Body:
             vehicleRepository.FindAsyncByQRCode,
             mapper,
             linkService,
-            "vehicles"
+            VehicleResource
         );
     }
 
@@ -286,7 +289,7 @@ Example Request Body:
             vehicleRepository.FindAsyncById,
             mapper,
             linkService,
-            "vehicles"
+            VehicleResource
         );
     }
 
@@ -316,7 +319,7 @@ Example Request Body:
         foreach (var yardVehicle in yardVehiclesResponse.Data)
         {
             yardVehicle.Links = linkService.GenerateResourceLinks($"yards/{id}/vehicles", yardVehicle.Id);
-            yardVehicle.Vehicle.Links = linkService.GenerateResourceLinks("vehicles", yardVehicle.Vehicle.Id);
+            yardVehicle.Vehicle.Links = linkService.GenerateResourceLinks(VehicleResource, yardVehicle.Vehicle.Id);
         }
 
         return TypedResults.Ok(yardVehiclesResponse);
@@ -336,16 +339,12 @@ Example Request Body:
             yardVehicleId,
             yardRepository.FindAsync,
             yardVehicleRepository.FindAsync,
-            mapper,
-            linkService,
-            "yards",
-            "vehicles"
+            new ResourceContext(mapper, linkService, "yards", VehicleResource)
         );
         
         return result.Result switch
         {
             Ok<YardVehicleDto> ok => TypedResults.Ok(ok.Value),
-            NotFound notFound => TypedResults.NotFound(),
             _ => TypedResults.NotFound()
         };
     }
@@ -367,16 +366,12 @@ Example Request Body:
             yardRepository.FindAsync,
             yardVehicleRepository.FindAsync,
             yardVehicleRepository.UpdateAsync,
-            mapper,
-            linkService,
-            "yards",
-            "vehicles"
+            new ResourceContext(mapper, linkService, "yards", VehicleResource)
         );
         
         return result.Result switch
         {
             Ok<YardVehicleDto> ok => TypedResults.Ok(ok.Value),
-            NotFound notFound => TypedResults.NotFound(),
             _ => TypedResults.NotFound()
         };
     }
