@@ -11,25 +11,25 @@ namespace AutoInsightAPI.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "ImageUrl",
-                table: "YardEmployees",
-                type: "NVARCHAR2(2000)",
+                name: MigrationConstants.ImageUrlColumn,
+                table: MigrationConstants.YardEmployeesTable,
+                type: MigrationConstants.NVarChar2000Type,
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "NVARCHAR2(2000)");
+                oldType: MigrationConstants.NVarChar2000Type);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "ImageUrl",
-                table: "YardEmployees",
-                type: "NVARCHAR2(2000)",
+                name: MigrationConstants.ImageUrlColumn,
+                table: MigrationConstants.YardEmployeesTable,
+                type: MigrationConstants.NVarChar2000Type,
                 nullable: false,
                 defaultValue: "",
                 oldClrType: typeof(string),
-                oldType: "NVARCHAR2(2000)",
+                oldType: MigrationConstants.NVarChar2000Type,
                 oldNullable: true);
         }
     }

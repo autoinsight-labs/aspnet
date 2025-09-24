@@ -14,7 +14,6 @@ public static class InviteHandler
 {
     public static void Map(WebApplication app)
     {
-        // Rotas para convites de um yard específico
         var yardInviteGroup = app.MapGroup("/yards/{id}/invites").WithTags("yard", "invite")
             .WithDescription("Manage employee invites for yards: create and list invites.");
 
@@ -162,12 +161,10 @@ Query Parameters:
         if (yard is null)
             return TypedResults.NotFound();
 
-        // Verificar se já existe convite pendente para este email neste yard
         var existingInvite = await inviteRepository.FindByEmailAndYardAsync(createYardEmployeeDto.Email, id);
         if (existingInvite is not null)
             return TypedResults.Conflict();
 
-        // Gerar token único
         var token = Guid.NewGuid().ToString("N");
 
         var newInvite = new EmployeeInvite(
@@ -291,21 +288,7 @@ Query Parameters:
             return TypedResults.BadRequest();
 
         var pagedInvites = await inviteRepository.ListByUserAsync(pageNumber, pageSize, userId);
-        var inviteDtos = mapper.Map<List<EmployeeInviteDto>>(pagedInvites.Data);
-
-        foreach (var inviteDto in inviteDtos)
-        {
-            inviteDto.Links = linkService.GenerateResourceLinks($"yards/{inviteDto.YardId}/invites", inviteDto.Id);
-        }
-
-        var pagedResponse = new PagedResponseDto<EmployeeInviteDto>
-        {
-            Data = inviteDtos,
-            PageNumber = pageNumber,
-            PageSize = pageSize,
-            TotalRecords = pagedInvites.TotalRecords,
-            TotalPages = (int)Math.Ceiling((double)pagedInvites.TotalRecords / pageSize)
-        };
+        var pagedResponse = MapInvitesToPagedResponse(pagedInvites, mapper, linkService, pageNumber, pageSize);
 
         return TypedResults.Ok(pagedResponse);
     }
@@ -323,6 +306,18 @@ Query Parameters:
             return TypedResults.BadRequest();
 
         var pagedInvites = await inviteRepository.ListByEmailAsync(pageNumber, pageSize, email);
+        var pagedResponse = MapInvitesToPagedResponse(pagedInvites, mapper, linkService, pageNumber, pageSize);
+
+        return TypedResults.Ok(pagedResponse);
+    }
+
+    private static PagedResponseDto<EmployeeInviteDto> MapInvitesToPagedResponse(
+        PagedResponse<EmployeeInvite> pagedInvites,
+        IMapper mapper,
+        ILinkService linkService,
+        int pageNumber,
+        int pageSize)
+    {
         var inviteDtos = mapper.Map<List<EmployeeInviteDto>>(pagedInvites.Data);
 
         foreach (var inviteDto in inviteDtos)
@@ -330,7 +325,7 @@ Query Parameters:
             inviteDto.Links = linkService.GenerateResourceLinks($"yards/{inviteDto.YardId}/invites", inviteDto.Id);
         }
 
-        var pagedResponse = new PagedResponseDto<EmployeeInviteDto>
+        return new PagedResponseDto<EmployeeInviteDto>
         {
             Data = inviteDtos,
             PageNumber = pageNumber,
@@ -338,7 +333,5 @@ Query Parameters:
             TotalRecords = pagedInvites.TotalRecords,
             TotalPages = (int)Math.Ceiling((double)pagedInvites.TotalRecords / pageSize)
         };
-
-        return TypedResults.Ok(pagedResponse);
     }
 }

@@ -12,202 +12,202 @@ namespace AutoInsightAPI.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_EmployeeInvites_YardEmployees_YardEmployeeId",
-                table: "EmployeeInvites");
+                name: MigrationConstants.FK_EmployeeInvites_YardEmployees_YardEmployeeId,
+                table: MigrationConstants.EmployeeInvitesTable);
 
             migrationBuilder.DropForeignKey(
-                name: "FK_QRCodes_Vehicles_VehicleId",
-                table: "QRCodes");
+                name: MigrationConstants.FK_QRCodes_Vehicles_VehicleId,
+                table: MigrationConstants.QRCodesTable);
 
             migrationBuilder.DropPrimaryKey(
-                name: "PK_QRCodes",
-                table: "QRCodes");
+                name: MigrationConstants.PK_QRCodes,
+                table: MigrationConstants.QRCodesTable);
 
             migrationBuilder.DropIndex(
-                name: "IX_EmployeeInvites_YardEmployeeId",
-                table: "EmployeeInvites");
+                name: MigrationConstants.IX_EmployeeInvites_YardEmployeeId,
+                table: MigrationConstants.EmployeeInvitesTable);
 
             migrationBuilder.DropColumn(
-                name: "YardEmployeeId",
-                table: "EmployeeInvites");
+                name: MigrationConstants.YardEmployeeIdColumn,
+                table: MigrationConstants.EmployeeInvitesTable);
 
             migrationBuilder.RenameTable(
-                name: "QRCodes",
-                newName: "QrCodes");
+                name: MigrationConstants.QRCodesTable,
+                newName: MigrationConstants.QrCodesTable);
 
             migrationBuilder.RenameIndex(
-                name: "IX_QRCodes_VehicleId",
-                table: "QrCodes",
-                newName: "IX_QrCodes_VehicleId");
+                name: MigrationConstants.IX_QRCodes_VehicleId,
+                table: MigrationConstants.QrCodesTable,
+                newName: MigrationConstants.IX_QrCodes_VehicleId);
 
             migrationBuilder.AlterColumn<DateTime>(
-                name: "EnteredAt",
-                table: "YardVehicles",
-                type: "TIMESTAMP(7)",
+                name: MigrationConstants.EnteredAtColumn,
+                table: MigrationConstants.YardVehiclesTable,
+                type: MigrationConstants.TimestampType,
                 nullable: true,
                 oldClrType: typeof(DateTime),
-                oldType: "TIMESTAMP(7)");
+                oldType: MigrationConstants.TimestampType);
 
             migrationBuilder.AddColumn<DateTime>(
-                name: "AcceptedAt",
-                table: "EmployeeInvites",
-                type: "TIMESTAMP(7)",
+                name: MigrationConstants.AcceptedAtColumn,
+                table: MigrationConstants.EmployeeInvitesTable,
+                type: MigrationConstants.TimestampType,
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
-                name: "AcceptedByUserId",
-                table: "EmployeeInvites",
-                type: "NVARCHAR2(2000)",
+                name: MigrationConstants.AcceptedByUserIdColumn,
+                table: MigrationConstants.EmployeeInvitesTable,
+                type: MigrationConstants.NVarChar2000Type,
                 nullable: true);
 
             migrationBuilder.AddColumn<DateTime>(
-                name: "CreatedAt",
-                table: "EmployeeInvites",
-                type: "TIMESTAMP(7)",
+                name: MigrationConstants.CreatedAtColumn,
+                table: MigrationConstants.EmployeeInvitesTable,
+                type: MigrationConstants.TimestampType,
                 nullable: false,
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.AddColumn<string>(
-                name: "Email",
-                table: "EmployeeInvites",
-                type: "NVARCHAR2(2000)",
+                name: MigrationConstants.EmailColumn,
+                table: MigrationConstants.EmployeeInvitesTable,
+                type: MigrationConstants.NVarChar2000Type,
                 nullable: false,
                 defaultValue: "");
 
             migrationBuilder.AddColumn<string>(
-                name: "Name",
-                table: "EmployeeInvites",
-                type: "NVARCHAR2(2000)",
+                name: MigrationConstants.NameColumn,
+                table: MigrationConstants.EmployeeInvitesTable,
+                type: MigrationConstants.NVarChar2000Type,
                 nullable: false,
                 defaultValue: "");
 
             migrationBuilder.AddColumn<int>(
-                name: "Role",
-                table: "EmployeeInvites",
-                type: "NUMBER(10)",
+                name: MigrationConstants.RoleColumn,
+                table: MigrationConstants.EmployeeInvitesTable,
+                type: MigrationConstants.NumberType,
                 nullable: false,
                 defaultValue: 0);
 
             migrationBuilder.AddColumn<int>(
-                name: "Status",
-                table: "EmployeeInvites",
-                type: "NUMBER(10)",
+                name: MigrationConstants.StatusColumn,
+                table: MigrationConstants.EmployeeInvitesTable,
+                type: MigrationConstants.NumberType,
                 nullable: false,
                 defaultValue: 0);
 
             migrationBuilder.AddColumn<string>(
-                name: "Token",
-                table: "EmployeeInvites",
-                type: "NVARCHAR2(2000)",
+                name: MigrationConstants.TokenColumn,
+                table: MigrationConstants.EmployeeInvitesTable,
+                type: MigrationConstants.NVarChar2000Type,
                 nullable: false,
                 defaultValue: "");
 
             migrationBuilder.AddPrimaryKey(
-                name: "PK_QrCodes",
-                table: "QrCodes",
-                column: "Id");
+                name: MigrationConstants.PK_QrCodes,
+                table: MigrationConstants.QrCodesTable,
+                column: MigrationConstants.IdColumn);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_QrCodes_Vehicles_VehicleId",
-                table: "QrCodes",
-                column: "VehicleId",
-                principalTable: "Vehicles",
-                principalColumn: "Id");
+                name: MigrationConstants.FK_QrCodes_Vehicles_VehicleId,
+                table: MigrationConstants.QrCodesTable,
+                column: MigrationConstants.VehicleIdColumn,
+                principalTable: MigrationConstants.VehiclesTable,
+                principalColumn: MigrationConstants.IdColumn);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_QrCodes_Vehicles_VehicleId",
-                table: "QrCodes");
+                name: MigrationConstants.FK_QrCodes_Vehicles_VehicleId,
+                table: MigrationConstants.QrCodesTable);
 
             migrationBuilder.DropPrimaryKey(
-                name: "PK_QrCodes",
-                table: "QrCodes");
+                name: MigrationConstants.PK_QrCodes,
+                table: MigrationConstants.QrCodesTable);
 
             migrationBuilder.DropColumn(
-                name: "AcceptedAt",
-                table: "EmployeeInvites");
+                name: MigrationConstants.AcceptedAtColumn,
+                table: MigrationConstants.EmployeeInvitesTable);
 
             migrationBuilder.DropColumn(
-                name: "AcceptedByUserId",
-                table: "EmployeeInvites");
+                name: MigrationConstants.AcceptedByUserIdColumn,
+                table: MigrationConstants.EmployeeInvitesTable);
 
             migrationBuilder.DropColumn(
-                name: "CreatedAt",
-                table: "EmployeeInvites");
+                name: MigrationConstants.CreatedAtColumn,
+                table: MigrationConstants.EmployeeInvitesTable);
 
             migrationBuilder.DropColumn(
-                name: "Email",
-                table: "EmployeeInvites");
+                name: MigrationConstants.EmailColumn,
+                table: MigrationConstants.EmployeeInvitesTable);
 
             migrationBuilder.DropColumn(
-                name: "Name",
-                table: "EmployeeInvites");
+                name: MigrationConstants.NameColumn,
+                table: MigrationConstants.EmployeeInvitesTable);
 
             migrationBuilder.DropColumn(
-                name: "Role",
-                table: "EmployeeInvites");
+                name: MigrationConstants.RoleColumn,
+                table: MigrationConstants.EmployeeInvitesTable);
 
             migrationBuilder.DropColumn(
-                name: "Status",
-                table: "EmployeeInvites");
+                name: MigrationConstants.StatusColumn,
+                table: MigrationConstants.EmployeeInvitesTable);
 
             migrationBuilder.DropColumn(
-                name: "Token",
-                table: "EmployeeInvites");
+                name: MigrationConstants.TokenColumn,
+                table: MigrationConstants.EmployeeInvitesTable);
 
             migrationBuilder.RenameTable(
-                name: "QrCodes",
-                newName: "QRCodes");
+                name: MigrationConstants.QrCodesTable,
+                newName: MigrationConstants.QRCodesTable);
 
             migrationBuilder.RenameIndex(
-                name: "IX_QrCodes_VehicleId",
-                table: "QRCodes",
-                newName: "IX_QRCodes_VehicleId");
+                name: MigrationConstants.IX_QrCodes_VehicleId,
+                table: MigrationConstants.QRCodesTable,
+                newName: MigrationConstants.IX_QRCodes_VehicleId);
 
             migrationBuilder.AlterColumn<DateTime>(
-                name: "EnteredAt",
-                table: "YardVehicles",
-                type: "TIMESTAMP(7)",
+                name: MigrationConstants.EnteredAtColumn,
+                table: MigrationConstants.YardVehiclesTable,
+                type: MigrationConstants.TimestampType,
                 nullable: false,
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                 oldClrType: typeof(DateTime),
-                oldType: "TIMESTAMP(7)",
+                oldType: MigrationConstants.TimestampType,
                 oldNullable: true);
 
             migrationBuilder.AddColumn<string>(
-                name: "YardEmployeeId",
-                table: "EmployeeInvites",
+                name: MigrationConstants.YardEmployeeIdColumn,
+                table: MigrationConstants.EmployeeInvitesTable,
                 type: "NVARCHAR2(450)",
                 nullable: false,
                 defaultValue: "");
 
             migrationBuilder.AddPrimaryKey(
-                name: "PK_QRCodes",
-                table: "QRCodes",
-                column: "Id");
+                name: MigrationConstants.PK_QRCodes,
+                table: MigrationConstants.QRCodesTable,
+                column: MigrationConstants.IdColumn);
 
             migrationBuilder.CreateIndex(
-                name: "IX_EmployeeInvites_YardEmployeeId",
-                table: "EmployeeInvites",
-                column: "YardEmployeeId");
+                name: MigrationConstants.IX_EmployeeInvites_YardEmployeeId,
+                table: MigrationConstants.EmployeeInvitesTable,
+                column: MigrationConstants.YardEmployeeIdColumn);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_EmployeeInvites_YardEmployees_YardEmployeeId",
-                table: "EmployeeInvites",
-                column: "YardEmployeeId",
-                principalTable: "YardEmployees",
-                principalColumn: "Id",
+                name: MigrationConstants.FK_EmployeeInvites_YardEmployees_YardEmployeeId,
+                table: MigrationConstants.EmployeeInvitesTable,
+                column: MigrationConstants.YardEmployeeIdColumn,
+                principalTable: MigrationConstants.YardEmployeesTable,
+                principalColumn: MigrationConstants.IdColumn,
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_QRCodes_Vehicles_VehicleId",
-                table: "QRCodes",
-                column: "VehicleId",
-                principalTable: "Vehicles",
-                principalColumn: "Id");
+                name: MigrationConstants.FK_QRCodes_Vehicles_VehicleId,
+                table: MigrationConstants.QRCodesTable,
+                column: MigrationConstants.VehicleIdColumn,
+                principalTable: MigrationConstants.VehiclesTable,
+                principalColumn: MigrationConstants.IdColumn);
         }
     }
 }
