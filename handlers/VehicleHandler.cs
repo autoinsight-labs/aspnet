@@ -10,6 +10,13 @@ using Microsoft.OpenApi.Models;
 
 namespace AutoInsightAPI.handlers;
 
+public record struct CreateYardVehicleRepositories(
+    IYardRepository YardRepository,
+    IYardVehicleRepository YardVehicleRepository,
+    IVehicleRepository VehicleRepository,
+    IModelRepository ModelRepository
+);
+
 public static class VehicleHandler
 {
     private const string VehiclesResource = "vehicles";
@@ -398,46 +405,39 @@ Option 3 - Create new vehicle and new model:
     }
 
     private static async Task<Results<Created<YardVehicleDto>, BadRequest, NotFound>> CreateYardVehicle(
-        IYardRepository yardRepository,
-        IYardVehicleRepository yardVehicleRepository,
-        IVehicleRepository vehicleRepository,
-        IModelRepository modelRepository,
+        CreateYardVehicleRepositories repositories,
         IMapper mapper,
         ILinkService linkService,
         string id,
         CreateYardVehicleDto createYardVehicleDto
     )
     {
-        var yard = await yardRepository.FindAsync(id);
+        var yard = await repositories.YardRepository.FindAsync(id);
         if (yard is null)
             return TypedResults.NotFound();
 
         Vehicle? vehicle = null;
 
-        // Se VehicleId foi fornecido, busca veículo existente
         if (!string.IsNullOrEmpty(createYardVehicleDto.VehicleId))
         {
-            vehicle = await vehicleRepository.FindAsyncById(createYardVehicleDto.VehicleId);
+            vehicle = await repositories.VehicleRepository.FindAsyncById(createYardVehicleDto.VehicleId);
             if (vehicle is null)
                 return TypedResults.NotFound();
         }
-        // Se objeto Vehicle foi fornecido, cria novo veículo
         else if (createYardVehicleDto.Vehicle != null)
         {
             Model? model = null;
             
-            // Se ModelId foi fornecido, busca modelo existente
             if (!string.IsNullOrEmpty(createYardVehicleDto.Vehicle.ModelId))
             {
-                model = await modelRepository.FindAsyncById(createYardVehicleDto.Vehicle.ModelId);
+                model = await repositories.ModelRepository.FindAsyncById(createYardVehicleDto.Vehicle.ModelId);
                 if (model is null)
                     return TypedResults.NotFound();
             }
-            // Se objeto Model foi fornecido, cria novo modelo
             else if (createYardVehicleDto.Vehicle.Model != null)
             {
                 var newModel = mapper.Map<Model>(createYardVehicleDto.Vehicle.Model);
-                model = await modelRepository.CreateAsync(newModel);
+                model = await repositories.ModelRepository.CreateAsync(newModel);
             }
             
             if (model is null)
@@ -448,7 +448,7 @@ Option 3 - Create new vehicle and new model:
                 model: model,
                 userId: createYardVehicleDto.Vehicle.UserId
             );
-            vehicle = await vehicleRepository.CreateAsync(newVehicle);
+            vehicle = await repositories.VehicleRepository.CreateAsync(newVehicle);
         }
         else
         {
@@ -463,7 +463,7 @@ Option 3 - Create new vehicle and new model:
             yard: yard
         );
 
-        var createdYardVehicle = await yardVehicleRepository.CreateAsync(newYardVehicle);
+        var createdYardVehicle = await repositories.YardVehicleRepository.CreateAsync(newYardVehicle);
         var yardVehicleDtoResult = mapper.Map<YardVehicleDto>(createdYardVehicle);
 
         yardVehicleDtoResult.Links = linkService.GenerateResourceLinks($"yards/{id}/vehicles", createdYardVehicle.Id);

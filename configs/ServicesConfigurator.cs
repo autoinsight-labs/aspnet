@@ -16,6 +16,7 @@ namespace AutoInsightAPI.configs;
 
 public static class ServicesConfigurator
 {
+    private const string UserIdFieldName = "userId";
     public static void Configure(IServiceCollection services)
     {
         services.AddValidatorsFromAssemblyContaining<YardVehicleDtoValidator>();
@@ -150,7 +151,7 @@ public static class ServicesConfigurator
                     ["name"] = new OpenApiString("Honda CG 160"),
                     ["year"] = new OpenApiInteger(2023)
                 },
-                ["userId"] = new OpenApiString("usr_001")
+[UserIdFieldName] = new OpenApiString("usr_001")
             };
         }
     }
@@ -189,7 +190,7 @@ public static class ServicesConfigurator
                 ["name"] = new OpenApiString("Jane Doe"),
                 ["imageUrl"] = new OpenApiString("https://cdn.example.com/jane.png"),
                 ["role"] = new OpenApiString("ADMIN"),
-                ["userId"] = new OpenApiString("usr_002")
+[UserIdFieldName] = new OpenApiString("usr_002")
             };
         }
     }
@@ -215,7 +216,7 @@ public static class ServicesConfigurator
                         ["name"] = new OpenApiString("Honda CG 160"),
                         ["year"] = new OpenApiInteger(2023)
                     },
-                    ["userId"] = new OpenApiString("usr_001")
+    [UserIdFieldName] = new OpenApiString("usr_001")
                 }
             };
         }
@@ -266,7 +267,7 @@ public static class ServicesConfigurator
                 ["name"] = new OpenApiString("Jane Doe"),
                 ["imageUrl"] = new OpenApiString("https://cdn.example.com/jane.png"),
                 ["role"] = new OpenApiString("ADMIN"),
-                ["userId"] = new OpenApiString("usr_002")
+[UserIdFieldName] = new OpenApiString("usr_002")
             };
         }
     }
@@ -364,7 +365,7 @@ Supports two options:
             {
                 ["plate"] = new OpenApiString("XYZ5E67"),
                 ["modelId"] = new OpenApiString("mdl_002"),
-                ["userId"] = new OpenApiString("usr_003")
+[UserIdFieldName] = new OpenApiString("usr_003")
             };
         }
     }
