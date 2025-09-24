@@ -1,4 +1,3 @@
-using AutoInsightAPI.models;
 using AutoInsightAPI.Models;
 using Microsoft.EntityFrameworkCore;
 

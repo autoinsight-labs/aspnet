@@ -1,7 +1,7 @@
 using AutoInsightAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace AutoInsightAPI.models;
+namespace AutoInsightAPI.Models;
 
 public class AutoInsightDb(DbContextOptions<AutoInsightDb> options) : DbContext(options)
 {

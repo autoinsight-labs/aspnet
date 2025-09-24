@@ -1,4 +1,3 @@
-using AutoInsightAPI.models;
 using AutoInsightAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +24,13 @@ namespace AutoInsightAPI.Repositories
                               .FirstOrDefaultAsync(y => y.Id == qrCodeId);
 
         return qrCode?.Vehicle;
+      }
+
+      public async Task<Vehicle> CreateAsync(Vehicle vehicle)
+      {
+        _db.Vehicles.Add(vehicle);
+        await _db.SaveChangesAsync();
+        return vehicle;
       }
     }
 }

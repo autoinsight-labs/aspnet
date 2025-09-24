@@ -1,6 +1,5 @@
-using AutoInsightAPI.models;
-using Microsoft.EntityFrameworkCore;
 using AutoInsightAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AutoInsightAPI.Repositories
 {

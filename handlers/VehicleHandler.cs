@@ -10,6 +10,13 @@ using Microsoft.OpenApi.Models;
 
 namespace AutoInsightAPI.handlers;
 
+public record CreateYardVehicleRepositories(
+    IYardRepository YardRepository,
+    IYardVehicleRepository YardVehicleRepository,
+    IVehicleRepository VehicleRepository,
+    IModelRepository ModelRepository
+);
+
 public static class VehicleHandler
 {
     private const string VehiclesResource = "vehicles";
@@ -206,41 +213,62 @@ Example Request Body:
             ));
         yardVehicleGroup.MapPost("/", CreateYardVehicle)
             .WithSummary("Create yard vehicle")
-            .WithDescription(@"Creates a link between a vehicle and a yard. Requires a valid vehicle id and a non-null enteredAt.
-Example Request Body:
+            .WithDescription(@"Creates a link between a vehicle and a yard. You can either provide an existing vehicleId OR a complete vehicle object to create a new vehicle.
+
+Option 1 - Link existing vehicle:
+```json
+{
+    ""status"": ""WAITING"",
+    ""enteredAt"": ""2025-05-20T09:30:00Z"",
+    ""vehicleId"": ""veh_abc123""
+}
+```
+
+Option 2 - Create new vehicle with existing model:
 ```json
 {
     ""status"": ""WAITING"",
     ""enteredAt"": ""2025-05-20T09:30:00Z"",
     ""vehicle"": {
-        ""id"": ""veh_abc123"",
-        ""plate"": ""ABC1D23"",
+        ""plate"": ""XYZ5E67"",
+        ""modelId"": ""mdl_002"",
+        ""userId"": ""usr_003""
+    }
+}
+```
+
+Option 3 - Create new vehicle and new model:
+```json
+{
+    ""status"": ""WAITING"",
+    ""enteredAt"": ""2025-05-20T09:30:00Z"",
+    ""vehicle"": {
+        ""plate"": ""XYZ5E67"",
         ""model"": {
-            ""id"": ""mdl_001"",
-            ""name"": ""Honda CG 160"",
-            ""year"": 2023
+            ""name"": ""Toyota Corolla"",
+            ""year"": 2024
         },
-        ""userId"": ""usr_001""
+        ""userId"": ""usr_003""
     }
 }
 ```
 ")
-            .Accepts<YardVehicleDto>("application/json")
+            .Accepts<CreateYardVehicleDto>("application/json")
             .Produces<YardVehicleDto>(StatusCodes.Status201Created)
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .AddEndpointFilter<ValidationFilter<YardVehicleDto>>()
+            .AddEndpointFilter<ValidationFilter<CreateYardVehicleDto>>()
             .WithOpenApi(HandlerHelpers.BuildOpenApiOperation(
                 "CreateYardVehicle",
                 new Dictionary<string, (ParameterLocation, string)>
                 {
                     { "id", (ParameterLocation.Path, "Yard identifier") }
                 },
-                ("Example payload to create a yard vehicle.", new OpenApiObject
+                ("Option 1: Link existing vehicle", new OpenApiObject
                 {
                     ["status"] = new OpenApiString("WAITING"),
                     ["enteredAt"] = new OpenApiString("2025-05-20T09:30:00Z"),
-                    [VehicleResource] = GetVehicleExample()
+                    ["vehicleId"] = new OpenApiString("veh_abc123")
                 })
             ));
     }
@@ -377,35 +405,69 @@ Example Request Body:
     }
 
     private static async Task<Results<Created<YardVehicleDto>, BadRequest, NotFound>> CreateYardVehicle(
-        IYardRepository yardRepository,
-        IYardVehicleRepository yardVehicleRepository,
-        IVehicleRepository vehicleRepository,
+        CreateYardVehicleRepositories repositories,
         IMapper mapper,
         ILinkService linkService,
         string id,
-        YardVehicleDto yardVehicleDto
+        CreateYardVehicleDto createYardVehicleDto
     )
     {
-        var yard = await yardRepository.FindAsync(id);
+        var yard = await repositories.YardRepository.FindAsync(id);
         if (yard is null)
             return TypedResults.NotFound();
 
-        var vehicle = await vehicleRepository.FindAsyncById(yardVehicleDto.Vehicle.Id);
-        if (vehicle is null)
-            return TypedResults.NotFound();
+        Vehicle? vehicle = null;
+
+        if (!string.IsNullOrEmpty(createYardVehicleDto.VehicleId))
+        {
+            vehicle = await repositories.VehicleRepository.FindAsyncById(createYardVehicleDto.VehicleId);
+            if (vehicle is null)
+                return TypedResults.NotFound();
+        }
+        else if (createYardVehicleDto.Vehicle != null)
+        {
+            Model? model = null;
+            
+            if (!string.IsNullOrEmpty(createYardVehicleDto.Vehicle.ModelId))
+            {
+                model = await repositories.ModelRepository.FindAsyncById(createYardVehicleDto.Vehicle.ModelId);
+                if (model is null)
+                    return TypedResults.NotFound();
+            }
+            else if (createYardVehicleDto.Vehicle.Model != null)
+            {
+                var newModel = mapper.Map<Model>(createYardVehicleDto.Vehicle.Model);
+                model = await repositories.ModelRepository.CreateAsync(newModel);
+            }
+            
+            if (model is null)
+                return TypedResults.BadRequest();
+            
+            var newVehicle = new Vehicle(
+                plate: createYardVehicleDto.Vehicle.Plate,
+                model: model,
+                userId: createYardVehicleDto.Vehicle.UserId
+            );
+            vehicle = await repositories.VehicleRepository.CreateAsync(newVehicle);
+        }
+        else
+        {
+            return TypedResults.BadRequest();
+        }
 
         var newYardVehicle = new YardVehicle(
-            status: yardVehicleDto.Status,
-            enteredAt: (DateTime)yardVehicleDto.EnteredAt,
-            leftAt: yardVehicleDto.LeftAt,
+            status: createYardVehicleDto.Status,
+            enteredAt: createYardVehicleDto.EnteredAt ?? DateTime.UtcNow,
+            leftAt: createYardVehicleDto.LeftAt,
             vehicle: vehicle,
             yard: yard
         );
 
-        var createdYardVehicle = await yardVehicleRepository.CreateAsync(newYardVehicle);
+        var createdYardVehicle = await repositories.YardVehicleRepository.CreateAsync(newYardVehicle);
         var yardVehicleDtoResult = mapper.Map<YardVehicleDto>(createdYardVehicle);
 
         yardVehicleDtoResult.Links = linkService.GenerateResourceLinks($"yards/{id}/vehicles", createdYardVehicle.Id);
+        yardVehicleDtoResult.Vehicle.Links = linkService.GenerateResourceLinks(VehicleResource, yardVehicleDtoResult.Vehicle.Id);
 
         return TypedResults.Created($"/yards/{createdYardVehicle.YardId}/vehicles/{createdYardVehicle.Id}",
             yardVehicleDtoResult);

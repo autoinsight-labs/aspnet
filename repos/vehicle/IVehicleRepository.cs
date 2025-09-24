@@ -6,5 +6,6 @@ namespace AutoInsightAPI.Repositories
   {
     Task<Vehicle?> FindAsyncById(string id);
     Task<Vehicle?> FindAsyncByQRCode(string qrCodeId);
+    Task<Vehicle> CreateAsync(Vehicle vehicle);
   }
 }

@@ -79,11 +79,11 @@ Example Request Body:
 }
 ```
 ")
-            .Accepts<YardEmployeeDto>("application/json")
+            .Accepts<CreateYardEmployeeDto>("application/json")
             .Produces<YardEmployeeDto>(StatusCodes.Status201Created)
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .AddEndpointFilter<ValidationFilter<YardEmployeeDto>>()
+            .AddEndpointFilter<ValidationFilter<CreateYardEmployeeDto>>()
             .WithOpenApi(HandlerHelpers.BuildOpenApiOperation(
                 "CreateYardEmployee",
                 new Dictionary<string, (ParameterLocation, string)>
@@ -222,7 +222,7 @@ Example Request Body:
         IMapper mapper,
         ILinkService linkService,
         string id,
-        YardEmployeeDto yardEmployeeDto
+        CreateYardEmployeeDto createYardEmployeeDto
     )
     {
         var yard = await yardRepository.FindAsync(id);
@@ -233,10 +233,10 @@ Example Request Body:
         }
 
         var newEmployee = new YardEmployee(
-            name: yardEmployeeDto.Name,
-            imageUrl: yardEmployeeDto.ImageUrl,
-            role: yardEmployeeDto.Role,
-            userId: yardEmployeeDto.UserId,
+            name: createYardEmployeeDto.Name,
+            imageUrl: createYardEmployeeDto.ImageUrl,
+            role: createYardEmployeeDto.Role,
+            userId: createYardEmployeeDto.UserId,
             yard: yard
         );
 
