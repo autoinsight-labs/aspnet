@@ -70,14 +70,13 @@ namespace AutoInsightAPI.Repositories
 
         public async Task<PagedResponse<EmployeeInvite>> ListByEmailAsync(int page, int pageSize, string email)
         {
-            var totalRecords = await _db.EmployeeInvites
-                .Where(ei => ei.Email == email && ei.Status == InviteStatus.PENDING)
-                .CountAsync();
+            var baseQuery = GetPendingInvitesByEmailQuery(email);
+            
+            var totalRecords = await baseQuery.CountAsync();
 
-            var invites = await _db.EmployeeInvites
+            var invites = await baseQuery
                 .AsNoTracking()
                 .Include(ei => ei.Yard)
-                .Where(ei => ei.Email == email && ei.Status == InviteStatus.PENDING)
                 .OrderByDescending(ei => ei.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -86,10 +85,16 @@ namespace AutoInsightAPI.Repositories
             return new PagedResponse<EmployeeInvite>(invites, page, pageSize, totalRecords);
         }
 
+        private IQueryable<EmployeeInvite> GetPendingInvitesByEmailQuery(string email)
+        {
+            return _db.EmployeeInvites
+                .Where(ei => ei.Email == email && ei.Status == InviteStatus.PENDING);
+        }
+
         public async Task<EmployeeInvite?> FindByEmailAndYardAsync(string email, string yardId)
         {
-            return await _db.EmployeeInvites
-                .FirstOrDefaultAsync(ei => ei.Email == email && ei.YardId == yardId && ei.Status == InviteStatus.PENDING);
+            return await GetPendingInvitesByEmailQuery(email)
+                .FirstOrDefaultAsync(ei => ei.YardId == yardId);
         }
 
         public async Task UpdateAsync()

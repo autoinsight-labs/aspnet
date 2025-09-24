@@ -65,7 +65,7 @@ namespace AutoInsightAPI.Migrations
                 table: MigrationConstants.EmployeeInvitesTable,
                 type: MigrationConstants.TimestampType,
                 nullable: false,
-                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                defaultValue: DateTime.MinValue);
 
             migrationBuilder.AddColumn<string>(
                 name: MigrationConstants.EmailColumn,
@@ -172,7 +172,7 @@ namespace AutoInsightAPI.Migrations
                 table: MigrationConstants.YardVehiclesTable,
                 type: MigrationConstants.TimestampType,
                 nullable: false,
-                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                defaultValue: DateTime.MinValue,
                 oldClrType: typeof(DateTime),
                 oldType: MigrationConstants.TimestampType,
                 oldNullable: true);
