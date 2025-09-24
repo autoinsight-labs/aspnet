@@ -15,7 +15,7 @@ namespace AutoInsightAPI.Models
     public string Id {get; private set;}
 
     public string Name {get; private set;}
-    public string ImageUrl {get; private set;}
+    public string? ImageUrl {get; private set;}
     public EmployeeRole Role {get; private set;}
     public string UserId {get; private set;}
     public string YardId {get; private set;}
@@ -23,7 +23,7 @@ namespace AutoInsightAPI.Models
 
     public YardEmployee() { }
 
-    public YardEmployee(string name, string imageUrl, EmployeeRole role, string userId, Yard yard)
+    public YardEmployee(string name, string? imageUrl, EmployeeRole role, string userId, Yard yard)
     {
       this.Name = name;
       this.ImageUrl = imageUrl;
@@ -33,7 +33,7 @@ namespace AutoInsightAPI.Models
       this.Yard = yard;
     }
 
-    public YardEmployee(string id, string name, string imageUrl, EmployeeRole role, string userId, Yard yard)
+    public YardEmployee(string id, string name, string? imageUrl, EmployeeRole role, string userId, Yard yard)
     {
       this.Id = id;
       this.Name = name;

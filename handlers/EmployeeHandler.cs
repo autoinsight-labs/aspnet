@@ -66,36 +66,35 @@ Response Codes:
                 return op;
             });
 
-        employeeGroup.MapPost("/", CreateYardEmployee)
-            .WithSummary("Create yard employee")
-            .WithDescription(@"Adds a new employee to the specified yard. Role must be one of ADMIN or MEMBER.
+        employeeGroup.MapPost("/", CreateYardEmployeeInvite)
+            .WithSummary("Create yard employee invite")
+            .WithDescription(@"Creates an invitation for a new employee to join the yard. This will send an invite that the user must accept.
 Example Request Body:
 ```json
 {
     ""name"": ""Jane Doe"",
-    ""imageUrl"": ""https://cdn.example.com/jane.png"",
-    ""role"": ""ADMIN"",
-    ""userId"": ""usr_002""
+    ""email"": ""jane@example.com"",
+    ""role"": ""ADMIN""
 }
 ```
 ")
             .Accepts<CreateYardEmployeeDto>("application/json")
-            .Produces<YardEmployeeDto>(StatusCodes.Status201Created)
+            .Produces<EmployeeInviteDto>(StatusCodes.Status201Created)
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict)
             .AddEndpointFilter<ValidationFilter<CreateYardEmployeeDto>>()
             .WithOpenApi(HandlerHelpers.BuildOpenApiOperation(
-                "CreateYardEmployee",
+                "CreateYardEmployeeInvite",
                 new Dictionary<string, (ParameterLocation, string)>
                 {
                     { "id", (ParameterLocation.Path, "Yard identifier") }
                 },
-                ("Example payload to create a yard employee.", new OpenApiObject
+                ("Example payload to create a yard employee invite.", new OpenApiObject
                 {
                     ["name"] = new OpenApiString("Jane Doe"),
-                    ["imageUrl"] = new OpenApiString("https://cdn.example.com/jane.png"),
-                    ["role"] = new OpenApiString("ADMIN"),
-                    ["userId"] = new OpenApiString("usr_002")
+                    ["email"] = new OpenApiString("jane@example.com"),
+                    ["role"] = new OpenApiString("ADMIN")
                 })
             ));
 
@@ -216,9 +215,9 @@ Example Request Body:
         );
     }
 
-    private static async Task<Results<Created<YardEmployeeDto>, NotFound>> CreateYardEmployee(
+    private static async Task<Results<Created<EmployeeInviteDto>, NotFound, Conflict>> CreateYardEmployeeInvite(
         IYardRepository yardRepository,
-        IYardEmployeeRepository yardEmployeeRepository,
+        IEmployeeInviteRepository inviteRepository,
         IMapper mapper,
         ILinkService linkService,
         string id,
@@ -226,27 +225,31 @@ Example Request Body:
     )
     {
         var yard = await yardRepository.FindAsync(id);
-
         if (yard is null)
-        {
             return TypedResults.NotFound();
-        }
 
-        var newEmployee = new YardEmployee(
+        // Verificar se já existe convite pendente para este email neste yard
+        var existingInvite = await inviteRepository.FindByEmailAndYardAsync(createYardEmployeeDto.Email, id);
+        if (existingInvite is not null)
+            return TypedResults.Conflict();
+
+        // Gerar token único
+        var token = Guid.NewGuid().ToString("N");
+
+        var newInvite = new EmployeeInvite(
+            email: createYardEmployeeDto.Email,
             name: createYardEmployeeDto.Name,
-            imageUrl: createYardEmployeeDto.ImageUrl,
             role: createYardEmployeeDto.Role,
-            userId: createYardEmployeeDto.UserId,
+            token: token,
             yard: yard
         );
 
-        var createdYardEmployee = await yardEmployeeRepository.CreateAsync(newEmployee);
-        var yardEmployeeDtoResult = mapper.Map<YardEmployeeDto>(createdYardEmployee);
+        var createdInvite = await inviteRepository.CreateAsync(newInvite);
+        var inviteDto = mapper.Map<EmployeeInviteDto>(createdInvite);
 
-        yardEmployeeDtoResult.Links = linkService.GenerateResourceLinks($"yards/{id}/employees", createdYardEmployee.Id);
+        inviteDto.Links = linkService.GenerateResourceLinks($"yards/{id}/invites", createdInvite.Id);
 
-        return TypedResults.Created($"/yards/{createdYardEmployee.YardId}/employees/{createdYardEmployee.Id}",
-            yardEmployeeDtoResult);
+        return TypedResults.Created($"/yards/{id}/invites/{createdInvite.Id}", inviteDto);
     }
 
     private static async Task<Results<Ok<YardEmployeeDto>, NotFound>> GetYardEmployeeById(
