@@ -3,6 +3,7 @@ using System;
 using AutoInsightAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oracle.EntityFrameworkCore.Metadata;
 
@@ -11,9 +12,11 @@ using Oracle.EntityFrameworkCore.Metadata;
 namespace AutoInsightAPI.Migrations
 {
     [DbContext(typeof(AutoInsightDb))]
-    partial class AutoInsightDBModelSnapshot : ModelSnapshot
+    [Migration("20250924210906_UpdateEmployeeInviteSchema")]
+    partial class UpdateEmployeeInviteSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -212,6 +215,7 @@ namespace AutoInsightAPI.Migrations
                         .HasColumnType("NVARCHAR2(450)");
 
                     b.Property<string>("ImageUrl")
+                        .IsRequired()
                         .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<string>("Name")

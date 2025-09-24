@@ -89,6 +89,8 @@ and alerting systems to verify that the application is functioning properly.";
 YardHandler.Map(app);
 // Employee routes
 EmployeeHandler.Map(app);
+// Invite routes
+InviteHandler.Map(app);
 // Vehicle Routes
 VehicleHandler.Map(app);
 

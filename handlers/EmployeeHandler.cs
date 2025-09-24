@@ -66,39 +66,6 @@ Response Codes:
                 return op;
             });
 
-        employeeGroup.MapPost("/", CreateYardEmployee)
-            .WithSummary("Create yard employee")
-            .WithDescription(@"Adds a new employee to the specified yard. Role must be one of ADMIN or MEMBER.
-Example Request Body:
-```json
-{
-    ""name"": ""Jane Doe"",
-    ""imageUrl"": ""https://cdn.example.com/jane.png"",
-    ""role"": ""ADMIN"",
-    ""userId"": ""usr_002""
-}
-```
-")
-            .Accepts<CreateYardEmployeeDto>("application/json")
-            .Produces<YardEmployeeDto>(StatusCodes.Status201Created)
-            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .AddEndpointFilter<ValidationFilter<CreateYardEmployeeDto>>()
-            .WithOpenApi(HandlerHelpers.BuildOpenApiOperation(
-                "CreateYardEmployee",
-                new Dictionary<string, (ParameterLocation, string)>
-                {
-                    { "id", (ParameterLocation.Path, "Yard identifier") }
-                },
-                ("Example payload to create a yard employee.", new OpenApiObject
-                {
-                    ["name"] = new OpenApiString("Jane Doe"),
-                    ["imageUrl"] = new OpenApiString("https://cdn.example.com/jane.png"),
-                    ["role"] = new OpenApiString("ADMIN"),
-                    ["userId"] = new OpenApiString("usr_002")
-                })
-            ));
-
         employeeGroup.MapGet("/{employeeId}", GetYardEmployeeById)
             .WithSummary("Get yard employee by id")
             .WithDescription(@"Returns the employee data by id within the yard context.
@@ -214,39 +181,6 @@ Example Request Body:
             yardEmployeeRepository.ListPagedAsync,
             new ResourceContext(mapper, linkService, "yards", "employees")
         );
-    }
-
-    private static async Task<Results<Created<YardEmployeeDto>, NotFound>> CreateYardEmployee(
-        IYardRepository yardRepository,
-        IYardEmployeeRepository yardEmployeeRepository,
-        IMapper mapper,
-        ILinkService linkService,
-        string id,
-        CreateYardEmployeeDto createYardEmployeeDto
-    )
-    {
-        var yard = await yardRepository.FindAsync(id);
-
-        if (yard is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        var newEmployee = new YardEmployee(
-            name: createYardEmployeeDto.Name,
-            imageUrl: createYardEmployeeDto.ImageUrl,
-            role: createYardEmployeeDto.Role,
-            userId: createYardEmployeeDto.UserId,
-            yard: yard
-        );
-
-        var createdYardEmployee = await yardEmployeeRepository.CreateAsync(newEmployee);
-        var yardEmployeeDtoResult = mapper.Map<YardEmployeeDto>(createdYardEmployee);
-
-        yardEmployeeDtoResult.Links = linkService.GenerateResourceLinks($"yards/{id}/employees", createdYardEmployee.Id);
-
-        return TypedResults.Created($"/yards/{createdYardEmployee.YardId}/employees/{createdYardEmployee.Id}",
-            yardEmployeeDtoResult);
     }
 
     private static async Task<Results<Ok<YardEmployeeDto>, NotFound>> GetYardEmployeeById(
