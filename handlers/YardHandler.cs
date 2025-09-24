@@ -169,11 +169,11 @@ Example Response (201 Created):
 }
 ```
 ")
-            .Accepts<YardDto>("application/json")
+            .Accepts<CreateYardDto>("application/json")
             .Produces<YardDto>(StatusCodes.Status201Created)
             .ProducesValidationProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .AddEndpointFilter<ValidationFilter<YardDto>>()
+            .AddEndpointFilter<ValidationFilter<CreateYardDto>>()
             .WithOpenApi(HandlerHelpers.BuildOpenApiOperation(
                 "CreateYard",
                 requestBody: ("Example payload to create a yard.", new OpenApiObject
@@ -289,19 +289,19 @@ Example Request Body:
     }
 
     private static async Task<Results<Created<YardDto>, BadRequest>> CreateYard(
-        YardDto yardDto,
+        CreateYardDto createYardDto,
         IYardRepository yardRepository,
         IMapper mapper,
         ILinkService linkService
     )
     {
-        return await HandlerHelpers.HandleCreate<Yard, YardDto>(
-            yardDto,
-            yardRepository.CreateAsync,
-            mapper,
-            linkService,
-            YardResource
-        );
+        var yard = mapper.Map<Yard>(createYardDto);
+        var createdYard = await yardRepository.CreateAsync(yard);
+        var response = mapper.Map<YardDto>(createdYard);
+
+        response.Links = linkService.GenerateResourceLinks(YardResource, response.Id);
+
+        return TypedResults.Created($"/{YardResource}/{response.Id}", response);
     }
 
     private static async Task<Results<NoContent, NotFound>> DeleteYard(string id,

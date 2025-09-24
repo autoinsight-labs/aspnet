@@ -26,5 +26,12 @@ namespace AutoInsightAPI.Repositories
 
         return qrCode?.Vehicle;
       }
+
+      public async Task<Vehicle> CreateAsync(Vehicle vehicle)
+      {
+        _db.Vehicles.Add(vehicle);
+        await _db.SaveChangesAsync();
+        return vehicle;
+      }
     }
 }
