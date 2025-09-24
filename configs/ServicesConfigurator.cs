@@ -101,7 +101,7 @@ public static class ServicesConfigurator
                 document.Tags = new List<OpenApiTag>
                 {
                     new OpenApiTag { Name = "yard", Description = "Yard management: CRUD operations for yards with auto-generated IDs and flexible address creation." },
-                    new OpenApiTag { Name = "employee", Description = "Yard employee management: CRUD operations with role-based access and auto-generated IDs." },
+                    new OpenApiTag { Name = "employee", Description = "Yard employee management: Read and Delete operations for existing employees (creation via invite system)." },
                     new OpenApiTag { Name = "invite", Description = "Employee invitation system: create, accept, reject, and list invites with status tracking (PENDING/ACCEPTED/REJECTED)." },
                     new OpenApiTag { Name = "vehicle", Description = "Vehicle and yard-vehicle associations: supports flexible creation with existing or new vehicles/models." }
                 };

@@ -66,38 +66,6 @@ Response Codes:
                 return op;
             });
 
-        employeeGroup.MapPost("/", CreateYardEmployeeInvite)
-            .WithSummary("Create yard employee invite")
-            .WithDescription(@"Creates an invitation for a new employee to join the yard. This will send an invite that the user must accept.
-Example Request Body:
-```json
-{
-    ""name"": ""Jane Doe"",
-    ""email"": ""jane@example.com"",
-    ""role"": ""ADMIN""
-}
-```
-")
-            .Accepts<CreateYardEmployeeDto>("application/json")
-            .Produces<EmployeeInviteDto>(StatusCodes.Status201Created)
-            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status409Conflict)
-            .AddEndpointFilter<ValidationFilter<CreateYardEmployeeDto>>()
-            .WithOpenApi(HandlerHelpers.BuildOpenApiOperation(
-                "CreateYardEmployeeInvite",
-                new Dictionary<string, (ParameterLocation, string)>
-                {
-                    { "id", (ParameterLocation.Path, "Yard identifier") }
-                },
-                ("Example payload to create a yard employee invite.", new OpenApiObject
-                {
-                    ["name"] = new OpenApiString("Jane Doe"),
-                    ["email"] = new OpenApiString("jane@example.com"),
-                    ["role"] = new OpenApiString("ADMIN")
-                })
-            ));
-
         employeeGroup.MapGet("/{employeeId}", GetYardEmployeeById)
             .WithSummary("Get yard employee by id")
             .WithDescription(@"Returns the employee data by id within the yard context.
@@ -213,43 +181,6 @@ Example Request Body:
             yardEmployeeRepository.ListPagedAsync,
             new ResourceContext(mapper, linkService, "yards", "employees")
         );
-    }
-
-    private static async Task<Results<Created<EmployeeInviteDto>, NotFound, Conflict>> CreateYardEmployeeInvite(
-        IYardRepository yardRepository,
-        IEmployeeInviteRepository inviteRepository,
-        IMapper mapper,
-        ILinkService linkService,
-        string id,
-        CreateYardEmployeeDto createYardEmployeeDto
-    )
-    {
-        var yard = await yardRepository.FindAsync(id);
-        if (yard is null)
-            return TypedResults.NotFound();
-
-        // Verificar se já existe convite pendente para este email neste yard
-        var existingInvite = await inviteRepository.FindByEmailAndYardAsync(createYardEmployeeDto.Email, id);
-        if (existingInvite is not null)
-            return TypedResults.Conflict();
-
-        // Gerar token único
-        var token = Guid.NewGuid().ToString("N");
-
-        var newInvite = new EmployeeInvite(
-            email: createYardEmployeeDto.Email,
-            name: createYardEmployeeDto.Name,
-            role: createYardEmployeeDto.Role,
-            token: token,
-            yard: yard
-        );
-
-        var createdInvite = await inviteRepository.CreateAsync(newInvite);
-        var inviteDto = mapper.Map<EmployeeInviteDto>(createdInvite);
-
-        inviteDto.Links = linkService.GenerateResourceLinks($"yards/{id}/invites", createdInvite.Id);
-
-        return TypedResults.Created($"/yards/{id}/invites/{createdInvite.Id}", inviteDto);
     }
 
     private static async Task<Results<Ok<YardEmployeeDto>, NotFound>> GetYardEmployeeById(
