@@ -81,8 +81,16 @@ O projeto utiliza Entity Framework Core com Oracle Database e inclui as seguinte
    ```
 
 6. **Acesse a documentação:**
-   - Swagger/Scalar: `http://localhost:5100/scalar/v1`
-   - OpenAPI: `http://localhost:5100/openapi/v1.json`
+   - Scalar UI: `http://localhost:5100/scalar`
+   - OpenAPI JSON: `http://localhost:5100/openapi/v1.json`
+
+### Sobre a Documentação OpenAPI/Scalar
+
+- **Título e descrição**: O documento OpenAPI é gerado com título "AutoInsight API" e descrição completa do domínio e recursos.
+- **Tags**: Endpoints organizados por `yard`, `employee` e `vehicle`.
+- **Sumário e descrição**: Cada rota possui `.WithSummary()` e `.WithDescription()` detalhando comportamento, parâmetros e códigos de resposta.
+- **OperationId**: Definida por rota para facilitar geração de clientes e rastreabilidade.
+- **Exibição no Scalar**: Interface moderna para navegar por rotas, schemas e experimentar requisições.
 
 ## 📋 Rotas da API
 

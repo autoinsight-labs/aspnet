@@ -4,6 +4,9 @@ using AutoInsightAPI.Repositories;
 using AutoInsightAPI.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
+using AutoInsightAPI.Validators;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 
 namespace AutoInsightAPI.handlers;
 
@@ -11,13 +14,186 @@ public static class EmployeeHandler
 {
     public static void Map(WebApplication app)
     {
-        var employeeGroup = app.MapGroup("/yards/{id}/employees").WithTags("yard", "employee");
+        var employeeGroup = app.MapGroup("/yards/{id}/employees").WithTags("yard", "employee")
+            .WithDescription("Manage yard employees: list, create, get, update and delete.");
 
-        employeeGroup.MapGet("/", GetYardEmployees);
-        employeeGroup.MapPost("/", CreateYardEmployee);
-        employeeGroup.MapGet("/{employeeId}", GetYardEmployeeById);
-        employeeGroup.MapDelete("/{employeeId}", DeleteYardEmployee);
-        employeeGroup.MapPatch("/{employeeId}", UpdateYardEmployee);
+        employeeGroup.MapGet("/", GetYardEmployees)
+            .WithSummary("List yard employees")
+            .WithDescription(@"Retrieves a paginated list of employees for a specific yard.
+
+Path Parameters:
+- id (string): Yard identifier
+
+Query Parameters:
+- pageNumber (optional): Page number to retrieve. Must be greater than zero. Default: 1
+- pageSize (optional): Number of items per page. Must be greater than zero. Default: 10
+
+Example Request:
+`GET /yards/yrd_123/employees?pageNumber=1&pageSize=10`
+
+Example Response (200 OK):
+```json
+{
+  ""pageNumber"": 1,
+  ""pageSize"": 10,
+  ""totalPages"": 1,
+  ""totalRecords"": 2,
+  ""data"": [
+    {
+      ""id"": ""emp_001"",
+      ""name"": ""Jane Doe"",
+      ""imageUrl"": ""https://cdn.example.com/jane.png"",
+      ""role"": ""ADMIN"",
+      ""userId"": ""usr_002""
+    }
+  ]
+}
+```
+
+Response Codes:
+- 200 OK: Returns paginated employees (`PagedResponseDto<YardEmployeeDto>`)
+- 400 Bad Request: Invalid `pageNumber` or `pageSize` (<= 0)
+- 404 Not Found: Yard not found
+- 500 Internal Server Error: Unexpected server error")
+            .WithName("ListYardEmployees")
+            .Produces<Dtos.PagedResponseDto<YardEmployeeDto>>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithOpenApi(op =>
+            {
+                op.OperationId = "ListYardEmployees";
+                return op;
+            });
+
+        employeeGroup.MapPost("/", CreateYardEmployee)
+            .WithSummary("Create yard employee")
+            .WithDescription(@"Adds a new employee to the specified yard. Role must be one of ADMIN or MEMBER.
+Example Request Body:
+```json
+{
+    ""name"": ""Jane Doe"",
+    ""imageUrl"": ""https://cdn.example.com/jane.png"",
+    ""role"": ""ADMIN"",
+    ""userId"": ""usr_002""
+}
+```
+")
+            .Accepts<YardEmployeeDto>("application/json")
+            .Produces<YardEmployeeDto>(StatusCodes.Status201Created)
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .AddEndpointFilter<ValidationFilter<YardEmployeeDto>>()
+            .WithOpenApi(HandlerHelpers.BuildOpenApiOperation(
+                "CreateYardEmployee",
+                new Dictionary<string, (ParameterLocation, string)>
+                {
+                    { "id", (ParameterLocation.Path, "Yard identifier") }
+                },
+                ("Example payload to create a yard employee.", new OpenApiObject
+                {
+                    ["name"] = new OpenApiString("Jane Doe"),
+                    ["imageUrl"] = new OpenApiString("https://cdn.example.com/jane.png"),
+                    ["role"] = new OpenApiString("ADMIN"),
+                    ["userId"] = new OpenApiString("usr_002")
+                })
+            ));
+
+        employeeGroup.MapGet("/{employeeId}", GetYardEmployeeById)
+            .WithSummary("Get yard employee by id")
+            .WithDescription(@"Returns the employee data by id within the yard context.
+
+Path Parameters:
+- id (string): Yard identifier
+- employeeId (string): Employee identifier
+
+Example Request:
+`GET /yards/yrd_123/employees/emp_001`
+
+Example Response (200 OK):
+```json
+{
+  ""id"": ""emp_001"",
+  ""name"": ""Jane Doe"",
+  ""imageUrl"": ""https://cdn.example.com/jane.png"",
+  ""role"": ""ADMIN"",
+  ""userId"": ""usr_002""
+}
+```
+
+Response Codes:
+- 200 OK: Returns the employee data (`YardEmployeeDto`)
+- 404 Not Found: Yard or employee not found
+- 500 Internal Server Error: Unexpected server error")
+            .Produces<YardEmployeeDto>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithOpenApi(op =>
+            {
+                op.OperationId = "GetYardEmployeeById";
+                return op;
+            });
+
+        employeeGroup.MapDelete("/{employeeId}", DeleteYardEmployee)
+            .WithSummary("Delete yard employee")
+            .WithDescription(@"Removes the specified employee from the yard.
+
+Path Parameters:
+- id (string): Yard identifier
+- employeeId (string): Employee identifier
+
+Example Request:
+`DELETE /yards/yrd_123/employees/emp_001`
+
+Example Response (204 No Content):
+(Empty response body)
+
+Response Codes:
+- 204 No Content: Employee successfully removed
+- 404 Not Found: Yard or employee not found
+- 500 Internal Server Error: Unexpected server error")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithOpenApi(op =>
+            {
+                op.OperationId = "DeleteYardEmployee";
+                return op;
+            });
+
+        employeeGroup.MapPatch("/{employeeId}", UpdateYardEmployee)
+            .WithSummary("Update yard employee")
+            .WithDescription(@"Updates the employee data within the yard. All fields are replace operations.
+Example Request Body:
+```json
+{
+    ""name"": ""Jane Doe"",
+    ""imageUrl"": ""https://cdn.example.com/jane.png"",
+    ""role"": ""MEMBER"",
+    ""userId"": ""usr_002""
+}
+```
+")
+            .Accepts<YardEmployeeDto>("application/json")
+            .Produces<YardEmployeeDto>(StatusCodes.Status200OK)
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .AddEndpointFilter<ValidationFilter<YardEmployeeDto>>()
+            .WithOpenApi(HandlerHelpers.BuildOpenApiOperation(
+                "UpdateYardEmployee",
+                new Dictionary<string, (ParameterLocation, string)>
+                {
+                    { "id", (ParameterLocation.Path, "Yard identifier") },
+                    { "employeeId", (ParameterLocation.Path, "Employee identifier") }
+                },
+                ("Example payload to update a yard employee.", new OpenApiObject
+                {
+                    ["name"] = new OpenApiString("Jane Doe"),
+                    ["imageUrl"] = new OpenApiString("https://cdn.example.com/jane.png"),
+                    ["role"] = new OpenApiString("MEMBER"),
+                    ["userId"] = new OpenApiString("usr_002")
+                })
+            ));
     }
 
     private static async Task<Results<Ok<PagedResponseDto<YardEmployeeDto>>, BadRequest, NotFound>> GetYardEmployees(
@@ -30,52 +206,14 @@ public static class EmployeeHandler
         int pageSize = 10
     )
     {
-        if (pageNumber <= 0)
-        {
-            return TypedResults.BadRequest(
-                // TypedResults.Problem(
-                //     title: "Bad Request",
-                //     detail: $"{nameof(pageNumber)} must be greater than 0",
-                //     statusCode: StatusCodes.Status400BadRequest
-                // )
-            );
-        }
-
-        if (pageSize <= 0)
-        {
-            return TypedResults.BadRequest(
-                // TypedResults.Problem(
-                //     title: "Bad Request",
-                //     detail: $"{nameof(pageSize)} must be greater than 0",
-                //     statusCode: StatusCodes.Status400BadRequest
-                // )
-            );
-        }
-
-        var yard = await yardRepository.FindAsync(id);
-
-        if (yard is null)
-        {
-            return TypedResults.NotFound(
-                // TypedResults.Problem(
-                //     title: "Not Found",
-                //     detail: $"Yard with id '{id}' not found.",
-                //     statusCode: StatusCodes.Status404NotFound
-                // )
-            );
-        }
-
-        var employees = await yardEmployeeRepository.ListPagedAsync(pageNumber, pageSize, yard);
-        var employeesResponse = mapper.Map<PagedResponseDto<YardEmployeeDto>>(employees);
-
-        employeesResponse.Links = linkService.GenerateCollectionLinks($"yards/{id}/employees", pageNumber, pageSize, employees.TotalPages);
-
-        foreach (var employee in employeesResponse.Data)
-        {
-            employee.Links = linkService.GenerateResourceLinks($"yards/{id}/employees", employee.Id);
-        }
-
-        return TypedResults.Ok(employeesResponse);
+        return await HandlerHelpers.HandlePagedListWithParent<Yard, YardEmployee, YardEmployeeDto>(
+            id,
+            pageNumber,
+            pageSize,
+            yardRepository.FindAsync,
+            yardEmployeeRepository.ListPagedAsync,
+            new ResourceContext(mapper, linkService, "yards", "employees")
+        );
     }
 
     private static async Task<Results<Created<YardEmployeeDto>, NotFound>> CreateYardEmployee(
@@ -91,13 +229,7 @@ public static class EmployeeHandler
 
         if (yard is null)
         {
-            return TypedResults.NotFound(
-                // TypedResults.Problem(
-                //     title: "Not Found",
-                //     detail: $"Yard with id '{id}' not found.",
-                //     statusCode: StatusCodes.Status404NotFound
-                // )
-            );
+            return TypedResults.NotFound();
         }
 
         var newEmployee = new YardEmployee(
@@ -125,37 +257,13 @@ public static class EmployeeHandler
         string id, string employeeId
     )
     {
-        var yard = await yardRepository.FindAsync(id);
-
-        if (yard is null)
-        {
-            return TypedResults.NotFound(
-                // TypedResults.Problem(
-                //     title: "Not Found",
-                //     detail: $"Yard with id '{id}' not found.",
-                //     statusCode: StatusCodes.Status404NotFound
-                // )
-            );
-        }
-
-        var yardEmployee = await yardEmployeeRepository.FindAsync(employeeId);
-
-        if (yardEmployee is null)
-        {
-            return TypedResults.NotFound(
-                // TypedResults.Problem(
-                //     title: "Not Found",
-                //     detail: $"Yard employee with id '{employeeId}' not found.",
-                //     statusCode: StatusCodes.Status404NotFound
-                // )
-            );
-        }
-
-        var yardEmployeeResult = mapper.Map<YardEmployeeDto>(yardEmployee);
-
-        yardEmployeeResult.Links = linkService.GenerateResourceLinks($"yards/{id}/employees", yardEmployee.Id);
-
-        return TypedResults.Ok(yardEmployeeResult);
+        return await HandlerHelpers.HandleGetChildById<Yard, YardEmployee, YardEmployeeDto>(
+            id,
+            employeeId,
+            yardRepository.FindAsync,
+            yardEmployeeRepository.FindAsync,
+            new ResourceContext(mapper, linkService, "yards", "employees")
+        );
     }
 
     private static async Task<Results<NoContent, NotFound>> DeleteYardEmployee(
@@ -165,38 +273,16 @@ public static class EmployeeHandler
         string employeeId
     )
     {
-        var yard = await yardRepository.FindAsync(id);
-
-        if (yard is null)
-        {
-            return TypedResults.NotFound(
-                // TypedResults.Problem(
-                //     title: "Not Found",
-                //     detail: $"Yard with id '{id}' not found.",
-                //     statusCode: StatusCodes.Status404NotFound
-                // )
-            );
-        }
-
-        var yardEmployee = await yardEmployeeRepository.FindAsync(employeeId);
-
-        if (yardEmployee is null)
-        {
-            return TypedResults.NotFound(
-                // TypedResults.Problem(
-                //     title: "Not Found",
-                //     detail: $"Yard employee with id '{employeeId}' not found.",
-                //     statusCode: StatusCodes.Status404NotFound
-                // )
-            );
-        }
-
-        await yardEmployeeRepository.DeleteAsync(yardEmployee);
-
-        return TypedResults.NoContent();
+        return await HandlerHelpers.HandleDeleteChild<Yard, YardEmployee>(
+            id,
+            employeeId,
+            yardRepository.FindAsync,
+            yardEmployeeRepository.FindAsync,
+            yardEmployeeRepository.DeleteAsync
+        );
     }
 
-    private static async Task<Results<Ok<YardEmployeeDto>, BadRequest, NotFound>> UpdateYardEmployee(
+    private static async Task<Results<Ok<YardEmployeeDto>, NotFound>> UpdateYardEmployee(
         IYardRepository yardRepository,
         IYardEmployeeRepository yardEmployeeRepository,
         IMapper mapper,
@@ -206,50 +292,14 @@ public static class EmployeeHandler
         string employeeId
     )
     {
-        if (!Enum.IsDefined(typeof(EmployeeRole), yardEmployeeDto.Role))
-        {
-            return TypedResults.BadRequest(
-                // TypedResults.Problem(
-                //     title: "Invalid Role",
-                //     detail: $"The role value '{yardEmployeeDTO.Role}' is not valid.",
-                //     statusCode: StatusCodes.Status400BadRequest
-                // )
-            );
-        }
-
-        var yard = await yardRepository.FindAsync(id);
-
-        if (yard is null)
-        {
-            return TypedResults.NotFound(
-                // TypedResults.Problem(
-                //     title: "Not Found",
-                //     detail: $"Yard with id '{id}' not found.",
-                //     statusCode: StatusCodes.Status404NotFound
-                // )
-            );
-        }
-
-        var yardEmployee = await yardEmployeeRepository.FindAsync(employeeId);
-
-        if (yardEmployee is null)
-        {
-            return TypedResults.NotFound(
-                // TypedResults.Problem(
-                //     title: "Not Found",
-                //     detail: $"Yard employee with id '{employeeId}' not found.",
-                //     statusCode: StatusCodes.Status404NotFound
-                // )
-            );
-        }
-
-        mapper.Map(yardEmployeeDto, yardEmployee);
-        await yardEmployeeRepository.UpdateAsync();
-
-        var newYardEmployee = mapper.Map<YardEmployeeDto>(yardEmployee);
-
-        newYardEmployee.Links = linkService.GenerateResourceLinks($"yards/{id}/employees", yardEmployee.Id);
-
-        return TypedResults.Ok(newYardEmployee);
+        return await HandlerHelpers.HandleUpdateChild<Yard, YardEmployee, YardEmployeeDto>(
+            id,
+            employeeId,
+            yardEmployeeDto,
+            yardRepository.FindAsync,
+            yardEmployeeRepository.FindAsync,
+            yardEmployeeRepository.UpdateAsync,
+            new ResourceContext(mapper, linkService, "yards", "employees")
+        );
     }
 }

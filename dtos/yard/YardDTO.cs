@@ -2,11 +2,10 @@ using AutoInsightAPI.Dtos.Common;
 
 namespace AutoInsightAPI.Dtos
 {
-  public class YardDto : HateoasResourceDto
+  public class YardDto : HateoasResourceDto, IIdentifiable
   {
-    public string Id {get; private set;}
-
-    public AddressDto Address {get; set;}
-    public string OwnerId {get; set;}
+    public string Id { get; private set; } = string.Empty;
+    public AddressDto Address { get; set; } = new();
+    public string OwnerId { get; set; } = string.Empty;
   }
 }

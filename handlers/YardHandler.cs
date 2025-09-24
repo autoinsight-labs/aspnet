@@ -4,6 +4,9 @@ using AutoInsightAPI.Repositories;
 using AutoInsightAPI.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
+using AutoInsightAPI.Validators;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 
 namespace AutoInsightAPI.handlers;
 
@@ -13,13 +16,242 @@ public static class YardHandler
     
     public static void Map(WebApplication app)
     {
-        var yardGroup = app.MapGroup($"/{YardResource}").WithTags("yard");
+        var yardGroup = app.MapGroup($"/{YardResource}").WithTags("yard")
+            .WithDescription("Endpoints to manage yards. Supports pagination, get by id, create, update and delete.");
 
-        yardGroup.MapGet("/", GetYards);
-        yardGroup.MapGet("/{id}", GetYardById);
-        yardGroup.MapPost("/", CreateYard);
-        yardGroup.MapDelete("/{id}", DeleteYard);
-        yardGroup.MapPatch("/{id}",  UpdateYard);
+        yardGroup.MapGet("/", GetYards)
+            .WithSummary("List yards")
+            .WithDescription(@"Retrieves a paginated list of all yards registered in the system.
+
+Query Parameters:
+- pageNumber (optional): Page number to retrieve. Must be greater than zero. Default: 1
+- pageSize (optional): Number of items per page. Must be greater than zero. Default: 10
+
+Example Request:
+`GET /yards?pageNumber=1&pageSize=5`
+
+Example Response (200 OK):
+```json
+{
+  ""pageNumber"": 1,
+  ""pageSize"": 5,
+  ""totalPages"": 3,
+  ""totalRecords"": 15,
+  ""data"": [
+    {
+      ""id"": ""yrd_123"",
+      ""ownerId"": ""usr_owner_001"",
+      ""address"": {
+        ""country"": ""BR"",
+        ""state"": ""SP"",
+        ""city"": ""São Paulo"",
+        ""zipCode"": ""01311-000"",
+        ""neighborhood"": ""Bela Vista""
+      }
+    }
+  ]
+}
+```
+
+Example Error Response (400 Bad Request):
+```json
+{
+  ""statusCode"": 400,
+  ""message"": ""Page number must be greater than zero.""
+}
+```
+
+Response Codes:
+- 200 OK: Returns paginated yards data (`PagedResponseDto<YardDto>`)
+- 400 Bad Request: Invalid `pageNumber` or `pageSize` (<= 0)
+- 500 Internal Server Error: Unexpected server error")
+            .WithName("ListYards")
+            .Produces<Dtos.PagedResponseDto<YardDto>>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithOpenApi(op =>
+            {
+                op.OperationId = "ListYards";
+                op.Parameters.Add(new()
+                {
+                    Name = "pageNumber",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Query,
+                    Description = "Page number (>= 1)",
+                    Required = false
+                });
+                op.Parameters.Add(new()
+                {
+                    Name = "pageSize",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Query,
+                    Description = "Page size (>= 1)",
+                    Required = false
+                });
+                return op;
+            });
+
+        yardGroup.MapGet("/{id}", GetYardById)
+            .WithSummary("Get yard by id")
+            .WithDescription(@"Retrieves detailed information about a specific yard using its unique identifier.
+
+Path Parameters:
+- id (string): Unique identifier of the yard
+
+Example Request:
+`GET /yards/yrd_123`
+
+Example Response (200 OK):
+```json
+{
+  ""id"": ""yrd_123"",
+  ""ownerId"": ""usr_owner_001"",
+  ""address"": {
+    ""country"": ""BR"",
+    ""state"": ""SP"",
+    ""city"": ""São Paulo"",
+    ""zipCode"": ""01311-000"",
+    ""neighborhood"": ""Bela Vista""
+  }
+}
+```
+
+Example Error Response (404 Not Found):
+```json
+{
+  ""statusCode"": 404,
+  ""message"": ""Yard with id not found""
+}
+```
+
+Response Codes:
+- 200 OK: Returns yard data (`YardDto`)
+- 404 Not Found: Yard with the specified ID does not exist
+- 500 Internal Server Error: Unexpected server error")
+            .WithName("GetYardById")
+            .Produces<YardDto>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithOpenApi(op =>
+            {
+                op.OperationId = "GetYardById";
+                return op;
+            });
+
+        yardGroup.MapPost("/", CreateYard)
+            .WithSummary("Create yard")
+            .WithDescription(@"Creates a new yard. The provided address must be complete, and ownerId must reference an existing user.
+Example Request Body:
+```json
+{
+    ""ownerId"": ""usr_owner_001"",
+    ""address"": {
+        ""country"": ""BR"",
+        ""state"": ""SP"",
+        ""city"": ""São Paulo"",
+        ""zipCode"": ""01311-000"",
+        ""neighborhood"": ""Bela Vista"",
+        ""complement"": ""Av. Paulista, 1106""
+    }
+}
+```
+
+Example Response (201 Created):
+```json
+{
+  ""id"": ""yrd_123"",
+  ""ownerId"": ""usr_owner_001"",
+  ""address"": {
+    ""country"": ""BR"",
+    ""state"": ""SP"",
+    ""city"": ""São Paulo"",
+    ""zipCode"": ""01311-000"",
+    ""neighborhood"": ""Bela Vista""
+  }
+}
+```
+")
+            .Accepts<YardDto>("application/json")
+            .Produces<YardDto>(StatusCodes.Status201Created)
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .AddEndpointFilter<ValidationFilter<YardDto>>()
+            .WithOpenApi(HandlerHelpers.BuildOpenApiOperation(
+                "CreateYard",
+                requestBody: ("Example payload to create a yard.", new OpenApiObject
+                {
+                    ["ownerId"] = new OpenApiString("usr_owner_001"),
+                    ["address"] = new OpenApiObject
+                    {
+                        ["country"] = new OpenApiString("BR"),
+                        ["state"] = new OpenApiString("SP"),
+                        ["city"] = new OpenApiString("São Paulo"),
+                        ["zipCode"] = new OpenApiString("01311-000"),
+                        ["neighborhood"] = new OpenApiString("Bela Vista"),
+                        ["complement"] = new OpenApiString("Av. Paulista, 1106")
+                    }
+                })
+            ));
+
+        yardGroup.MapDelete("/{id}", DeleteYard)
+            .WithSummary("Delete yard")
+            .WithDescription(@"Permanently deletes a yard from the system.
+
+Path Parameters:
+- id (string): Unique identifier of the yard to delete
+
+Example Request:
+`DELETE /yards/yrd_123`
+
+Example Response (204 No Content):
+(Empty response body)
+
+Response Codes:
+- 204 No Content: Yard successfully deleted
+- 404 Not Found: Yard with the specified ID does not exist
+- 500 Internal Server Error: Unexpected server error")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithOpenApi(op =>
+            {
+                op.OperationId = "DeleteYard";
+                return op;
+            });
+
+        yardGroup.MapPatch("/{id}", UpdateYard)
+            .WithSummary("Update yard")
+            .WithDescription(@"Updates an existing yard by id. At least one field must be provided.
+Example Request Body:
+```json
+{
+    ""ownerId"": ""usr_owner_001"",
+    ""address"": {
+        ""city"": ""São Paulo"",
+        ""neighborhood"": ""Bela Vista""
+    }
+}
+```
+")
+            .Accepts<YardDto>("application/json")
+            .Produces<YardDto>(StatusCodes.Status200OK)
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .AddEndpointFilter<ValidationFilter<YardDto>>()
+            .WithOpenApi(HandlerHelpers.BuildOpenApiOperation(
+                "UpdateYard",
+                new Dictionary<string, (ParameterLocation, string)>
+                {
+                    { "id", (ParameterLocation.Path, "Yard identifier") }
+                },
+                ("Example payload to update a yard.", new OpenApiObject
+                {
+                    ["ownerId"] = new OpenApiString("usr_owner_001"),
+                    ["address"] = new OpenApiObject
+                    {
+                        ["city"] = new OpenApiString("São Paulo"),
+                        ["neighborhood"] = new OpenApiString("Bela Vista")
+                    }
+                })
+            ));
     }
 
     private static async Task<Results<Ok<PagedResponseDto<YardDto>>, BadRequest>> GetYards(
@@ -30,39 +262,14 @@ public static class YardHandler
         int pageSize = 10
     )
     {
-        if (pageNumber <= 0)
-        {
-            return TypedResults.BadRequest(
-                // TypedResults.Problem(
-                //     title: "Bad Request",
-                //     detail: $"{nameof(pageNumber)} must be greater than 0",
-                //     statusCode: StatusCodes.Status400BadRequest
-                // )
-            );
-        }
-
-        if (pageSize <= 0)
-        {
-            return TypedResults.BadRequest(
-                // TypedResults.Problem(
-                //     title: "Bad Request",
-                //     detail: $"{nameof(pageSize)} must be greater than 0",
-                //     statusCode: StatusCodes.Status400BadRequest
-                // )
-            );
-        }
-
-        var yards = await yardRepository.ListPagedAsync(pageNumber, pageSize);
-        var yardsResponse = mapper.Map<PagedResponseDto<YardDto>>(yards);
-
-        yardsResponse.Links = linkService.GenerateCollectionLinks(YardResource, pageNumber, pageSize, yards.TotalPages);
-
-        foreach (var yard in yardsResponse.Data)
-        {
-            yard.Links = linkService.GenerateResourceLinks(YardResource, yard.Id);
-        }
-
-        return TypedResults.Ok(yardsResponse);
+        return await HandlerHelpers.HandlePagedList<Yard, YardDto>(
+            pageNumber,
+            pageSize,
+            yardRepository.ListPagedAsync,
+            mapper,
+            linkService,
+            YardResource
+        );
     }
 
     private static async Task<Results<Ok<YardDto>, NotFound>> GetYardById(
@@ -72,61 +279,40 @@ public static class YardHandler
         ILinkService linkService
     )
     {
-        var yard = await yardRepository.FindAsync(id);
-
-        if (yard is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        var yardResponse = mapper.Map<YardDto>(yard);
-
-        yardResponse.Links = linkService.GenerateResourceLinks(YardResource, yard.Id);
-
-        return TypedResults.Ok(yardResponse);
+        return await HandlerHelpers.HandleGetById<Yard, YardDto>(
+            id,
+            yardRepository.FindAsync,
+            mapper,
+            linkService,
+            YardResource
+        );
     }
 
-    private static async Task<Results<Created<YardDto>, ProblemHttpResult>> CreateYard(
+    private static async Task<Results<Created<YardDto>, BadRequest>> CreateYard(
         YardDto yardDto,
         IYardRepository yardRepository,
         IMapper mapper,
         ILinkService linkService
     )
     {
-        try
-        {
-            var createdYard = await yardRepository.CreateAsync(mapper.Map<Yard>(yardDto));
-
-            var yardDtoResult = mapper.Map<YardDto>(createdYard);
-
-            yardDtoResult.Links = linkService.GenerateResourceLinks(YardResource, createdYard.Id);
-
-            return TypedResults.Created($"/{YardResource}/{createdYard.Id}", yardDtoResult);
-        }
-        catch (Exception)
-        {
-            return TypedResults.Problem(
-                title: "Internal Server Error",
-                detail: "Something went wrong, please try again.",
-                statusCode: StatusCodes.Status500InternalServerError
-            );
-        }
+        return await HandlerHelpers.HandleCreate<Yard, YardDto>(
+            yardDto,
+            yardRepository.CreateAsync,
+            mapper,
+            linkService,
+            YardResource
+        );
     }
 
     private static async Task<Results<NoContent, NotFound>> DeleteYard(string id,
         IYardRepository yardRepository
     )
     {
-        var existingYard = await yardRepository.FindAsync(id);
-
-        if (existingYard is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        await yardRepository.DeleteAsync(existingYard);
-
-        return TypedResults.NoContent();
+        return await HandlerHelpers.HandleDelete<Yard>(
+            id,
+            yardRepository.FindAsync,
+            yardRepository.DeleteAsync
+        );
     }
 
     private static async Task<Results<Ok<YardDto>, NotFound>> UpdateYard(
@@ -137,21 +323,14 @@ public static class YardHandler
         ILinkService linkService
     )
     {
-        var existingYard = await yardRepository.FindAsync(id);
-
-        if (existingYard is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        mapper.Map(yardDto, existingYard);
-
-        await yardRepository.UpdateAsync();
-
-        var newYard = mapper.Map<YardDto>(existingYard);
-
-        newYard.Links = linkService.GenerateResourceLinks(YardResource, existingYard.Id);
-
-        return TypedResults.Ok(newYard);
+        return await HandlerHelpers.HandleUpdate<Yard, YardDto>(
+            id,
+            yardDto,
+            yardRepository.FindAsync,
+            yardRepository.UpdateAsync,
+            mapper,
+            linkService,
+            YardResource
+        );
     }
 }
