@@ -8,7 +8,6 @@ namespace AutoInsightAPI.Validators
         public CreateYardVehicleDtoValidator()
         {
             RuleFor(x => x.Status).IsInEnum().WithMessage("Status must be a valid value.");
-            RuleFor(x => x.EnteredAt).NotNull().WithMessage("EnteredAt is required.");
             
             RuleFor(x => x)
                 .Must(x => !string.IsNullOrEmpty(x.VehicleId) ^ (x.Vehicle != null))

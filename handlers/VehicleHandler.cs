@@ -10,7 +10,7 @@ using Microsoft.OpenApi.Models;
 
 namespace AutoInsightAPI.handlers;
 
-public record struct CreateYardVehicleRepositories(
+public record CreateYardVehicleRepositories(
     IYardRepository YardRepository,
     IYardVehicleRepository YardVehicleRepository,
     IVehicleRepository VehicleRepository,

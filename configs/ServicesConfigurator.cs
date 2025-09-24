@@ -1,8 +1,9 @@
 using System.Text.Json.Serialization;
-using AutoInsightAPI.models;
+using AutoInsightAPI.Models;
 using AutoInsightAPI.Profiles;
 using AutoInsightAPI.Repositories;
 using AutoInsightAPI.Services;
+using AutoInsightAPI.handlers;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.OpenApi;
@@ -41,6 +42,14 @@ public static class ServicesConfigurator
         services.AddScoped<IYardVehicleRepository, YardVehicleRepository>();
         services.AddScoped<IVehicleRepository, VehicleRepository>();
         services.AddScoped<IModelRepository, ModelRepository>();
+        
+        services.AddScoped<CreateYardVehicleRepositories>(provider => 
+            new CreateYardVehicleRepositories(
+                provider.GetRequiredService<IYardRepository>(),
+                provider.GetRequiredService<IYardVehicleRepository>(),
+                provider.GetRequiredService<IVehicleRepository>(),
+                provider.GetRequiredService<IModelRepository>()
+            ));
 
         services.AddHttpContextAccessor();
         services.AddScoped<ILinkService, LinkService>();
