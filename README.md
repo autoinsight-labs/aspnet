@@ -2,45 +2,59 @@
 
 ## 🚀 Sobre o Projeto
 
-A **AutoInsight API** é uma API RESTful desenvolvida em ASP.NET Core .NET 9.0 para gestão inteligente de pátios e frotas de motocicletas. A API fornece endpoints completos para gerenciamento de pátios, funcionários, veículos e suas relações, com integração ao banco de dados Oracle e documentação automática via OpenAPI/Scalar.
+A **AutoInsight API** é uma API RESTful desenvolvida em ASP.NET Core (.NET 9.0) para a gestão inteligente de pátios e frotas de motocicletas. A API fornece endpoints completos para o gerenciamento de pátios, funcionários, veículos e seus relacionamentos, com integração ao banco de dados Oracle e documentação automática via OpenAPI/Scalar.
 
 ## 👥 Equipe de Desenvolvimento
 
-| Nome | RM | E-mail | GitHub | LinkedIn |
-|------|-------|---------|---------|----------|
-| Arthur Vieira Mariano | RM554742 | arthvm@proton.me | [@arthvm](https://github.com/arthvm) | [arthvm](https://linkedin.com/in/arthvm/) |
+| Nome                      | RM       | E-mail                  | GitHub                                      | LinkedIn                                            |
+| ------------------------- | -------- | ----------------------- | ------------------------------------------- | --------------------------------------------------- |
+| Arthur Vieira Mariano     | RM554742 | arthvm@proton.me        | [@arthvm](https://github.com/arthvm)        | [arthvm](https://linkedin.com/in/arthvm/)           |
 | Guilherme Henrique Maggiorini | RM554745 | guimaggiorini@gmail.com | [@guimaggiorini](https://github.com/guimaggiorini) | [guimaggiorini](https://linkedin.com/in/guimaggiorini/) |
-| Ian Rossato Braga | RM554989 | ian007953@gmail.com | [@iannrb](https://github.com/iannrb) | [ianrossato](https://linkedin.com/in/ianrossato/) |
+| Ian Rossato Braga         | RM554989 | ian007953@gmail.com     | [@iannrb](https://github.com/iannrb)        | [ianrossato](https://linkedin.com/in/ianrossato/)   |
+
+## 🏛️ Justificativa da Arquitetura
+
+A arquitetura desta API foi projetada para ser moderna, performática e de fácil manutenção, utilizando padrões e tecnologias consolidadas no ecossistema .NET.
+
+-   **Minimal APIs**: Escolhida para reduzir o *boilerplate* e aumentar a performance. Com a abordagem de Minimal APIs, o código fica mais limpo, direto e otimizado para cenários de alta performance, como o de uma API REST.
+
+-   **Repository Pattern**: Utilizado para abstrair a camada de acesso a dados. Isso desacopla a lógica de negócio das tecnologias de persistência (neste caso, o Entity Framework Core), facilitando a manutenção, a testabilidade e a possibilidade de trocar o provedor de banco de dados no futuro sem grande impacto.
+
+-   **DTOs (Data Transfer Objects)**: Adotados para criar um contrato claro e seguro entre o cliente e a API. O uso de DTOs impede a exposição de detalhes internos dos modelos de domínio (*over-posting*), melhora a segurança e permite que a API evolua sem quebrar os clientes.
+
+-   **Injeção de Dependência**: O projeto faz uso extensivo da injeção de dependência nativa do ASP.NET Core para gerenciar o ciclo de vida dos serviços, como os repositórios e mappers, promovendo um código mais modular e testável.
 
 ## 🛠️ Tecnologias Utilizadas
 
 ### Stack Principal
-- **.NET 9.0** - Framework principal
-- **ASP.NET Core** - Minimal API
-- **Entity Framework Core 9.0.4** - ORM
-- **Oracle Database** - Banco de dados principal
-- **AutoMapper 14.0.0** - Mapeamento de objetos
-- **Scalar 2.3.0** - Documentação da API
+- **.NET 9.0**: Framework principal
+- **ASP.NET Core**: Minimal API
+- **Entity Framework Core 9.0.4**: ORM
+- **Oracle Database**: Banco de dados principal
+- **AutoMapper 14.0.0**: Mapeamento de objetos
+- **Scalar 2.3.0**: Documentação da API
+- **FluentValidation 11.3.1**: Validação de requisições
+- **DotNetEnv 3.1.1**: Carregamento de variáveis de ambiente
 
 ### Arquitetura
-- **Minimal API** - Implementação de rotas
-- **Repository Pattern** - Abstração de acesso a dados
-- **DTOs** - Transferência de dados
-- **Migrations** - Controle de versão do banco
+- **Minimal API**: Implementação de rotas
+- **Repository Pattern**: Abstração de acesso a dados
+- **DTOs**: Transferência de dados
+- **Migrations**: Controle de versão do banco de dados
 
 ## 🗄️ Estrutura do Banco de Dados
 
 O projeto utiliza Entity Framework Core com Oracle Database e inclui as seguintes entidades:
 
-- **Yards** - Pátios de motocicletas
-- **Vehicles** - Veículos/motocicletas
-- **YardEmployees** - Funcionários dos pátios
-- **YardVehicles** - Relação entre pátios e veículos
-- **Addresses** - Endereços
-- **QRCodes** - Códigos QR para identificação
-- **Bookings** - Reservas
-- **Models** - Modelos de motocicletas
-- **EmployeeInvites** - Convites para funcionários
+- **Yards**: Pátios de motocicletas
+- **Vehicles**: Veículos/motocicletas
+- **YardEmployees**: Funcionários do pátio
+- **YardVehicles**: Relação entre pátios e veículos
+- **Addresses**: Endereços
+- **QRCodes**: Códigos QR para identificação
+- **Bookings**: Reservas
+- **Models**: Modelos de motocicletas
+- **EmployeeInvites**: Convites para funcionários
 
 ## 🚀 Como Executar o Projeto
 
@@ -50,6 +64,7 @@ O projeto utiliza Entity Framework Core com Oracle Database e inclui as seguinte
 - .NET Entity Framework CLI
 - Oracle Database
 - Git
+- Docker (opcional, para execução em contêiner)
 
 ### Instalação
 
@@ -84,107 +99,131 @@ O projeto utiliza Entity Framework Core com Oracle Database e inclui as seguinte
    - Scalar UI: `http://localhost:5100/scalar`
    - OpenAPI JSON: `http://localhost:5100/openapi/v1.json`
 
-### Sobre a Documentação OpenAPI/Scalar
+### Executando com Docker
 
-- **Título e descrição**: O documento OpenAPI é gerado com título "AutoInsight API" e descrição completa do domínio e recursos.
-- **Tags**: Endpoints organizados por `yard`, `employee` e `vehicle`.
-- **Sumário e descrição**: Cada rota possui `.WithSummary()` e `.WithDescription()` detalhando comportamento, parâmetros e códigos de resposta.
-- **OperationId**: Definida por rota para facilitar geração de clientes e rastreabilidade.
-- **Exibição no Scalar**: Interface moderna para navegar por rotas, schemas e experimentar requisições.
+1. **Construa a imagem Docker:**
+   ```bash
+   docker build -t autoinsight-api .
+   ```
+
+2. **Execute o contêiner:**
+   ```bash
+   docker run -p 8080:8080 -e ORACLE_CONNECTION_STRING="sua_connection_string_aqui" autoinsight-api
+   ```
 
 ## 📋 Rotas da API
 
 ### Health Check
-| Método | Endpoint | Descrição | Retorno |
-|--------|----------|-----------|---------|
-| GET | `/health` | Verificação de saúde da API | 200 OK |
+| Método | Endpoint  | Descrição                 | Retorno |
+| ------ | --------- | ------------------------- | ------- |
+| GET    | `/health` | Verificação de saúde da API | 200 OK  |
 
-### 🏢 Yards (Pátios)
-| Método | Endpoint | Descrição | Parâmetros                   | Retorno |
-|--------|----------|-----------|------------------------------|---------|
-| GET | `/yards` | Lista pátios com paginação | `pageNumber`, `pageSize`     | 200 OK, 400 BadRequest |
-| GET | `/yards/{id}` | Busca pátio por ID | `id` (path)                  | 200 OK, 404 NotFound |
-| POST | `/yards` | Cria novo pátio | Body: `YardDto`              | 201 Created, 500 InternalServerError |
-| PUT | `/yards/{id}` | Atualiza pátio existente | `id` (path), Body: `YardDto` | 200 OK, 404 NotFound |
-| DELETE | `/yards/{id}` | Remove pátio | `id` (path)                  | 204 NoContent, 404 NotFound |
+### 🏢 Pátios (Yards)
+| Método | Endpoint      | Descrição                  | Parâmetros                      | Retorno                        |
+| ------ | ------------- | -------------------------- | ------------------------------- | ------------------------------ |
+| GET    | `/yards`      | Lista pátios com paginação | `pageNumber`, `pageSize`        | 200 OK, 400 BadRequest         |
+| GET    | `/yards/{id}` | Busca pátio por ID         | `id` (path)                     | 200 OK, 404 NotFound           |
+| POST   | `/yards`      | Cria novo pátio            | Body: `CreateYardDto`           | 201 Created, 500 InternalServerError |
+| PATCH  | `/yards/{id}` | Atualiza pátio existente   | `id` (path), Body: `YardDto`    | 200 OK, 404 NotFound           |
+| DELETE | `/yards/{id}` | Remove pátio               | `id` (path)                     | 204 NoContent, 404 NotFound    |
 
-### 👥 Employees (Funcionários)
-| Método | Endpoint | Descrição | Parâmetros | Retorno |
-|--------|----------|-----------|------------|---------|
-| GET | `/yards/{id}/employees` | Lista funcionários do pátio | `id` (path), `pageNumber`, `pageSize` | 200 OK, 400 BadRequest, 404 NotFound |
-| GET | `/yards/{id}/employees/{employeeId}` | Busca funcionário específico | `id`, `employeeId` (path) | 200 OK, 404 NotFound |
-| POST | `/yards/{id}/employees` | Adiciona funcionário ao pátio | `id` (path), Body: `YardEmployeeDto` | 201 Created, 404 NotFound |
-| PUT | `/yards/{id}/employees/{employeeId}` | Atualiza funcionário | `id`, `employeeId` (path), Body: `YardEmployeeDto` | 200 OK, 400 BadRequest, 404 NotFound |
-| DELETE | `/yards/{id}/employees/{employeeId}` | Remove funcionário | `id`, `employeeId` (path) | 204 NoContent, 404 NotFound |
+### 👥 Funcionários do Pátio (Yard Employees)
+| Método | Endpoint                         | Descrição                  | Parâmetros                                     | Retorno                                |
+| ------ | -------------------------------- | -------------------------- | ---------------------------------------------- | -------------------------------------- |
+| GET    | `/yards/{id}/employees`          | Lista funcionários do pátio | `id` (path), `pageNumber`, `pageSize`          | 200 OK, 400 BadRequest, 404 NotFound   |
+| GET    | `/yards/{id}/employees/{employeeId}` | Busca funcionário específico | `id`, `employeeId` (path)                      | 200 OK, 404 NotFound                   |
+| PATCH  | `/yards/{id}/employees/{employeeId}` | Atualiza funcionário       | `id`, `employeeId` (path), Body: `YardEmployeeDto` | 200 OK, 400 BadRequest, 404 NotFound   |
+| DELETE | `/yards/{id}/employees/{employeeId}` | Remove funcionário         | `id`, `employeeId` (path)                      | 204 NoContent, 404 NotFound            |
 
-### 🏍️ Vehicles (Veículos)
-| Método | Endpoint | Descrição | Parâmetros | Retorno |
-|--------|----------|-----------|------------|---------|
-| GET | `/vehicles` | Busca veículo por QR Code | `qrCodeId` (query) | 200 OK, 404 NotFound |
-| GET | `/vehicles/{id}` | Busca veículo por ID | `id` (path) | 200 OK, 404 NotFound |
+### 🏍️ Veículos (Vehicles)
+| Método | Endpoint     | Descrição                 | Parâmetros           | Retorno              |
+| ------ | ------------ | ------------------------- | -------------------- | -------------------- |
+| GET    | `/vehicles`  | Busca veículo por QR Code | `qrCodeId` (query)   | 200 OK, 404 NotFound |
+| GET    | `/vehicles/{id}` | Busca veículo por ID      | `id` (path)          | 200 OK, 404 NotFound |
 
-### 🏍️ Yard Vehicles (Veículos do Pátio)
-| Método | Endpoint | Descrição | Parâmetros | Retorno |
-|--------|----------|-----------|------------|---------|
-| GET | `/yards/{id}/vehicles` | Lista veículos do pátio | `id` (path), `pageNumber`, `pageSize` | 200 OK, 400 BadRequest, 404 NotFound |
-| GET | `/yards/{id}/vehicles/{yardVehicleId}` | Busca veículo específico do pátio | `id`, `yardVehicleId` (path) | 200 OK, 400 BadRequest, 404 NotFound |
-| POST | `/yards/{id}/vehicles` | Adiciona veículo ao pátio | `id` (path), Body: `YardVehicleDto` | 201 Created, 400 BadRequest, 404 NotFound |
-| PUT | `/yards/{id}/vehicles/{yardVehicleId}` | Atualiza veículo do pátio | `id`, `yardVehicleId` (path), Body: `YardVehicleDto` | 200 OK, 400 BadRequest, 404 NotFound |
+### 🏍️ Veículos do Pátio (Yard Vehicles)
+| Método | Endpoint                           | Descrição                    | Parâmetros                                      | Retorno                                |
+| ------ | ---------------------------------- | ---------------------------- | ----------------------------------------------- | -------------------------------------- |
+| GET    | `/yards/{id}/vehicles`             | Lista veículos do pátio      | `id` (path), `pageNumber`, `pageSize`           | 200 OK, 400 BadRequest, 404 NotFound   |
+| GET    | `/yards/{id}/vehicles/{yardVehicleId}` | Busca veículo específico do pátio | `id`, `yardVehicleId` (path)                    | 200 OK, 400 BadRequest, 404 NotFound   |
+| POST   | `/yards/{id}/vehicles`             | Adiciona veículo ao pátio    | `id` (path), Body: `CreateYardVehicleDto`       | 201 Created, 400 BadRequest, 404 NotFound |
+| PATCH  | `/yards/{id}/vehicles/{yardVehicleId}` | Atualiza veículo no pátio    | `id`, `yardVehicleId` (path), Body: `YardVehicleDto` | 200 OK, 400 BadRequest, 404 NotFound   |
 
-## 🎯 Funcionalidades Implementadas
+### ✉️ Convites (Invites)
+| Método | Endpoint                   | Descrição                        | Parâmetros                           | Retorno                                |
+| ------ | -------------------------- | -------------------------------- | ------------------------------------ | -------------------------------------- |
+| POST   | `/yards/{id}/invites`      | Cria convite de funcionário      | `id` (path), Body: `CreateYardEmployeeDto` | 201 Created, 404 NotFound, 409 Conflict |
+| GET    | `/yards/{id}/invites`      | Lista convites do pátio          | `id` (path), `pageNumber`, `pageSize`    | 200 OK, 400 BadRequest, 404 NotFound   |
+| POST   | `/invites/{token}/accept`  | Aceita convite                   | `token` (path), Body: `AcceptInviteDto`  | 200 OK, 404 NotFound, 409 Conflict      |
+| POST   | `/invites/{token}/reject`  | Rejeita convite                  | `token` (path)                       | 204 NoContent, 404 NotFound, 409 Conflict |
+| GET    | `/invites/user/{userId}`   | Lista convites aceitos do usuário | `userId` (path), `pageNumber`, `pageSize`  | 200 OK, 400 BadRequest                 |
+| GET    | `/invites/email/{email}`   | Lista convites pendentes por e-mail | `email` (path), `pageNumber`, `pageSize` | 200 OK, 400 BadRequest                 |
 
-### ✅ CRUD Completo
-- **Yards**: Criação, leitura, atualização e exclusão de pátios
-- **Employees**: Gestão completa de funcionários por pátio
-- **Vehicles**: Consulta e gestão de veículos
+## 📊 Exemplos de Uso
 
-### ✅ Rotas Parametrizadas
-- **Query Parameters**: Paginação (`pageNumber`, `pageSize`), filtros (`qrCodeId`)
-- **Path Parameters**: IDs de recursos (`id`, `employeeId`, `yardVehicleId`)
+A seguir, alguns exemplos de como interagir com a API utilizando `curl`.
 
-### ✅ Retornos HTTP Adequados
-- **200 OK**: Sucesso em consultas e atualizações
-- **201 Created**: Criação de novos recursos
-- **204 NoContent**: Exclusão bem-sucedida
-- **400 BadRequest**: Parâmetros inválidos
-- **404 NotFound**: Recurso não encontrado
-- **500 InternalServerError**: Erro interno do servidor
-
-### ✅ Integração com Oracle
-- Entity Framework Core com provider Oracle
-- Migrations para criação e versionamento das tabelas
-- Connection string via variável de ambiente
-
-### ✅ Documentação OpenAPI
-- Scalar UI para interface gráfica moderna
-- Documentação automática de todas as rotas
-- Schemas de request/response definidos
-
-## 📊 Exemplo de Uso
+### Criar um novo pátio
 
 ```bash
-# Listar pátios
-curl -X GET "http://localhost:5100/yards?pageNumber=1&pageSize=10"
-
-# Criar novo pátio
-curl http://localhost:5100/yards \
-  --request POST \
-  --header 'Content-Type: application/json' \
-  --data '{
-  "address": {
-    "country": "BR",
-    "state": "SP",
-    "city": "São Paulo",
-    "zipCode": "01311-000",
-    "neighborhood": "Bela Vista",
-    "complement": "Avenida Paulista, 1106"
-  },
-  "ownerId": "d51bqcy66s8o1lokzvquy6ux"
+curl -X POST http://localhost:5100/yards \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "ownerId": "usr_exemplo_001",
+    "address": {
+        "country": "BR",
+        "state": "SP",
+        "city": "São Paulo",
+        "zipCode": "01311-000",
+        "neighborhood": "Bela Vista",
+        "complement": "Av. Paulista, 1106"
+    }
 }'
-
-# Buscar veículo por QR Code
-curl -X GET "http://localhost:5100/vehicles?qrCodeId=QR123"
 ```
+
+### Adicionar um veículo a um pátio (criando um novo veículo)
+
+```bash
+curl -X POST http://localhost:5100/yards/{id_do_patio}/vehicles \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "status": "WAITING",
+    "enteredAt": "2025-09-26T10:00:00Z",
+    "vehicle": {
+        "plate": "BRA2E19",
+        "model": {
+            "name": "Honda Biz 125",
+            "year": 2023
+        },
+        "userId": "usr_exemplo_002"
+    }
+}'
+```
+
+### Listar os funcionários de um pátio
+
+```bash
+curl -X GET "http://localhost:5100/yards/{id_do_patio}/employees?pageNumber=1&pageSize=5"
+```
+
+## ✅ Testes Manuais
+
+Como o projeto ainda não possui uma suíte de testes automatizados, os testes podem ser realizados manualmente para garantir a qualidade e o funcionamento esperado da API.
+
+### Utilizando a Documentação Interativa (Scalar)
+
+A forma mais simples de testar os endpoints é através da interface do Scalar, que é gerada automaticamente a partir da especificação OpenAPI.
+
+1.  **Execute a API** localmente (`dotnet run`).
+2.  **Acesse a URL** da documentação no seu navegador: `http://localhost:5100/scalar`.
+3.  **Navegue pelos endpoints** na interface, preencha os parâmetros e corpos de requisição necessários e clique em "Execute" para enviar a requisição e observar a resposta.
+
+### Utilizando Ferramentas de Cliente HTTP (Postman, Insomnia, curl)
+
+Você também pode utilizar qualquer cliente HTTP de sua preferência para testar a API.
+
+-   **Importe a especificação OpenAPI**: A maioria das ferramentas modernas, como Postman e Insomnia, permite importar a especificação OpenAPI para criar uma coleção de requisições automaticamente. A especificação está disponível em `http://localhost:5100/openapi/v1.json`.
+-   **Crie as requisições manualmente**: Utilize os exemplos de `curl` fornecidos na seção anterior como base para montar suas requisições.
 
 ## 📝 Padrões de Desenvolvimento
 
@@ -192,7 +231,7 @@ curl -X GET "http://localhost:5100/vehicles?qrCodeId=QR123"
 - **DTOs** para transferência segura de dados
 - **AutoMapper** para mapeamento automático
 - **Minimal APIs** para performance otimizada
-- **Environment Variables** para configurações sensíveis
+- **Variáveis de Ambiente** para configurações sensíveis
 
 ## 📄 Licença
 
