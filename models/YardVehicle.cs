@@ -37,5 +37,12 @@ namespace AutoInsightAPI.Models
       this.YardId = yard.Id;
       this.Yard = yard;
     }
+
+    public void Update(Status status, DateTime? enteredAt, DateTime? leftAt)
+    {
+      this.Status = status;
+      this.EnteredAt = enteredAt;
+      this.LeftAt = leftAt;
+    }
   }
 }

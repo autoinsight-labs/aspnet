@@ -387,21 +387,27 @@ Option 3 - Create new vehicle and new model:
         YardVehicleDto yardVehicleDto
     )
     {
-        var result = await HandlerHelpers.HandleUpdateChild<Yard, YardVehicle, YardVehicleDto>(
-            id,
-            yardVehicleId,
-            yardVehicleDto,
-            yardRepository.FindAsync,
-            yardVehicleRepository.FindAsync,
-            yardVehicleRepository.UpdateAsync,
-            new ResourceContext(mapper, linkService, "yards", VehicleResource)
+        var yard = await yardRepository.FindAsync(id);
+        if (yard is null)
+            return TypedResults.NotFound();
+
+        var yardVehicle = await yardVehicleRepository.FindAsync(yardVehicleId);
+        if (yardVehicle is null)
+            return TypedResults.NotFound();
+
+        yardVehicle.Update(
+            yardVehicleDto.Status,
+            yardVehicleDto.EnteredAt,
+            yardVehicleDto.LeftAt
         );
-        
-        return result.Result switch
-        {
-            Ok<YardVehicleDto> ok => TypedResults.Ok(ok.Value),
-            _ => TypedResults.NotFound()
-        };
+
+        await yardVehicleRepository.UpdateAsync();
+
+        var response = mapper.Map<YardVehicleDto>(yardVehicle);
+        response.Links = linkService.GenerateResourceLinks($"yards/{id}/vehicles", yardVehicleId);
+        response.Vehicle.Links = linkService.GenerateResourceLinks(VehicleResource, response.Vehicle.Id);
+
+        return TypedResults.Ok(response);
     }
 
     private static async Task<Results<Created<YardVehicleDto>, BadRequest, NotFound>> CreateYardVehicle(
