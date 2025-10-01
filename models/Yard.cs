@@ -24,5 +24,12 @@ namespace AutoInsightAPI.Models
       this.Address = address;
       this.OwnerId = ownerId;
     }
+
+    public void Update(Address address, string ownerId)
+    {
+      this.AddressId = address.Id;
+      this.Address = address;
+      this.OwnerId = ownerId;
+    }
   }
 }

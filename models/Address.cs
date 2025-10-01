@@ -28,5 +28,15 @@ namespace AutoInsightAPI.Models
       this.Neighborhood = neighborhood;
       this.Complement = complement;
     }
+
+    public void Update(string country, string state, string city, string zipCode, string neighborhood, string? complement)
+    {
+      this.Country = country;
+      this.State = state;
+      this.City = city;
+      this.ZipCode = zipCode;
+      this.Neighborhood = neighborhood;
+      this.Complement = complement;
+    }
   }
 }

@@ -43,5 +43,13 @@ namespace AutoInsightAPI.Models
       this.YardId = yard.Id;
       this.Yard = yard;
     }
+
+    public void Update(string name, string? imageUrl, EmployeeRole role, string userId)
+    {
+      this.Name = name;
+      this.ImageUrl = imageUrl;
+      this.Role = role;
+      this.UserId = userId;
+    }
   }
 }

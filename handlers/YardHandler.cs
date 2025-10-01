@@ -323,14 +323,26 @@ Example Request Body:
         ILinkService linkService
     )
     {
-        return await HandlerHelpers.HandleUpdate<Yard, YardDto>(
-            id,
-            yardDto,
-            yardRepository.FindAsync,
-            yardRepository.UpdateAsync,
-            mapper,
-            linkService,
-            YardResource
+        var yard = await yardRepository.FindAsync(id);
+        if (yard is null)
+            return TypedResults.NotFound();
+
+        yard.Address.Update(
+            yardDto.Address.Country,
+            yardDto.Address.State,
+            yardDto.Address.City,
+            yardDto.Address.ZipCode,
+            yardDto.Address.Neighborhood,
+            yardDto.Address.Complement
         );
+
+        yard.Update(yard.Address, yardDto.OwnerId);
+
+        await yardRepository.UpdateAsync();
+
+        var response = mapper.Map<YardDto>(yard);
+        response.Links = linkService.GenerateResourceLinks(YardResource, id);
+
+        return TypedResults.Ok(response);
     }
 }

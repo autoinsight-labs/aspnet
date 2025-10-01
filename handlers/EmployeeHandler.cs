@@ -226,14 +226,26 @@ Example Request Body:
         string employeeId
     )
     {
-        return await HandlerHelpers.HandleUpdateChild<Yard, YardEmployee, YardEmployeeDto>(
-            id,
-            employeeId,
-            yardEmployeeDto,
-            yardRepository.FindAsync,
-            yardEmployeeRepository.FindAsync,
-            yardEmployeeRepository.UpdateAsync,
-            new ResourceContext(mapper, linkService, "yards", "employees")
+        var yard = await yardRepository.FindAsync(id);
+        if (yard is null)
+            return TypedResults.NotFound();
+
+        var employee = await yardEmployeeRepository.FindAsync(employeeId);
+        if (employee is null)
+            return TypedResults.NotFound();
+
+        employee.Update(
+            yardEmployeeDto.Name,
+            yardEmployeeDto.ImageUrl,
+            yardEmployeeDto.Role,
+            yardEmployeeDto.UserId
         );
+
+        await yardEmployeeRepository.UpdateAsync();
+
+        var response = mapper.Map<YardEmployeeDto>(employee);
+        response.Links = linkService.GenerateResourceLinks($"yards/{id}/employees", employeeId);
+
+        return TypedResults.Ok(response);
     }
 }
