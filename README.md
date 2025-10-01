@@ -206,11 +206,88 @@ curl -X POST http://localhost:5100/yards/{id_do_patio}/vehicles \\
 curl -X GET "http://localhost:5100/yards/{id_do_patio}/employees?pageNumber=1&pageSize=5"
 ```
 
-## ✅ Testes Manuais
+## ✅ Testes
 
-Como o projeto ainda não possui uma suíte de testes automatizados, os testes podem ser realizados manualmente para garantir a qualidade e o funcionamento esperado da API.
+### Testes Automatizados (Script test.sh)
 
-### Utilizando a Documentação Interativa (Scalar)
+O projeto inclui um script de testes automatizado (`test.sh`) que valida todas as operações CRUD da API. Este script testa:
+
+- ✓ Health check da API
+- ✓ CRUD completo de Pátios (Yards)
+- ✓ CRUD completo de Funcionários (Yard Employees)
+- ✓ Operações de Convites (Invites)
+- ✓ CRUD completo de Veículos do Pátio (Yard Vehicles)
+- ✓ Consultas de Veículos (Vehicles)
+- ✓ Operações de exclusão e limpeza
+
+#### Pré-requisitos
+
+Antes de executar o script de testes, certifique-se de ter instalado:
+
+- `curl`: Cliente HTTP para linha de comando (geralmente já instalado)
+- `jq`: Processador JSON para linha de comando
+
+**Instalação do jq no macOS:**
+```bash
+brew install jq
+```
+
+**Instalação do jq no Linux (Ubuntu/Debian):**
+```bash
+sudo apt-get install jq
+```
+
+#### Como Executar os Testes
+
+1. **Certifique-se de que a API está rodando:**
+   ```bash
+   dotnet run
+   ```
+   A API deve estar disponível em `http://localhost:5100`
+
+2. **Em outro terminal, execute o script de testes:**
+   ```bash
+   # Dar permissão de execução (apenas na primeira vez)
+   chmod +x test.sh
+   
+   # Executar os testes
+   ./test.sh
+   ```
+
+3. **Executar contra uma API em outro endereço:**
+   ```bash
+   # Customizar IP e porta
+   API_IP=192.168.1.100 API_PORT=8080 ./test.sh
+   ```
+
+#### Interpretando os Resultados
+
+O script fornece saída colorida e detalhada:
+
+- 🟢 **Verde**: Testes que passaram com sucesso
+- 🔴 **Vermelho**: Testes que falharam
+- 🟡 **Amarelo**: Teste em execução
+- 🔵 **Azul**: Informações adicionais
+- 🟣 **Magenta**: Respostas da API
+
+Ao final, você verá um resumo:
+```
+========================================
+TEST SUMMARY
+========================================
+
+Total Tests Run:     25
+Tests Passed:        25
+Tests Failed:        0
+
+✓ ALL TESTS PASSED!
+```
+
+### Testes Manuais
+
+Além do script automatizado, você pode realizar testes manuais para garantir a qualidade e o funcionamento esperado da API.
+
+#### Utilizando a Documentação Interativa (Scalar)
 
 A forma mais simples de testar os endpoints é através da interface do Scalar, que é gerada automaticamente a partir da especificação OpenAPI.
 
@@ -218,7 +295,7 @@ A forma mais simples de testar os endpoints é através da interface do Scalar, 
 2.  **Acesse a URL** da documentação no seu navegador: `http://localhost:5100/scalar`.
 3.  **Navegue pelos endpoints** na interface, preencha os parâmetros e corpos de requisição necessários e clique em "Execute" para enviar a requisição e observar a resposta.
 
-### Utilizando Ferramentas de Cliente HTTP (Postman, Insomnia, curl)
+#### Utilizando Ferramentas de Cliente HTTP (Postman, Insomnia, curl)
 
 Você também pode utilizar qualquer cliente HTTP de sua preferência para testar a API.
 
