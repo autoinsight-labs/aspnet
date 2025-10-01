@@ -1,5 +1,7 @@
 using AutoInsightAPI.configs;
 using AutoInsightAPI.handlers;
+using AutoInsightAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 DotNetEnv.Env.Load();
 
@@ -8,6 +10,22 @@ var builder = WebApplication.CreateBuilder(args);
 ServicesConfigurator.Configure(builder.Services);
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AutoInsightDb>();
+        context.Database.Migrate();
+        app.Logger.LogInformation("Database migrations applied successfully");
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "An error occurred while migrating the database");
+        throw;
+    }
+}
 
 MiddlewareConfigurator.Configure(app);
 
